@@ -127,6 +127,91 @@
     // Print full message.
     NSLog(@"%@", mutableUserInfo);
     completionHandler(UIBackgroundFetchResultNewData);
+
+
+    // Pring full message.
+    NSLog(@"[FIREBASE] [Remote Notification Received] didR complete%@", mutableUserInfo);
+
+    if (self.applicationInBackground && [[mutableUserInfo objectForKey:@"nfor"]  isEqual: @"local_notification"]) {
+        NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        NSString* fileName = @"notificationMapping.json";
+        NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
+
+        // The main act...
+        NSString* fileContent = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:fileAtPath] encoding:NSUTF8StringEncoding];
+
+        if ([fileContent  isEqual: @""]) {
+            fileContent = @"{}";
+        }
+
+//        NSLog(@"[FIREBASE] [Remote Notification Received] inside %@", fileContent);
+
+        NSError *jsonError;
+        NSData *objectData = [fileContent dataUsingEncoding:NSUTF8StringEncoding];
+        NSMutableDictionary *oldMapping = [[NSJSONSerialization JSONObjectWithData:objectData
+                                                                     options:NSJSONReadingMutableContainers
+                                                                       error:&jsonError] mutableCopy];
+
+        int randomNumber = arc4random_uniform(99999);
+        NSLog(@"[FIREBASE] [Remote Notification Received] random Number %d", randomNumber);
+
+        NSString* converstionTarget = [mutableUserInfo objectForKey:@"n_t"];
+
+        for (id key in oldMapping) {
+            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
+
+            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
+                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
+            }
+        }
+
+        NSMutableArray *notificationIds=[[NSMutableArray alloc]init];
+        if (oldMapping[converstionTarget]) {
+            if([[oldMapping objectForKey:converstionTarget] isKindOfClass:[NSArray class]]){
+
+                for(NSNumber *notificationId in [oldMapping objectForKey:converstionTarget]) {
+                    [notificationIds addObject:notificationId];
+                }
+            }
+        }
+        [notificationIds addObject:[NSNumber numberWithInt:randomNumber]];
+
+        [oldMapping setObject:notificationIds forKey:converstionTarget];
+
+        for (id key in oldMapping) {
+            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
+
+            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
+                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
+            }
+        }
+
+        NSError * err;
+        NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:oldMapping options:0 error:&err];
+        NSString * newMapping = [[NSString alloc] initWithData:jsonData   encoding:NSUTF8StringEncoding];
+        NSLog(@"%@", newMapping);
+
+
+
+        if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
+            [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
+        }
+
+        // The main act...
+        [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
+
+
+
+        UILocalNotification *notification = [[UILocalNotification alloc] init];
+        notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
+        notification.alertBody = [mutableUserInfo objectForKey:@"n_b"];
+        notification.alertTitle = converstionTarget;
+        notification.timeZone = [NSTimeZone defaultTimeZone];
+        notification.soundName = UILocalNotificationDefaultSoundName;
+
+        [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+    }
+
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 }
 
