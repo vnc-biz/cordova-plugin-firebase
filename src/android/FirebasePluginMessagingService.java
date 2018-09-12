@@ -195,6 +195,38 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
 
             notificationManager.notify(id.hashCode(), notification);
+
+            final String fileName = "notificationMapping.json";
+
+            File file = new File(context.getFilesDir(), fileName);
+
+            try {
+
+                FileInputStream inputStream = context.openFileInput(filename);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject jsonObject = (JSONObject)jsonParser.parse(
+                    new InputStreamReader(inputStream, "UTF-8")
+                );
+                inputStream.close();
+
+                JSONArray arr = jsonObject.optJSONArray(title);
+
+                if (arr == null)
+                    jsonObject.put(title, arr = new JSONArray());
+
+                arr.put(id.hashCode());
+
+                FileOutputStream outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+                outputStream.write(jsonObject.toString().getBytes("UTF-8"));
+                outputStream.close();
+
+            } catch (Exception e) {
+                Log.e(TAG, "[vnc] error updating pending notification file", e);
+            }
+
+
+
         } else {
             bundle.putBoolean("tap", false);
             bundle.putString("title", title);
