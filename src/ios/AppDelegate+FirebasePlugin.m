@@ -144,8 +144,6 @@
             fileContent = @"{}";
         }
 
-//        NSLog(@"[FIREBASE] [Remote Notification Received] inside %@", fileContent);
-
         NSError *jsonError;
         NSData *objectData = [fileContent dataUsingEncoding:NSUTF8StringEncoding];
         NSMutableDictionary *oldMapping = [[NSJSONSerialization JSONObjectWithData:objectData
@@ -157,14 +155,6 @@
 
         NSString* converstionTarget = [mutableUserInfo objectForKey:@"n_t"];
         NSString* messageContent = [mutableUserInfo objectForKey:@"n_b"];
-
-        for (id key in oldMapping) {
-            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
-
-            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
-                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
-            }
-        }
 
         NSMutableArray *notificationIds=[[NSMutableArray alloc]init];
         if (oldMapping[converstionTarget]) {
@@ -178,14 +168,6 @@
         [notificationIds addObject:[NSNumber numberWithInt:randomNumber]];
 
         [oldMapping setObject:notificationIds forKey:converstionTarget];
-
-        for (id key in oldMapping) {
-            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
-
-            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
-                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
-            }
-        }
 
         NSError * err;
         NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:oldMapping options:0 error:&err];
@@ -201,18 +183,29 @@
         // Writing mapping back to file
         [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
 
+
+        // Payload of local notification
+        NSMutableDictionary *notificationPayload=[[NSMutableDictionary alloc]init];
+
+        [notificationPayload setValue:converstionTarget forKey:@"vncPeerJid"];
+        [notificationPayload setValue:@"chat" forKey:@"vncEventType"];
+
         // Content of Notification
         UNMutableNotificationContent *content = [UNMutableNotificationContent new];
         content.title = converstionTarget;
+        content.threadIdentifier = converstionTarget;
         content.body = messageContent;
+        content.userInfo = notificationPayload;
         content.sound = [UNNotificationSound defaultSound];
 
+        // Trigger of Notification
         UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1
                                                                                                         repeats:NO];
+
         // Identifier of Notification
         NSString *identifier = [NSString stringWithFormat:@"%d", randomNumber];
 
-        // Trigger of Notification
+        // Actually Firing the notification
         UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: identifier
                                                                               content:content trigger:trigger];
 
