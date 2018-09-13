@@ -132,12 +132,12 @@
     // Pring full message.
     NSLog(@"[FIREBASE] [Remote Notification Received] didR complete%@", mutableUserInfo);
 
-    if (self.applicationInBackground && [[mutableUserInfo objectForKey:@"nfor"]  isEqual: @"local_notification"]) {
+    if ([self.applicationInBackground isEqual:@1] && [[mutableUserInfo objectForKey:@"nfor"]  isEqual: @"local_notification"]) {
         NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSString* fileName = @"notificationMapping.json";
         NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
 
-        // The main act...
+        // Reading mapping from file
         NSString* fileContent = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:fileAtPath] encoding:NSUTF8StringEncoding];
 
         if ([fileContent  isEqual: @""]) {
@@ -156,6 +156,7 @@
         NSLog(@"[FIREBASE] [Remote Notification Received] random Number %d", randomNumber);
 
         NSString* converstionTarget = [mutableUserInfo objectForKey:@"n_t"];
+        NSString* messageContent = [mutableUserInfo objectForKey:@"n_b"];
 
         for (id key in oldMapping) {
             NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
@@ -197,19 +198,31 @@
             [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
         }
 
-        // The main act...
+        // Writing mapping back to file
         [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
 
+        // Content of Notification
+        UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+        content.title = converstionTarget;
+        content.body = messageContent;
+        content.sound = [UNNotificationSound defaultSound];
 
+        UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1
+                                                                                                        repeats:NO];
+        // Identifier of Notification
+        NSString *identifier = [NSString stringWithFormat:@"%d", randomNumber];
 
-        UILocalNotification *notification = [[UILocalNotification alloc] init];
-        notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
-        notification.alertBody = [mutableUserInfo objectForKey:@"n_b"];
-        notification.alertTitle = converstionTarget;
-        notification.timeZone = [NSTimeZone defaultTimeZone];
-        notification.soundName = UILocalNotificationDefaultSoundName;
+        // Trigger of Notification
+        UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: identifier
+                                                                              content:content trigger:trigger];
 
-        [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+
+        [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (error != nil) {
+                NSLog(@"[FIREBASE] Something went wrong: %@",error);
+            }
+        }];
     }
 
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
