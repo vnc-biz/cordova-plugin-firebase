@@ -174,11 +174,20 @@
         NSString * newMapping = [[NSString alloc] initWithData:jsonData   encoding:NSUTF8StringEncoding];
         NSLog(@"%@", newMapping);
 
-
-
+        // Writing to file
         if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
             [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
         }
+
+        // Registering General Category
+        UNNotificationCategory* category;
+        category = [UNNotificationCategory
+                    categoryWithIdentifier:@"GENERAL"
+                    actions:@[]
+                    intentIdentifiers:@[]
+                    options:UNNotificationCategoryOptionCustomDismissAction];
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        [center setNotificationCategories:[NSSet setWithObject:category]];
 
         // Writing mapping back to file
         [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
@@ -189,6 +198,7 @@
 
         [notificationPayload setValue:converstionTarget forKey:@"vncPeerJid"];
         [notificationPayload setValue:@"chat" forKey:@"vncEventType"];
+        [notificationPayload setValue:[NSNumber numberWithInt:randomNumber] forKey:@"id"];
 
         // Content of Notification
         UNMutableNotificationContent *content = [UNMutableNotificationContent new];
@@ -196,6 +206,7 @@
         content.threadIdentifier = converstionTarget;
         content.body = messageContent;
         content.userInfo = notificationPayload;
+        content.categoryIdentifier = @"GENERAL";
         content.sound = [UNNotificationSound defaultSound];
 
         // Trigger of Notification
@@ -208,8 +219,6 @@
         // Actually Firing the notification
         UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: identifier
                                                                               content:content trigger:trigger];
-
-        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
         [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
             if (error != nil) {
