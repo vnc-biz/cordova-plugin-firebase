@@ -19,11 +19,23 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.Gson;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
+
+    private static final class ActiveNotificationsStructure extends HashMap<String, HashSet<Integer>> {}
 
     /**
      * Get a string from resources without importing the .R package
@@ -122,6 +134,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             bundle.putString(key, data.get(key));
         }
 
+        Log.d(TAG, "[vnc] sendNotification title="+title+" id="+id+" body="+messageBody+" show="+showNotification);
+
         if (showNotification) {
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
@@ -195,6 +209,56 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
 
             notificationManager.notify(id.hashCode(), notification);
+
+            final String fileName = "activeNotifications.json";
+            Context context = this.getApplicationContext();
+            File activeNotificationsFile = new File(context.getFilesDir(), fileName);
+            ActiveNotificationsStructure activeNotifications = null;
+            JsonReader reader = null;
+            FileInputStream inputStream = null;
+            FileOutputStream outputStream = null;
+
+            try {
+
+                Gson gson = new Gson();
+
+                if (activeNotificationsFile.exists())
+                {
+                    Log.d(TAG, "[vnc] "+activeNotificationsFile.getCanonicalPath()+" exists");
+                    inputStream = context.openFileInput(fileName);
+                    reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
+                    activeNotifications = gson.fromJson(reader, ActiveNotificationsStructure.class);
+                    inputStream.close();
+                    inputStream = null;
+
+                } else {
+                    Log.d(TAG, "[vnc] "+activeNotificationsFile.getCanonicalPath()+" does not exist");
+                    activeNotifications = new ActiveNotificationsStructure();
+                }
+
+                if (!activeNotifications.containsKey(title))
+                    activeNotifications.put(title, new HashSet<Integer>());
+
+                activeNotifications.get(title).add(id.hashCode());
+                outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+                outputStream.write(gson.toJson(activeNotifications).getBytes("UTF-8"));
+                outputStream.close();
+                outputStream = null;
+
+            } catch (Exception e) {
+
+                Log.e(TAG, "[vnc] error updating pending notification file", e);
+
+            } finally {
+                if (inputStream != null)
+                    try { inputStream.close(); } catch (IOException e) {}
+
+                if (outputStream != null)
+                    try { outputStream.close(); } catch (IOException e) {}
+            }
+
+
+
         } else {
             bundle.putBoolean("tap", false);
             bundle.putString("title", title);
