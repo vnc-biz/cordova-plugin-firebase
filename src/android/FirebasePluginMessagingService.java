@@ -17,25 +17,31 @@ import android.graphics.Color;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.Gson;
+import java.util.Map;
+import java.util.Random;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
-
-    private static final class ActiveNotificationsStructure extends HashMap<String, HashSet<Integer>> {}
+    private static final String FILE_NAME="notificationMapping.json";
 
     /**
      * Get a string from resources without importing the .R package
@@ -58,6 +64,31 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
+     File file = new File(this.getFilesDir(), FILE_NAME);
+
+                FileReader fileReader = null;
+                FileWriter fileWriter = null;
+                BufferedReader bufferedReader = null;
+                BufferedWriter bufferedWriter = null;
+
+                String response = null;
+
+                if (!file.exists()) {
+                    try {
+                        file.createNewFile();
+                        fileWriter = new FileWriter(file.getAbsoluteFile());
+                        bufferedWriter = new BufferedWriter(fileWriter);
+                        bufferedWriter.write("{}");
+                        bufferedWriter.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+
+
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -91,14 +122,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             text = remoteMessage.getNotification().getBody();
             id = remoteMessage.getMessageId();
         } else if (data != null) {
-            title = data.get("title");
-            if (title == null) {
-                title = data.get("n_t");
-            }
-            text = data.get("text");
-            if (text == null) {
-                text = data.get("n_b");
-            }
+            title = data.get("n_t");
+            text = data.get("n_b");
             id = data.get("id");
             sound = data.get("sound");
             lights = data.get("lights"); //String containing hex ARGB color, miliseconds on, miliseconds off, example: '#FFFF00FF,1000,3000'
@@ -126,6 +151,45 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback()) && (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title));
             sendNotification(id, title, text, data, showNotification, sound, lights);
         }
+
+         try {
+
+                            StringBuffer output = new StringBuffer();
+                            fileReader = new FileReader(file.getAbsolutePath());
+                            bufferedReader = new BufferedReader(fileReader);
+
+                            String line = "";
+
+                            while ((line = bufferedReader.readLine()) != null) {
+                                output.append(line + "\n");
+                            }
+
+                            response = output.toString();
+
+                            bufferedReader.close();
+
+                            JSONObject messageDetails = new JSONObject(response);
+                            Boolean isUserExisting = messageDetails.has(title);
+
+                            if (isUserExisting) {
+                                JSONArray userMessages = (JSONArray) messageDetails.get(title);
+                                userMessages.put(id);
+                            } else {
+                                JSONArray newUserMessages = new JSONArray();
+                                newUserMessages.put(id);
+                                messageDetails.put(title, newUserMessages);
+                            }
+
+                            fileWriter = new FileWriter(file.getAbsoluteFile());
+                            BufferedWriter bw = new BufferedWriter(fileWriter);
+                            bw.write(messageDetails.toString());
+                            bw.close();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
     }
 
     private void sendNotification(String id, String title, String messageBody, Map<String, String> data, boolean showNotification, String sound, String lights) {
@@ -133,8 +197,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         for (String key : data.keySet()) {
             bundle.putString(key, data.get(key));
         }
-
-        Log.d(TAG, "[vnc] sendNotification title="+title+" id="+id+" body="+messageBody+" show="+showNotification);
 
         if (showNotification) {
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
@@ -156,7 +218,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
 
-            int resID = getResources().getIdentifier("notification_icon", "drawable", getPackageName());
+            int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
             if (resID != 0) {
                 notificationBuilder.setSmallIcon(resID);
             } else {
@@ -195,7 +257,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Notification notification = notificationBuilder.build();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 int iconID = android.R.id.icon;
-                int notiID = getResources().getIdentifier("notification_big", "drawable", getPackageName());
+                int notiID = getResources().getIdentifier("icon" +
+                        "", "mipmap", getPackageName());
                 if (notification.contentView != null) {
                     notification.contentView.setImageViewResource(iconID, notiID);
                 }
@@ -209,56 +272,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
 
             notificationManager.notify(id.hashCode(), notification);
-
-            final String fileName = "activeNotifications.json";
-            Context context = this.getApplicationContext();
-            File activeNotificationsFile = new File(context.getFilesDir(), fileName);
-            ActiveNotificationsStructure activeNotifications = null;
-            JsonReader reader = null;
-            FileInputStream inputStream = null;
-            FileOutputStream outputStream = null;
-
-            try {
-
-                Gson gson = new Gson();
-
-                if (activeNotificationsFile.exists())
-                {
-                    Log.d(TAG, "[vnc] "+activeNotificationsFile.getCanonicalPath()+" exists");
-                    inputStream = context.openFileInput(fileName);
-                    reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
-                    activeNotifications = gson.fromJson(reader, ActiveNotificationsStructure.class);
-                    inputStream.close();
-                    inputStream = null;
-
-                } else {
-                    Log.d(TAG, "[vnc] "+activeNotificationsFile.getCanonicalPath()+" does not exist");
-                    activeNotifications = new ActiveNotificationsStructure();
-                }
-
-                if (!activeNotifications.containsKey(title))
-                    activeNotifications.put(title, new HashSet<Integer>());
-
-                activeNotifications.get(title).add(id.hashCode());
-                outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-                outputStream.write(gson.toJson(activeNotifications).getBytes("UTF-8"));
-                outputStream.close();
-                outputStream = null;
-
-            } catch (Exception e) {
-
-                Log.e(TAG, "[vnc] error updating pending notification file", e);
-
-            } finally {
-                if (inputStream != null)
-                    try { inputStream.close(); } catch (IOException e) {}
-
-                if (outputStream != null)
-                    try { outputStream.close(); } catch (IOException e) {}
-            }
-
-
-
         } else {
             bundle.putBoolean("tap", false);
             bundle.putString("title", title);
