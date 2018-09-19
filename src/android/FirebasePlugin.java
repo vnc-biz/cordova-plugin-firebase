@@ -212,6 +212,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearAllNotifications")) {
             this.clearAllNotifications(callbackContext);
             return true;
+        } else if (action.equals("clear")) {
+            this.clear(callbackContext, args.getInt(0));
+            return true;
         }
 
         return false;
@@ -1102,6 +1105,23 @@ public class FirebasePlugin extends CordovaPlugin {
                   if(FirebasePlugin.crashlyticsInit()){
                     Crashlytics.log(e.getMessage());
                   }
+                }
+            }
+        });
+    }
+
+    public void clear(final CallbackContext callbackContext, final int id) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    Context context = cordova.getActivity();
+                    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    nm.cancel(id);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if(FirebasePlugin.crashlyticsInit()){
+                        Crashlytics.log(e.getMessage());
+                    }
                 }
             }
         });

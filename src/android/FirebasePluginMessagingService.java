@@ -194,14 +194,16 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private void sendNotification(String id, String title, String messageBody, Map<String, String> data, boolean showNotification, String sound, String lights) {
         Bundle bundle = new Bundle();
-        for (String key : data.keySet()) {
-            bundle.putString(key, data.get(key));
+        if (data != null) {
+            bundle.putString("vncPeerJid", title);
+            bundle.putString("vncEventType", messageBody);
+            bundle.putInt("id", Integer.parseInt(id));
         }
 
         if (showNotification) {
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             String channelId = this.getStringResource("default_notification_channel_id");
             String channelName = this.getStringResource("default_notification_channel_name");
@@ -271,12 +273,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 notificationManager.createNotificationChannel(channel);
             }
 
-            notificationManager.notify(id.hashCode(), notification);
-        } else {
-            bundle.putBoolean("tap", false);
-            bundle.putString("title", title);
-            bundle.putString("body", messageBody);
-            FirebasePlugin.sendNotification(bundle, this.getApplicationContext());
+            notificationManager.notify(Integer.parseInt(id), notification);
         }
     }
 }
