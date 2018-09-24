@@ -2,6 +2,7 @@
 #import "FirebasePlugin.h"
 #import "Firebase.h"
 #import <objc/runtime.h>
+#import <Foundation/Foundation.h>
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @import UserNotifications;
@@ -136,6 +137,30 @@
         NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
         NSString* fileName = @"notificationMapping.json";
         NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
+
+        if ([[mutableUserInfo objectForKey:@"nfor2"]  isEqual: @"local_notification"]) {
+            // Pinging RequestBin
+            NSDictionary *headers = @{ @"Cache-Control": @"no-cache",
+                                       @"Postman-Token": @"ad782b37-98d2-4d43-8dde-168080358703" };
+
+            NSMutableURLRequest *requestBinRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://http-reqbin.herokuapp.com/1acx0631"]
+                                                                   cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                               timeoutInterval:10.0];
+            [requestBinRequest setHTTPMethod:@"GET"];
+            [requestBinRequest setAllHTTPHeaderFields:headers];
+
+            NSURLSession *session = [NSURLSession sharedSession];
+            NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:requestBinRequest
+                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                            if (error) {
+                                                                NSLog(@"%@", error);
+                                                            } else {
+                                                                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+                                                                NSLog(@"%@", httpResponse);
+                                                            }
+                                                        }];
+            [dataTask resume];
+        }
 
         // Reading mapping from file
         NSString* fileContent = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:fileAtPath] encoding:NSUTF8StringEncoding];
