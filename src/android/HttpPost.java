@@ -31,7 +31,6 @@ class HttpPost implements Runnable {
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(context);
         mToken = getPreference(context, TOKEN_CONSTANT);
-        Log.i("VNC", mToken);
     }
 
     @Override
