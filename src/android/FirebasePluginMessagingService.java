@@ -5,10 +5,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 import android.app.Notification;
 import android.text.TextUtils;
@@ -17,6 +20,7 @@ import android.graphics.Color;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,16 +28,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 
 import java.util.Map;
 import java.util.Random;
@@ -42,13 +39,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
     private static final String FILE_NAME="notificationMapping.json";
+    private static final String NOTIFICATION_REPLY = "NotificationReply";
 
-    /**
-     * Get a string from resources without importing the .R package
-     *
-     * @param name Resource Name
-     * @return Resource
-     */
+    private static final int REQUEST_CODE_HELP = 101;
+    private static final String VNC_PEER_JID = "vncPeerJid";
+    private static final String  NOTIFY_ID = "id";
+
     private String getStringResource(String name) {
         return this.getString(
                 this.getResources().getIdentifier(
@@ -65,28 +61,28 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-     File file = new File(this.getFilesDir(), FILE_NAME);
+        File file = new File(this.getFilesDir(), FILE_NAME);
 
-                FileReader fileReader = null;
-                FileWriter fileWriter = null;
-                BufferedReader bufferedReader = null;
-                BufferedWriter bufferedWriter = null;
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        BufferedReader bufferedReader = null;
+        BufferedWriter bufferedWriter = null;
 
-                String response = null;
+        String response = null;
 
-                if (!file.exists()) {
-                    try {
-                        file.createNewFile();
-                        fileWriter = new FileWriter(file.getAbsoluteFile());
-                        bufferedWriter = new BufferedWriter(fileWriter);
-                        bufferedWriter.write("{}");
-                        bufferedWriter.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                fileWriter = new FileWriter(file.getAbsoluteFile());
+                bufferedWriter = new BufferedWriter(fileWriter);
+                bufferedWriter.write("{}");
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
-                }
+        }
 
 
         // [START_EXCLUDE]
@@ -139,66 +135,90 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             id = Integer.toString(n);
         }
 
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message id: " + id);
-        Log.d(TAG, "Notification Message Title: " + title);
-        Log.d(TAG, "Notification Message Body/Text: " + text);
-        Log.d(TAG, "Notification Message Sound: " + sound);
-        Log.d(TAG, "Notification Message Lights: " + lights);
-
         // TODO: Add option to developer to configure if show notification when app on foreground
         if (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title) || (data != null && !data.isEmpty())) {
             boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback()) && (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title));
             sendNotification(id, title, text, data, showNotification, sound, lights);
         }
 
-         try {
+        try {
 
-                            StringBuffer output = new StringBuffer();
-                            fileReader = new FileReader(file.getAbsolutePath());
-                            bufferedReader = new BufferedReader(fileReader);
+            StringBuffer output = new StringBuffer();
+            fileReader = new FileReader(file.getAbsolutePath());
+            bufferedReader = new BufferedReader(fileReader);
 
-                            String line = "";
+            String line = "";
 
-                            while ((line = bufferedReader.readLine()) != null) {
-                                output.append(line + "\n");
-                            }
+            while ((line = bufferedReader.readLine()) != null) {
+                output.append(line + "\n");
+            }
 
-                            response = output.toString();
+            response = output.toString();
 
-                            bufferedReader.close();
+            bufferedReader.close();
 
-                            JSONObject messageDetails = new JSONObject(response);
-                            Boolean isUserExisting = messageDetails.has(title);
+            JSONObject messageDetails = new JSONObject(response);
+            Boolean isUserExisting = messageDetails.has(title);
 
-                            if (isUserExisting) {
-                                JSONArray userMessages = (JSONArray) messageDetails.get(title);
-                                userMessages.put(id);
-                            } else {
-                                JSONArray newUserMessages = new JSONArray();
-                                newUserMessages.put(id);
-                                messageDetails.put(title, newUserMessages);
-                            }
+            if (isUserExisting) {
+                JSONArray userMessages = (JSONArray) messageDetails.get(title);
+                userMessages.put(id);
+            } else {
+                JSONArray newUserMessages = new JSONArray();
+                newUserMessages.put(id);
+                messageDetails.put(title, newUserMessages);
+            }
 
-                            fileWriter = new FileWriter(file.getAbsoluteFile());
-                            BufferedWriter bw = new BufferedWriter(fileWriter);
-                            bw.write(messageDetails.toString());
-                            bw.close();
+            fileWriter = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fileWriter);
+            bw.write(messageDetails.toString());
+            bw.close();
 
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendNotification(String id, String title, String messageBody, Map<String, String> data, boolean showNotification, String sound, String lights) {
         Bundle bundle = new Bundle();
         if (data != null) {
-            bundle.putString("vncPeerJid", title);
-            bundle.putString("vncEventType", messageBody);
-            bundle.putInt("id", Integer.parseInt(id));
+            bundle.putString(VNC_PEER_JID, title);
+            bundle.putString("vncEventType", "chat");
+            bundle.putInt(NOTIFY_ID, Integer.parseInt(id));
         }
+        PendingIntent replyPendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            replyPendingIntent = PendingIntent.getBroadcast(
+                    getApplicationContext(),
+                    REQUEST_CODE_HELP,
+                    new Intent(this, NotificationReceiver.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, title)
+                            .putExtra(NOTIFY_ID,id),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+        } else {
+            replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                    REQUEST_CODE_HELP,
+                    new Intent(this, ReplyActivity.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, title)
+                            .putExtra(NOTIFY_ID,id),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+                .addRemoteInput(new RemoteInput.Builder("Reply")
+                        .setLabel("Type your message").build())
+                .setAllowGeneratedReplies(true)
+                .build();
+
+
 
         if (showNotification) {
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
@@ -216,9 +236,13 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
                     .setAutoCancel(true)
-                    .setSound(defaultSoundUri)
+                    .setShowWhen(true)
                     .setContentIntent(pendingIntent)
+                    .addAction(action)
+                    .setSound(defaultSoundUri)
+                    .setGroup(title)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
+
 
             int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
             if (resID != 0) {
@@ -267,13 +291,18 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            // Since android Oreo notification channel is needed.
+           //  Since android Oreo notification channel is needed.
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
                 notificationManager.createNotificationChannel(channel);
             }
 
             notificationManager.notify(Integer.parseInt(id), notification);
+
+
         }
     }
+
 }
+
+
