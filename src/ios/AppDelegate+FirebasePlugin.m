@@ -204,11 +204,20 @@
             [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
         }
 
+
+        // Custom Reply Action.
+        UNNotificationAction* replyAction = [UNTextInputNotificationAction
+                                             actionWithIdentifier: converstionTarget
+                                             title:@"Reply Action"
+                                             options: UNNotificationActionOptionAuthenticationRequired
+                                             textInputButtonTitle: @"Reply"
+                                             textInputPlaceholder: @"Type Message Here..."];
+
         // Registering General Category
         UNNotificationCategory* category;
         category = [UNNotificationCategory
                     categoryWithIdentifier:@"GENERAL"
-                    actions:@[]
+                    actions:@[replyAction]
                     intentIdentifiers:@[]
                     options:UNNotificationCategoryOptionCustomDismissAction];
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
