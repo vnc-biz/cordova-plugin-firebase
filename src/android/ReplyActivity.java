@@ -24,9 +24,9 @@ public class ReplyActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.reply_activity);
-        mMessageTextField = (EditText) findViewById(R.id.reply_message);
-        mSendButton = (Button) findViewById(R.id.send_message);
-        mCancelButton = (Button) findViewById(R.id.cancel_message);
+        mMessageTextField = (EditText) findViewById(getResources().getIdentifier("reply_message", "id", getPackageName()));
+        mSendButton = (Button) findViewById(getResources().getIdentifier("send_message", "id", getPackageName()));
+        mCancelButton = (Button) findViewById(getResources().getIdentifier("cancel_message", "id", getPackageName()));
         mSendButton.setOnClickListener(this);
         mCancelButton.setOnClickListener(this);
     }
