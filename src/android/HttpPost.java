@@ -21,7 +21,10 @@ class HttpPost implements Runnable {
     private NotificationManager notificationManager;
     private NotificationCompat.Builder notificationBuilder;
     private String mToken;
+    private String mApiUrl;
     private static final String TOKEN_CONSTANT = "auth-token";
+    private static final String API_URL = "apiUrl";
+
 
     HttpPost(String body, String sender, int notificationId, Context context) {
         this.body = body;
@@ -31,6 +34,7 @@ class HttpPost implements Runnable {
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(context);
         mToken = getPreference(context, TOKEN_CONSTANT);
+        mApiUrl = getPreference(context, API_URL);
     }
 
     @Override
@@ -40,18 +44,19 @@ class HttpPost implements Runnable {
             Log.i("VNC", "Token : " + mToken);
             Log.i("VNC", "To : " + sender);
             Log.i("VNC", "Message : " + body);
+            Log.i("VNC", "Api Url : " + mApiUrl);
+
 
 
             JSONObject postData = new JSONObject();
-            postData.put("to", sender);
-            postData.put("body", body);
-            postData.put("token", mToken);
-            URL url = new URL("https://http-reqbin.herokuapp.com/120atb71");
-
+            postData.put("target", sender);
+            postData.put("messagetext", body);
+            URL url = new URL(mApiUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
             urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Authorization", mToken);
             urlConnection.setRequestMethod("POST");
             int resID = context.getResources().getIdentifier("logo", "drawable", context.getPackageName());
             if (resID != 0) {
