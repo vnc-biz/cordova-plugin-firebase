@@ -86,10 +86,8 @@ public class FirebasePlugin extends CordovaPlugin {
                     if (FirebasePlugin.notificationStack == null) {
                         FirebasePlugin.notificationStack = new ArrayList<Bundle>();
                     }
-                    if (extras.containsKey("google.message_id")) {
-                        extras.putBoolean("tap", true);
-                        notificationStack.add(extras);
-                    }
+                    extras.putBoolean("tap", true);
+                    notificationStack.add(extras);
                 }
             }
         });
