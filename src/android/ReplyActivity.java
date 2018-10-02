@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import biz.vnc.vnctalk.ekbodialog.R;
+
 
 public class ReplyActivity extends Activity implements View.OnClickListener {
     private EditText mMessageTextField;
@@ -23,7 +23,7 @@ public class ReplyActivity extends Activity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.reply_activity);
+        setContentView(getResources().getIdentifier("reply_activity", "layout", getPackageName()));
         mMessageTextField = (EditText) findViewById(getResources().getIdentifier("reply_message", "id", getPackageName()));
         mSendButton = (Button) findViewById(getResources().getIdentifier("send_message", "id", getPackageName()));
         mCancelButton = (Button) findViewById(getResources().getIdentifier("cancel_message", "id", getPackageName()));
