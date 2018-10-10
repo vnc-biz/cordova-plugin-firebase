@@ -112,6 +112,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
+		Log.d(TAG, "received empty data?");
                 return;
             }
 
@@ -127,7 +128,15 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 String message = notification.body;
                 String eventType = notification.eType;
 
+		Log.d(TAG, "Notification id: " + id);
+		Log.d(TAG, "Notification Target: " + target);
+		Log.d(TAG, "Notification username: " + target);
+		Log.d(TAG, "Notification groupName: " + target);
+		Log.d(TAG, "Notification message: " + target);
+		Log.d(TAG, "Notification eventType: " + target);
+
                 if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username) || TextUtils.isEmpty(message)) {
+		    Log.d(TAG, "returning due to empty values");
                     return;
                 }
 
@@ -220,6 +229,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
 
         if (showNotification) {
+	    Log.d(TAG, "going to show notification ");
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
