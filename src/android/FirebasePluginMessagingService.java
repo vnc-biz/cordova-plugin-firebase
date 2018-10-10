@@ -1,14 +1,18 @@
 package org.apache.cordova.firebase;
 
 import android.app.NotificationChannel;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 import android.app.Notification;
 import android.text.TextUtils;
@@ -17,6 +21,18 @@ import android.graphics.Color;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import java.util.Map;
 import java.util.Random;
@@ -24,13 +40,13 @@ import java.util.Random;
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
+    private static final String FILE_NAME = "notificationMapping.json";
+    private static final String NOTIFICATION_REPLY = "NotificationReply";
 
-    /**
-     * Get a string from resources without importing the .R package
-     *
-     * @param name Resource Name
-     * @return Resource
-     */
+    private static final int REQUEST_CODE_HELP = 101;
+    private static final String VNC_PEER_JID = "vncPeerJid";
+    private static final String NOTIFY_ID = "id";
+
     private String getStringResource(String name) {
         return this.getString(
                 this.getResources().getIdentifier(
@@ -46,6 +62,31 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
+        File file = new File(this.getFilesDir(), FILE_NAME);
+
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        BufferedReader bufferedReader = null;
+        BufferedWriter bufferedWriter = null;
+
+        String response = null;
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                fileWriter = new FileWriter(file.getAbsoluteFile());
+                bufferedWriter = new BufferedWriter(fileWriter);
+                bufferedWriter.write("{}");
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -65,84 +106,153 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        String title = "";
-        String text = "";
-        String id = "";
-        String sound = "";
-        String lights = "";
-        Map<String, String> data = remoteMessage.getData();
+        Map<String, String> payload = remoteMessage.getData();
+        JSONArray data;
+        try {
+            data = new JSONArray(payload.get("vnc"));
 
-        if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            text = remoteMessage.getNotification().getBody();
-            id = remoteMessage.getMessageId();
-        } else if (data != null) {
-            title = data.get("title");
-            if (title == null) {
-                title = data.get("n_t");
+            if (data == null || data.length() == 0) {
+                return;
             }
-            text = data.get("text");
-            if (text == null) {
-                text = data.get("n_b");
-            }
-            id = data.get("id");
-            sound = data.get("sound");
-            lights = data.get("lights"); //String containing hex ARGB color, miliseconds on, miliseconds off, example: '#FFFF00FF,1000,3000'
 
-            if (TextUtils.isEmpty(text)) {
-                text = data.get("body");
+            for (int i = 0; i < data.length(); i++) {
+
+                Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
+                Random rand = new Random();
+                int n = rand.nextInt(1000) + 1;
+                String id = Integer.toString(n);
+                String target = notification.jid;
+                String username = notification.name;
+                String groupName = notification.gt;
+                String message = notification.body;
+                String eventType = notification.eType;
+
+                if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username) || TextUtils.isEmpty(message)) {
+                    return;
+                }
+
+                boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
+                sendNotification(id, target, username, groupName, message, eventType, showNotification, "", "");
+                try {
+
+                    StringBuffer output = new StringBuffer();
+                    fileReader = new FileReader(file.getAbsolutePath());
+                    bufferedReader = new BufferedReader(fileReader);
+
+                    String line = "";
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        output.append(line + "\n");
+                    }
+
+                    response = output.toString();
+                    bufferedReader.close();
+
+                    JSONObject messageDetails = new JSONObject(response);
+                    Boolean isUserExisting = messageDetails.has(target);
+
+                    if (isUserExisting) {
+                        JSONArray userMessages = (JSONArray) messageDetails.get(target);
+                        userMessages.put(id);
+                    } else {
+                        JSONArray newUserMessages = new JSONArray();
+                        newUserMessages.put(id);
+                        messageDetails.put(target, newUserMessages);
+                    }
+
+                    fileWriter = new FileWriter(file.getAbsoluteFile());
+                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                    bw.write(messageDetails.toString());
+                    bw.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
             }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
 
-        if (TextUtils.isEmpty(id)) {
-            Random rand = new Random();
-            int n = rand.nextInt(50) + 1;
-            id = Integer.toString(n);
-        }
 
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message id: " + id);
-        Log.d(TAG, "Notification Message Title: " + title);
-        Log.d(TAG, "Notification Message Body/Text: " + text);
-        Log.d(TAG, "Notification Message Sound: " + sound);
-        Log.d(TAG, "Notification Message Lights: " + lights);
-
-        // TODO: Add option to developer to configure if show notification when app on foreground
-        if (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title) || (data != null && !data.isEmpty())) {
-            boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback()) && (!TextUtils.isEmpty(text) || !TextUtils.isEmpty(title));
-            sendNotification(id, title, text, data, showNotification, sound, lights);
-        }
     }
 
-    private void sendNotification(String id, String title, String messageBody, Map<String, String> data, boolean showNotification, String sound, String lights) {
+    private void sendNotification(String id, String target, String name, String groupName, String message, String eventType, boolean showNotification, String sound, String lights) {
         Bundle bundle = new Bundle();
-        for (String key : data.keySet()) {
-            bundle.putString(key, data.get(key));
+        bundle.putString(VNC_PEER_JID, target);
+        bundle.putString("vncEventType", "chat");
+        bundle.putInt(NOTIFY_ID, Integer.parseInt(id));
+
+        PendingIntent replyPendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            replyPendingIntent = PendingIntent.getBroadcast(
+                    getApplicationContext(),
+                    REQUEST_CODE_HELP,
+                    new Intent(this, NotificationReceiver.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, target)
+                            .putExtra(NOTIFY_ID, id),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+
+        } else {
+            replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                    REQUEST_CODE_HELP,
+                    new Intent(this, ReplyActivity.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, target)
+                            .putExtra(NOTIFY_ID, id),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
         }
+
+
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+                .addRemoteInput(new RemoteInput.Builder("Reply")
+                        .setLabel("Type your message").build())
+                .setAllowGeneratedReplies(true)
+                .build();
+
 
         if (showNotification) {
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             String channelId = this.getStringResource("default_notification_channel_id");
             String channelName = this.getStringResource("default_notification_channel_name");
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
+            String title = "";
+            String text = "";
+            if (eventType.equals("chat")) {
+                title = name;
+                text = message;
+            } else {
+                title = groupName != null && groupName.length() > 0 ? groupName : target;
+                text = name + " : " + message;
+            }
+
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
                     .setContentTitle(title)
-                    .setContentText(messageBody)
+                    .setContentText(text)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(messageBody))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
                     .setAutoCancel(true)
-                    .setSound(defaultSoundUri)
+                    .setShowWhen(true)
                     .setContentIntent(pendingIntent)
+                    .setSound(defaultSoundUri)
+                    .setGroup(groupName)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
 
-            int resID = getResources().getIdentifier("notification_icon", "drawable", getPackageName());
+
+            int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
             if (resID != 0) {
                 notificationBuilder.setSmallIcon(resID);
             } else {
@@ -181,25 +291,40 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Notification notification = notificationBuilder.build();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 int iconID = android.R.id.icon;
-                int notiID = getResources().getIdentifier("notification_big", "drawable", getPackageName());
+                int notiID = getResources().getIdentifier("icon" +
+                        "", "mipmap", getPackageName());
                 if (notification.contentView != null) {
                     notification.contentView.setImageViewResource(iconID, notiID);
                 }
             }
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            // Since android Oreo notification channel is needed.
+            //  Since android Oreo notification channel is needed.
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
                 notificationManager.createNotificationChannel(channel);
             }
 
-            notificationManager.notify(id.hashCode(), notification);
-        } else {
-            bundle.putBoolean("tap", false);
-            bundle.putString("title", title);
-            bundle.putString("body", messageBody);
-            FirebasePlugin.sendNotification(bundle, this.getApplicationContext());
+            notificationManager.notify(Integer.parseInt(id), notification);
+
+
         }
     }
+
 }
+
+class Payload {
+    public String jid;
+    public String name;
+    public String eType;
+    public String body;
+    public String gt;
+    public String nType;
+}
+
+
+
+
+
+
+

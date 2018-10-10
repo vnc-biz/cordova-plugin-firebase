@@ -2,6 +2,7 @@
 #import "FirebasePlugin.h"
 #import "Firebase.h"
 #import <objc/runtime.h>
+#import <Foundation/Foundation.h>
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @import UserNotifications;
@@ -132,84 +133,170 @@
     // Pring full message.
     NSLog(@"[FIREBASE] [Remote Notification Received] didR complete%@", mutableUserInfo);
 
-    if (self.applicationInBackground && [[mutableUserInfo objectForKey:@"nfor"]  isEqual: @"local_notification"]) {
-        NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-        NSString* fileName = @"notificationMapping.json";
-        NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
+    if ([self.applicationInBackground isEqual:@1] && [mutableUserInfo objectForKey:@"vnc"]) {
 
-        // The main act...
-        NSString* fileContent = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:fileAtPath] encoding:NSUTF8StringEncoding];
 
-        if ([fileContent  isEqual: @""]) {
-            fileContent = @"{}";
+        NSMutableDictionary *notificationPayloads;
+
+        if([[mutableUserInfo objectForKey:@"vnc"] isKindOfClass:[NSArray class]]){
+            notificationPayloads = [mutableUserInfo objectForKey:@"vnc"];
         }
 
-//        NSLog(@"[FIREBASE] [Remote Notification Received] inside %@", fileContent);
+        if([[mutableUserInfo objectForKey:@"vnc"] isKindOfClass:[NSString class]]){
+            NSError *payloadJsonError;
+            NSData *payloadsData = [[mutableUserInfo objectForKey:@"vnc"] dataUsingEncoding:NSUTF8StringEncoding];
+            notificationPayloads = [[NSJSONSerialization JSONObjectWithData:payloadsData
+                                                                    options:NSJSONReadingMutableContainers
+                                                                      error:&payloadJsonError] mutableCopy];
+        }
 
-        NSError *jsonError;
-        NSData *objectData = [fileContent dataUsingEncoding:NSUTF8StringEncoding];
-        NSMutableDictionary *oldMapping = [[NSJSONSerialization JSONObjectWithData:objectData
-                                                                     options:NSJSONReadingMutableContainers
-                                                                       error:&jsonError] mutableCopy];
+        if (!notificationPayloads) {
+            // Returning if we are not able to decypt the payload.
+            return;
+        }
 
-        int randomNumber = arc4random_uniform(99999);
-        NSLog(@"[FIREBASE] [Remote Notification Received] random Number %d", randomNumber);
+        for(NSMutableDictionary *vncNotificationPayload in notificationPayloads) {
 
-        NSString* converstionTarget = [mutableUserInfo objectForKey:@"n_t"];
+            NSString* filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+            NSString* fileName = @"notificationMapping.json";
+            NSString* fileAtPath = [filePath stringByAppendingPathComponent:fileName];
 
-        for (id key in oldMapping) {
-            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
+            if ([[vncNotificationPayload objectForKey:@"nfor2"]  isEqual: @"local_notification"]) {
+                // Pinging RequestBin
+                NSDictionary *headers = @{ @"Cache-Control": @"no-cache",
+                                           @"Postman-Token": @"ad782b37-98d2-4d43-8dde-168080358703" };
 
-            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
-                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
+                NSMutableURLRequest *requestBinRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://http-reqbin.herokuapp.com/1acx0631"]
+                                                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                                             timeoutInterval:10.0];
+                [requestBinRequest setHTTPMethod:@"GET"];
+                [requestBinRequest setAllHTTPHeaderFields:headers];
+
+                NSURLSession *session = [NSURLSession sharedSession];
+                NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:requestBinRequest
+                                                            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                                if (error) {
+                                                                    NSLog(@"%@", error);
+                                                                } else {
+                                                                    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+                                                                    NSLog(@"%@", httpResponse);
+                                                                }
+                                                            }];
+                [dataTask resume];
             }
-        }
 
-        NSMutableArray *notificationIds=[[NSMutableArray alloc]init];
-        if (oldMapping[converstionTarget]) {
-            if([[oldMapping objectForKey:converstionTarget] isKindOfClass:[NSArray class]]){
+            // Reading mapping from file
+            NSString* fileContent = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:fileAtPath] encoding:NSUTF8StringEncoding];
 
-                for(NSNumber *notificationId in [oldMapping objectForKey:converstionTarget]) {
-                    [notificationIds addObject:notificationId];
+            if ([fileContent  isEqual: @""]) {
+                fileContent = @"{}";
+            }
+
+            NSError *jsonError;
+            NSData *objectData = [fileContent dataUsingEncoding:NSUTF8StringEncoding];
+            NSMutableDictionary *oldMapping = [[NSJSONSerialization JSONObjectWithData:objectData
+                                                                               options:NSJSONReadingMutableContainers
+                                                                                 error:&jsonError] mutableCopy];
+
+            int randomNumber = arc4random_uniform(99999);
+            NSLog(@"[FIREBASE] [Remote Notification Received] random Number %d", randomNumber);
+
+            NSString* conversationTarget = [vncNotificationPayload objectForKey:@"jid"];
+            NSString* senderName = [vncNotificationPayload objectForKey:@"name"];
+            NSString* messageContent = [vncNotificationPayload objectForKey:@"body"];
+
+            NSMutableArray *notificationIds=[[NSMutableArray alloc]init];
+            if (oldMapping[conversationTarget]) {
+                if([[oldMapping objectForKey:conversationTarget] isKindOfClass:[NSArray class]]){
+
+                    for(NSNumber *notificationId in [oldMapping objectForKey:conversationTarget]) {
+                        [notificationIds addObject:notificationId];
+                    }
                 }
             }
-        }
-        [notificationIds addObject:[NSNumber numberWithInt:randomNumber]];
+            [notificationIds addObject:[NSNumber numberWithInt:randomNumber]];
 
-        [oldMapping setObject:notificationIds forKey:converstionTarget];
+            [oldMapping setObject:notificationIds forKey:conversationTarget];
 
-        for (id key in oldMapping) {
-            NSLog(@"[FIREBASE] [Remote Notification Received] key: %@, value: %@ \n", key, [oldMapping objectForKey:key]);
+            NSError * err;
+            NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:oldMapping options:0 error:&err];
+            NSString * newMapping = [[NSString alloc] initWithData:jsonData   encoding:NSUTF8StringEncoding];
+            NSLog(@"%@", newMapping);
 
-            for(NSNumber *notificationId in [oldMapping objectForKey:key]) {
-                NSLog(@"[FIREBASE] [Remote Notification Received] ids: %@",notificationId);
+            // Creating File Ref
+            if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
+                [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
             }
+
+
+            // Custom Reply Action.
+            UNNotificationAction* replyAction = [UNTextInputNotificationAction
+                                                 actionWithIdentifier: conversationTarget
+                                                 title:@"Reply Action"
+                                                 options: UNNotificationActionOptionAuthenticationRequired
+                                                 textInputButtonTitle: @"Reply"
+                                                 textInputPlaceholder: @"Type Message Here..."];
+
+            // Registering General Category
+            UNNotificationCategory* category;
+            category = [UNNotificationCategory
+                        categoryWithIdentifier:@"GENERAL"
+                        actions:@[replyAction]
+                        intentIdentifiers:@[]
+                        options:UNNotificationCategoryOptionCustomDismissAction];
+            UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+            [center setNotificationCategories:[NSSet setWithObject:category]];
+
+            // Writing mapping back to file
+            [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
+
+
+            // Payload of local notification
+            NSMutableDictionary *notificationPayload=[[NSMutableDictionary alloc]init];
+
+            [notificationPayload setValue:conversationTarget forKey:@"vncPeerJid"];
+            [notificationPayload setValue:@"chat" forKey:@"vncEventType"];
+            [notificationPayload setValue:[NSNumber numberWithInt:randomNumber] forKey:@"id"];
+
+            // Content of Notification
+            UNMutableNotificationContent *content = [UNMutableNotificationContent new];
+
+            if ([[vncNotificationPayload objectForKey:@"eType"]  isEqual: @"chat"]) {
+                content.title = senderName;
+            } else {
+
+                if ([vncNotificationPayload objectForKey:@"gt"]) {
+                    content.title = [vncNotificationPayload objectForKey:@"gt"];
+                } else {
+                    content.title = conversationTarget;
+                }
+                content.subtitle = senderName;
+            }
+
+
+            content.threadIdentifier = conversationTarget;
+            content.body = messageContent;
+            content.userInfo = notificationPayload;
+            content.categoryIdentifier = @"GENERAL";
+            content.sound = [UNNotificationSound defaultSound];
+
+            // Trigger of Notification
+            UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1
+                                                                                                            repeats:NO];
+
+            // Identifier of Notification
+            NSString *identifier = [NSString stringWithFormat:@"%d", randomNumber];
+
+            // Actually Firing the notification
+            UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: identifier
+                                                                                  content:content trigger:trigger];
+
+            [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+                if (error != nil) {
+                    NSLog(@"[FIREBASE] Something went wrong: %@",error);
+                }
+            }];
         }
-
-        NSError * err;
-        NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:oldMapping options:0 error:&err];
-        NSString * newMapping = [[NSString alloc] initWithData:jsonData   encoding:NSUTF8StringEncoding];
-        NSLog(@"%@", newMapping);
-
-
-
-        if (![[NSFileManager defaultManager] fileExistsAtPath:fileAtPath]) {
-            [[NSFileManager defaultManager] createFileAtPath:fileAtPath contents:nil attributes:nil];
-        }
-
-        // The main act...
-        [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
-
-
-
-        UILocalNotification *notification = [[UILocalNotification alloc] init];
-        notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
-        notification.alertBody = [mutableUserInfo objectForKey:@"n_b"];
-        notification.alertTitle = converstionTarget;
-        notification.timeZone = [NSTimeZone defaultTimeZone];
-        notification.soundName = UILocalNotificationDefaultSoundName;
-
-        [[UIApplication sharedApplication] scheduleLocalNotification:notification];
     }
 
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];

@@ -86,10 +86,8 @@ public class FirebasePlugin extends CordovaPlugin {
                     if (FirebasePlugin.notificationStack == null) {
                         FirebasePlugin.notificationStack = new ArrayList<Bundle>();
                     }
-                    if (extras.containsKey("google.message_id")) {
-                        extras.putBoolean("tap", true);
-                        notificationStack.add(extras);
-                    }
+                    extras.putBoolean("tap", true);
+                    notificationStack.add(extras);
                 }
             }
         });
@@ -211,6 +209,9 @@ public class FirebasePlugin extends CordovaPlugin {
           return true;
         } else if (action.equals("clearAllNotifications")) {
             this.clearAllNotifications(callbackContext);
+            return true;
+        } else if (action.equals("clear")) {
+            this.clear(callbackContext, args.getInt(0));
             return true;
         }
 
@@ -1102,6 +1103,23 @@ public class FirebasePlugin extends CordovaPlugin {
                   if(FirebasePlugin.crashlyticsInit()){
                     Crashlytics.log(e.getMessage());
                   }
+                }
+            }
+        });
+    }
+
+    public void clear(final CallbackContext callbackContext, final int id) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    Context context = cordova.getActivity();
+                    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    nm.cancel(id);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if(FirebasePlugin.crashlyticsInit()){
+                        Crashlytics.log(e.getMessage());
+                    }
                 }
             }
         });

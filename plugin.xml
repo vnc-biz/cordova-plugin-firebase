@@ -43,6 +43,10 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 				</intent-filter>
 			</service>
 			<receiver android:name="org.apache.cordova.firebase.OnNotificationOpenReceiver"></receiver>
+			<receiver android:name="org.apache.cordova.firebase.NotificationReceiver"></receiver>
+			<activity android:name="org.apache.cordova.firebase.ReplyActivity"
+				android:launchMode="singleInstance"
+				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
@@ -50,8 +54,12 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginInstanceIDService.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/FirebasePluginMessageReceiver.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/HttpPost.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/FirebasePluginMessageReceiverManager.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/FirebasePluginMessageReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
