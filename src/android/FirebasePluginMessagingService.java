@@ -133,7 +133,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 		Log.d(TAG, "Notification username: " + username);
 		Log.d(TAG, "Notification groupName: " + groupName);
 		Log.d(TAG, "Notification message: " + message);
-		Log.d(TAG, "Notification eventType: " + eType);
+		Log.d(TAG, "Notification eventType: " + eventType);
 
                 if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username) || TextUtils.isEmpty(message)) {
 		    Log.d(TAG, "returning due to empty values");
