@@ -1,26 +1,22 @@
 /**
  * Utilities and shared functionality for the build hooks.
  */
-
+var fs = require('fs');
 var path = require("path");
-var fs = require("fs");
 
-/**
- * Used to get the path to the build.gradle file for the Android project.
- *
- * @returns {string} The path to the build.gradle file.
- */
-function getBuildGradlePath () {
-  var target = path.join("platforms", "android", "app", "build.gradle");
-  if (fs.existsSync(target)) {
-    return target;
+fs.ensureDirSync = function (dir) {
+  if (!fs.existsSync(dir)) {
+    dir.split(path.sep).reduce(function (currentPath, folder) {
+      currentPath += folder + path.sep;
+      if (!fs.existsSync(currentPath)) {
+        fs.mkdirSync(currentPath);
+      }
+      return currentPath;
+    }, '');
   }
-
-  return path.join("platforms", "android", "build.gradle");
-}
+};
 
 module.exports = {
-
   /**
      * Used to get the name of the application as defined in the config.xml.
      *
@@ -40,35 +36,53 @@ module.exports = {
     return "cordova-plugin-firebase";
   },
 
-  /**
-     * Used to get the path to the XCode project's .pbxproj file.
-     *
-     * @param {object} context - The Cordova context.
-     * @returns The path to the XCode project's .pbxproj file.
-     */
-  getXcodeProjectPath: function (context) {
+  copyKey: function (platform) {
+    for (var i = 0; i < platform.src.length; i++) {
+      var file = platform.src[i];
+      if (this.fileExists(file)) {
+        try {
+          var contents = fs.readFileSync(file).toString();
 
-    var appName = this.getAppName(context);
+          try {
+            platform.dest.forEach(function (destinationPath) {
+              var folder = destinationPath.substring(0, destinationPath.lastIndexOf('/'));
+              fs.ensureDirSync(folder);
+              fs.writeFileSync(destinationPath, contents);
+            });
+          } catch (e) {
+            // skip
+          }
+        } catch (err) {
+          console.log(err);
+        }
 
-    return path.join("platforms", "ios", appName + ".xcodeproj", "project.pbxproj");
+        break;
+      }
+    }
   },
 
-  /**
-     * Used to read the contents of the Android project's build.gradle file.
-     *
-     * @returns {string} The contents of the Android project's build.gradle file.
-     */
-  readBuildGradle: function () {
-    return fs.readFileSync(getBuildGradlePath(), "utf-8");
+  getValue: function (config, name) {
+    var value = config.match(new RegExp('<' + name + '(.*?)>(.*?)</' + name + '>', 'i'));
+    if (value && value[2]) {
+      return value[2]
+    } else {
+      return null
+    }
   },
 
-  /**
-     * Used to write the given build.gradle contents to the Android project's
-     * build.gradle file.
-     *
-     * @param {string} buildGradle The body of the build.gradle file to write.
-     */
-  writeBuildGradle: function (buildGradle) {
-    fs.writeFileSync(getBuildGradlePath(), buildGradle);
+  fileExists: function (path) {
+    try {
+      return fs.statSync(path).isFile();
+    } catch (e) {
+      return false;
+    }
+  },
+
+  directoryExists: function (path) {
+    try {
+      return fs.statSync(path).isDirectory();
+    } catch (e) {
+      return false;
+    }
   }
 };

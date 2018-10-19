@@ -3,10 +3,6 @@
 
 @interface FirebasePlugin : CDVPlugin
 + (FirebasePlugin *) firebasePlugin;
-- (void)initFirebase:(CDVInvokedUrlCommand*)command;
-- (void)initCrashlytics:(CDVInvokedUrlCommand*)command;
-- (void)initAnalytics:(CDVInvokedUrlCommand*)command;
-- (void)initPerformance:(CDVInvokedUrlCommand*)command;
 - (void)getVerificationID:(CDVInvokedUrlCommand*)command;
 - (void)verifyPhoneNumber:(CDVInvokedUrlCommand*)command;
 - (void)getInstanceId:(CDVInvokedUrlCommand*)command;
@@ -25,6 +21,7 @@
 - (void)sendToken:(NSString*)token;
 - (void)logEvent:(CDVInvokedUrlCommand*)command;
 - (void)logError:(CDVInvokedUrlCommand*)command;
+- (void)setCrashlyticsUserId:(CDVInvokedUrlCommand*)command;
 - (void)setScreenName:(CDVInvokedUrlCommand*)command;
 - (void)setUserId:(CDVInvokedUrlCommand*)command;
 - (void)setUserProperty:(CDVInvokedUrlCommand*)command;
@@ -41,9 +38,5 @@
 @property (nonatomic, copy) NSString *tokenRefreshCallbackId;
 @property (nonatomic, retain) NSMutableArray *notificationStack;
 @property (nonatomic, readwrite) NSMutableDictionary* traces;
-@property (atomic, assign) BOOL crashlyticsInit;
-@property (atomic, assign) BOOL analyticsInit;
-@property (atomic, assign) BOOL remoteconfigInit;
-@property (atomic, assign) BOOL performanceInit;
 
 @end
