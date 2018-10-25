@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -62,6 +63,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
+         String token = getPreference(getApplicationContext(), "auth-token");
+         if (token == null) {
+             return;
+         }
+
 
         File file = new File(this.getFilesDir(), FILE_NAME);
 
@@ -319,6 +326,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
 
         }
+    }
+
+
+    private String getPreference(Context context, String key) {
+         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+         return settings.getString(key, null);
     }
 
 }
