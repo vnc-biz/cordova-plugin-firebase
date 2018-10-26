@@ -267,6 +267,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setSound(defaultSoundUri)
                     .setGroup(groupName)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
+            
+            if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
+                notificationBuilder.addAction(action);
+            }
 
 
             int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
