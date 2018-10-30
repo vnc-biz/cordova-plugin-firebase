@@ -212,7 +212,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, NotificationReceiver.class)
-                            .setAction(NOTIFICATION_REPLY)
+                            .setAction(NOTIFICATION_REPLY + "_" + id)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
                     0);
@@ -222,7 +222,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, ReplyActivity.class)
-                            .setAction(NOTIFICATION_REPLY)
+                            .setAction(NOTIFICATION_REPLY + "_" + id)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
                     0);
