@@ -245,8 +245,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             String channelName = this.getStringResource("default_notification_channel_name");
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            String title = "";
-            String text = "";
+            String title;
+            String text;
             if (eventType.equals("chat")) {
                 title = name;
                 text = message;
@@ -254,6 +254,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 title = groupName != null && groupName.length() > 0 ? groupName : target;
                 text = name + " : " + message;
             }
+
+             Log.d(TAG, "Notification group name: " + title);
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
@@ -265,9 +267,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setShowWhen(true)
                     .setContentIntent(pendingIntent)
                     .setSound(defaultSoundUri)
-                    .setGroup(groupName)
+                    .setGroup(title)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
-            
+
             if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
                 notificationBuilder.addAction(action);
             }
@@ -348,10 +350,3 @@ class Payload {
     public String gt;
     public String nType;
 }
-
-
-
-
-
-
-
