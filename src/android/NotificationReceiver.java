@@ -23,8 +23,8 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String sender = intent.getExtras().getString(VNC_PEER_JID);
-        int notificationId = Integer.parseInt(intent.getExtras().getString(NOTIFY_ID));
+        String sender = getSender(intent);
+        int notificationId = getNotificationId(intent);
         Log.i("VNC", "NotificationReceiver onReceive, notificationId: " + notificationId + ", sender: " + sender);
         if (NOTIFICATION_REPLY.equals(intent.getAction())) {
             CharSequence message = getReplyMessage(intent);
@@ -42,5 +42,13 @@ public class NotificationReceiver extends BroadcastReceiver {
             return remoteInput.getCharSequence("Reply");
         }
         return null;
+    }
+
+    private String getSender(Intent intent){
+        return intent.getExtras().getString(VNC_PEER_JID);
+    }
+
+    private int getNotificationId(Intent intent){
+        return Integer.parseInt(intent.getExtras().getString(NOTIFY_ID));
     }
 }
