@@ -264,6 +264,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setAutoCancel(true)
                     .setShowWhen(true)
                     .setContentIntent(pendingIntent)
+                    .addAction(action)
                     .setSound(defaultSoundUri)
                     .setGroup(groupName)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
