@@ -208,14 +208,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Log.i("VNC", "Create replyPendingIntent, NOTIFY_ID: " + id);
 
-            replyPendingIntent = PendingIntent.getBroadcast(
+              replyPendingIntent = PendingIntent.getBroadcast(
                     getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, NotificationReceiver.class)
                             .setAction(NOTIFICATION_REPLY)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_CANCEL_CURRENT
             );
 
         } else {
@@ -227,7 +227,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                             .setAction(NOTIFICATION_REPLY)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_CANCEL_CURRENT);
         }
 
 
