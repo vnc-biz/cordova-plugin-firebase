@@ -73,9 +73,7 @@ class HttpPost implements Runnable {
             int statusCode = urlConnection.getResponseCode();
             if (statusCode == 200) {
                 Log.i("VNC", "Success");
-                notificationBuilder.setContentText("Your message has been successfully sent.")
-                        .setContentTitle(context.getApplicationInfo().loadLabel(context.getPackageManager()));
-                notificationManager.notify(notificationId, notificationBuilder.build());
+               notificationManager.cancel(notificationId);
             } else {
                 notificationBuilder.setContentText("Something went wrong.")
                         .setContentTitle(context.getApplicationInfo().loadLabel(context.getPackageManager()));
