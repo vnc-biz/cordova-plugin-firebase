@@ -215,7 +215,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                             .setAction(NOTIFICATION_REPLY)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_ONE_SHOT
+                    PendingIntent.FLAG_IMMUTABLE
             );
 
         } else {
@@ -227,7 +227,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                             .setAction(NOTIFICATION_REPLY)
                             .putExtra(VNC_PEER_JID, target)
                             .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_ONE_SHOT);
+                    PendingIntent.FLAG_IMMUTABLE);
         }
 
 
