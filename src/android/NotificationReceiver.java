@@ -25,10 +25,10 @@ public class NotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String sender = intent.getExtras().getString(VNC_PEER_JID);
         int notificationId = Integer.parseInt(intent.getExtras().getString(NOTIFY_ID));
-        Log.i("VNC", "inside receive");
+        Log.i("VNC", "NotificationReceiver onReceive, notificationId: " + notificationId + ", sender: " + sender);
         if (NOTIFICATION_REPLY.equals(intent.getAction())) {
             CharSequence message = getReplyMessage(intent);
-            Log.i("VNC", message + "");
+            Log.i("VNC", "NotificationReceiver onReceive, message: " + message);
             if (message != null && message.length() > 0) {
                 Thread thread = new Thread(new HttpPost(message.toString(), sender, notificationId, context));
                 thread.start();
@@ -44,5 +44,3 @@ public class NotificationReceiver extends BroadcastReceiver {
         return null;
     }
 }
-
-
