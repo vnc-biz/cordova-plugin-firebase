@@ -25,7 +25,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String sender = intent.getExtras().getString(VNC_PEER_JID);
         if (intent.getAction().contains(NOTIFICATION_REPLY)) {
-            int notificationId = intent.getAction().split("_")[1];
+            int notificationId = Integer.parseInt(intent.getAction().split("_")[1]);
             Log.i("VNC", "NotificationReceiver onReceive, notificationId: " + notificationId + ", sender: " + sender);
 
             CharSequence message = getReplyMessage(intent);
