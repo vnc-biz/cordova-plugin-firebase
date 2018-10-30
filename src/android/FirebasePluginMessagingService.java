@@ -208,27 +208,32 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Log.i("VNC", "Create replyPendingIntent, NOTIFY_ID: " + id);
 
-              replyPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+            replyPendingIntent = PendingIntent.getBroadcast(
+                    getApplicationContext(),
                     REQUEST_CODE_HELP,
-                    new Intent(this, NotificationReceiver.class).setAction(NOTIFICATION_REPLY),
-                    PendingIntent.FLAG_UPDATE_CURRENT
-            );
-
+                    new Intent(this, NotificationReceiver.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, target)
+                            .putExtra(NOTIFY_ID, id),
+                    0);
         } else {
             Log.i("VNC", "Create replyPendingIntent2, NOTIFY_ID: " + id);
 
             replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
                     REQUEST_CODE_HELP,
-                    new Intent(this, ReplyActivity.class).setAction(NOTIFICATION_REPLY),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    new Intent(this, ReplyActivity.class)
+                            .setAction(NOTIFICATION_REPLY)
+                            .putExtra(VNC_PEER_JID, target)
+                            .putExtra(NOTIFY_ID, id),
+                    0);
         }
+
 
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                 android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
                 .addRemoteInput(new RemoteInput.Builder("Reply")
                         .setLabel("Type your message").build())
                 .setAllowGeneratedReplies(true)
-                .addExtra(bundle)
                 .build();
 
         if (showNotification) {
