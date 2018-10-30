@@ -206,6 +206,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         PendingIntent replyPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i("VNC", "Create replyPendingIntent, NOTIFY_ID: " + id);
+
             replyPendingIntent = PendingIntent.getBroadcast(
                     getApplicationContext(),
                     REQUEST_CODE_HELP,
@@ -217,6 +219,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             );
 
         } else {
+            Log.i("VNC", "Create replyPendingIntent2, NOTIFY_ID: " + id);
+
             replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, ReplyActivity.class)
@@ -234,9 +238,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 .setAllowGeneratedReplies(true)
                 .build();
 
-
         if (showNotification) {
-	    Log.d(TAG, "going to show notification ");
+	          Log.d(TAG, "going to show notification ");
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -329,8 +332,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
 
             notificationManager.notify(Integer.parseInt(id), notification);
-
-
         }
     }
 
