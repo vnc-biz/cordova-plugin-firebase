@@ -69,6 +69,7 @@ class HttpPost implements Runnable {
                 writer.flush();
             }
             int statusCode = urlConnection.getResponseCode();
+            Log.i("VNC", "statusCode: " + statusCode);
             if (statusCode == 200) {
                 Log.i("VNC", "Success");
                 Log.i("VNC", "Cancel notificationId : " + notificationId);
