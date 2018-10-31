@@ -204,7 +204,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         bundle.putString("vncEventType", "chat");
         bundle.putInt(NOTIFY_ID, Integer.parseInt(id));
 
-        String inlineReplyAction = NOTIFICATION_REPLY + "__" + id + "__" + target;
+        String inlineReplyAction = NOTIF ICATION_REPLY + "@@" + id + "@@" + target;
 
         PendingIntent replyPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
