@@ -7,7 +7,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+
 import org.json.JSONObject;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -75,17 +80,15 @@ class HttpPost implements Runnable {
                 Log.i("VNC", "Success");
                notificationManager.cancel(notificationId);
             } else {
-                notificationBuilder.setContentText("Something went wrong.")
-                        .setContentTitle(context.getApplicationInfo().loadLabel(context.getPackageManager()));
-                notificationManager.notify(notificationId, notificationBuilder.build());
+                this.insertInlineReply(context, sender, body);
+                notificationManager.cancel(notificationId);
             }
 
 
         } catch (Exception e) {
             Log.i("VNC", e.getLocalizedMessage());
-            notificationBuilder.setContentText("Please check your internet connection.")
-                    .setContentTitle(context.getApplicationInfo().loadLabel(context.getPackageManager()));
-            notificationManager.notify(notificationId, notificationBuilder.build());
+            this.insertInlineReply(context, sender, body);
+            notificationManager.cancel(notificationId);
         }
     }
 
@@ -93,4 +96,36 @@ class HttpPost implements Runnable {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         return settings.getString(key, null);
     }
+
+    private void insertInlineReply(Context context, String target, String message) {
+        Gson gson = new Gson();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        String data = preferences.getString("replyMessages", null);
+        ArrayList<Message> list = new ArrayList();
+        if (data != null) {
+            Type type = new TypeToken<ArrayList<Message>>() {}.getType();
+            list = gson.fromJson(data, type);
+        }
+        list.add(new Message(target, message));
+        String json = gson.toJson(list);
+        editor.putString("replyMessages", json);
+        editor.apply();
+    }
+
+    private class Message {
+        String target;
+        String message;
+        public Message(String target,String message) {
+            this.target = target;
+            this.message = message;
+        }
+    }
+
+
 }
+
+
+
+
+
