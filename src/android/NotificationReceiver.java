@@ -24,7 +24,7 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().contains(NOTIFICATION_REPLY)) {
-            String[] actionParts = intent.getAction().split("__");
+            String[] actionParts = intent.getAction().split("@@");
             int notificationId = Integer.parseInt(actionParts[1]);
             String sender = actionParts[2];
             Log.i("VNC", "NotificationReceiver onReceive, notificationId: " + notificationId + ", sender: " + sender);
