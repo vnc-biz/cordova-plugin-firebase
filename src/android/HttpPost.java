@@ -45,13 +45,11 @@ class HttpPost implements Runnable {
     @Override
     public void run() {
         try {
-
             Log.i("VNC", "Token : " + mToken);
+            Log.i("VNC", "notificationId : " + notificationId);
             Log.i("VNC", "To : " + sender);
             Log.i("VNC", "Message : " + body);
             Log.i("VNC", "Api Url : " + mApiUrl);
-
-
 
             JSONObject postData = new JSONObject();
             postData.put("target", sender);
@@ -76,9 +74,12 @@ class HttpPost implements Runnable {
                 writer.flush();
             }
             int statusCode = urlConnection.getResponseCode();
+            Log.i("VNC", "statusCode: " + statusCode);
             if (statusCode == 200) {
                 Log.i("VNC", "Success");
+                Log.i("VNC", "Cancel notificationId : " + notificationId);
                notificationManager.cancel(notificationId);
+                Log.i("VNC", "Done");
             } else {
                 this.insertInlineReply(context, sender, body);
                 notificationManager.cancel(notificationId);

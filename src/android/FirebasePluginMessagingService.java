@@ -204,28 +204,26 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         bundle.putString("vncEventType", "chat");
         bundle.putInt(NOTIFY_ID, Integer.parseInt(id));
 
+        String inlineReplyAction = NOTIFICATION_REPLY + "__" + id + "__" + target;
+
         PendingIntent replyPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            replyPendingIntent = PendingIntent.getBroadcast(
-                    getApplicationContext(),
+            Log.i("VNC", "Create replyPendingIntent (>=N), NOTIFY_ID: " + id);
+
+            replyPendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, NotificationReceiver.class)
-                            .setAction(NOTIFICATION_REPLY)
-                            .putExtra(VNC_PEER_JID, target)
-                            .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT
-            );
-
+                            .setAction(inlineReplyAction),
+                    0);
         } else {
+            Log.i("VNC", "Create replyPendingIntent, NOTIFY_ID: " + id);
+
             replyPendingIntent = PendingIntent.getActivity(getApplicationContext(),
                     REQUEST_CODE_HELP,
                     new Intent(this, ReplyActivity.class)
-                            .setAction(NOTIFICATION_REPLY)
-                            .putExtra(VNC_PEER_JID, target)
-                            .putExtra(NOTIFY_ID, id),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                            .setAction(inlineReplyAction),
+                    0);
         }
-
 
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                 android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
@@ -234,9 +232,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 .setAllowGeneratedReplies(true)
                 .build();
 
-
         if (showNotification) {
-	    Log.d(TAG, "going to show notification ");
+	          Log.d(TAG, "going to show notification ");
             Intent intent = new Intent(this, OnNotificationOpenReceiver.class);
             intent.putExtras(bundle);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -245,8 +242,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             String channelName = this.getStringResource("default_notification_channel_name");
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
-            String title = "";
-            String text = "";
+            String title;
+            String text;
             if (eventType.equals("chat")) {
                 title = name;
                 text = message;
@@ -254,6 +251,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 title = groupName != null && groupName.length() > 0 ? groupName : target;
                 text = name + " : " + message;
             }
+
+             Log.d(TAG, "Notification group name: " + title);
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
@@ -265,9 +264,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setShowWhen(true)
                     .setContentIntent(pendingIntent)
                     .setSound(defaultSoundUri)
-                    .setGroup(groupName)
+                    .setGroup(title)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
-            
+
             if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
                 notificationBuilder.addAction(action);
             }
@@ -327,8 +326,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
 
             notificationManager.notify(Integer.parseInt(id), notification);
-
-
         }
     }
 
@@ -348,10 +345,3 @@ class Payload {
     public String gt;
     public String nType;
 }
-
-
-
-
-
-
-
