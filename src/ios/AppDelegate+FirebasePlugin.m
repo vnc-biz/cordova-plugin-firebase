@@ -5,6 +5,7 @@
 #import <Foundation/Foundation.h>
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+#import <UserNotifications/UserNotifications.h>
 @import UserNotifications;
 
 // Implement UNUserNotificationCenterDelegate to receive display notification via APNS for devices
@@ -250,6 +251,23 @@
             // Writing mapping back to file
             [[newMapping dataUsingEncoding:NSUTF8StringEncoding] writeToFile:fileAtPath atomically:NO];
 
+            // Writing id:target mapping
+            NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+            NSMutableDictionary* reverseMapping;
+
+            if ([userDefaults objectForKey:@"reverseMapping"]) {
+                reverseMapping = [[userDefaults objectForKey:@"reverseMapping"] mutableCopy];
+            } else {
+                reverseMapping = [[NSMutableDictionary alloc] init];
+            }
+
+            NSLog(@"%@", reverseMapping);
+
+
+            [reverseMapping setObject:conversationTarget forKey:[NSString stringWithFormat:@"%d", randomNumber]];
+
+            [userDefaults setObject:reverseMapping forKey:@"reverseMapping"];
+            [userDefaults synchronize];
 
             // Payload of local notification
             NSMutableDictionary *notificationPayload=[[NSMutableDictionary alloc]init];
@@ -369,6 +387,8 @@
     // Print full message
     NSLog(@"%@", [remoteMessage appData]);
 }
+
+
 #endif
 
 @end
