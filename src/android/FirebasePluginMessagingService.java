@@ -142,7 +142,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 		Log.d(TAG, "Notification message: " + message);
 		Log.d(TAG, "Notification eventType: " + eventType);
 
-                if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username) || TextUtils.isEmpty(message)) {
+                if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
 		    Log.d(TAG, "returning due to empty values");
                     return;
                 }
@@ -249,7 +249,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 text = message;
             } else {
                 title = groupName != null && groupName.length() > 0 ? groupName : target;
-                text = name + " : " + message;
+                text = name;
+                if(message != null && message.trim().length() > 0) {
+                    text = text + " : " + message;
+                }
             }
 
              Log.d(TAG, "Notification group name: " + title);
