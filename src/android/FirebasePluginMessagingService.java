@@ -63,12 +63,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
-         String token = getPreference(getApplicationContext(), "auth-token");
-         if (token == null) {
-             return;
-         }
-
+        String token = getPreference(getApplicationContext(), "auth-token");
+        if (token == null) {
+            return;
+        }
 
         File file = new File(this.getFilesDir(), FILE_NAME);
 
@@ -89,8 +87,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         }
 
 
@@ -119,12 +115,11 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
-		Log.d(TAG, "received empty data?");
+		            Log.d(TAG, "received empty data?");
                 return;
             }
 
             for (int i = 0; i < data.length(); i++) {
-
                 Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
                 Random rand = new Random();
                 int n = rand.nextInt(1000) + 1;
@@ -135,15 +130,15 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 String message = notification.body;
                 String eventType = notification.eType;
 
-		Log.d(TAG, "Notification id: " + id);
-		Log.d(TAG, "Notification Target: " + target);
-		Log.d(TAG, "Notification username: " + username);
-		Log.d(TAG, "Notification groupName: " + groupName);
-		Log.d(TAG, "Notification message: " + message);
-		Log.d(TAG, "Notification eventType: " + eventType);
+            		Log.d(TAG, "Notification id: " + id);
+            		Log.d(TAG, "Notification Target: " + target);
+            		Log.d(TAG, "Notification username: " + username);
+            		Log.d(TAG, "Notification groupName: " + groupName);
+            		Log.d(TAG, "Notification message: " + message);
+            		Log.d(TAG, "Notification eventType: " + eventType);
 
                 if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
-		    Log.d(TAG, "returning due to empty values");
+		                Log.d(TAG, "returning due to empty values");
                     return;
                 }
 
@@ -180,22 +175,16 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     BufferedWriter bw = new BufferedWriter(fileWriter);
                     bw.write(messageDetails.toString());
                     bw.close();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
-
-
     }
 
     private void sendNotification(String id, String target, String name, String groupName, String message, String eventType, boolean showNotification, String sound, String lights) {
@@ -255,7 +244,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
             }
 
-             Log.d(TAG, "Notification group name: " + title);
+            Log.d(TAG, "Notification group name: " + title);
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
@@ -273,7 +262,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
                 notificationBuilder.addAction(action);
             }
-
 
             int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
             if (resID != 0) {
@@ -308,7 +296,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 int accentID = getResources().getIdentifier("accent", "color", getPackageName());
                 notificationBuilder.setColor(getResources().getColor(accentID, null));
-
             }
 
             Notification notification = notificationBuilder.build();
@@ -334,10 +321,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
 
     private String getPreference(Context context, String key) {
-         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-         return settings.getString(key, null);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        return settings.getString(key, null);
     }
-
 }
 
 class Payload {
