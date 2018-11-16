@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 class HttpPost implements Runnable {
     private String body;
@@ -84,7 +85,7 @@ class HttpPost implements Runnable {
             Log.i("VNC", "Token : " + mToken);
             Log.i("VNC", "notificationId : " + notificationId);
             Log.i("VNC", "To : " + sender);
-            if(body){
+            if(requestType == RequestType.INLINE_REPLY){
                 Log.i("VNC", "Message body : " + body);
             }
             Log.i("VNC", "Api Url : " + mApiUrl);
