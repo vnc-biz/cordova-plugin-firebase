@@ -282,7 +282,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                         .setContentIntent(pendingIntent)
                         .setSound(null)
                         .setGroup(title)
-                        .setPriority(NotificationCompat.PRIORITY_LOW);
+                        .setPriority(NotificationCompat.PRIORITY_MAX);
 
             } else {
                 notificationBuilder
@@ -360,7 +360,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 if (nosound.equals("mute")) {
                     Log.d(TAG, "pushing to silentchannel");
-                    NotificationChannel silentchannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
+                    NotificationChannel silentchannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+                    silentchannel.setSound(null, null);
                     notificationManager.createNotificationChannel(silentchannel);
                 } else {
                     NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
