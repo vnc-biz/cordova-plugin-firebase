@@ -71,7 +71,7 @@ class HttpPost implements Runnable {
         if(this.requestType == RequestType.INLINE_REPLY){
             mApiUrl = baseApiUrl + "/xmpp-rest";
         }else if(this.requestType == RequestType.MARK_AS_READ){
-            mApiUrl = baseApiUrl + "/markConversationRead";
+            mApiUrl = baseApiUrl + "/markConversationsRead";
         }
     }
 
