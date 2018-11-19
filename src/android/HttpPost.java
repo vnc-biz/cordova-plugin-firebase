@@ -148,6 +148,8 @@ class HttpPost implements Runnable {
     }
 
     private void saveInlineReplyOnError(Context context, String target, String message) {
+        Log.i("VNC", "saveInlineReplyOnError, target: " + target + ", message: " + message);
+
         Gson gson = new Gson();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
@@ -164,6 +166,8 @@ class HttpPost implements Runnable {
     }
 
     private void saveMarkAsReadOnError(Context context, String target) {
+        Log.i("VNC", "saveMarkAsReadOnError, target: " + target);
+
         Gson gson = new Gson();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
