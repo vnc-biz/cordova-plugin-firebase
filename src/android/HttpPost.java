@@ -126,6 +126,8 @@ class HttpPost implements Runnable {
             } else {
                 if(requestType == RequestType.INLINE_REPLY){
                     this.saveInlineReplyOnError(context, sender, body);
+                }else if(requestType == RequestType.MARK_AS_READ){
+                    this.saveMarkAsReadOnError(context, sender);
                 }
                 notificationManager.cancel(notificationId);
             }
@@ -133,6 +135,8 @@ class HttpPost implements Runnable {
             Log.i("VNC", e.getLocalizedMessage());
             if(requestType == RequestType.INLINE_REPLY){
                 this.saveInlineReplyOnError(context, sender, body);
+            }else if(requestType == RequestType.MARK_AS_READ){
+                this.saveMarkAsReadOnError(context, sender);
             }
             notificationManager.cancel(notificationId);
         }
@@ -159,12 +163,35 @@ class HttpPost implements Runnable {
         editor.apply();
     }
 
+    private void saveMarkAsReadOnError(Context context, String target) {
+        Gson gson = new Gson();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        String data = preferences.getString("markAsReadFailedRequests", null);
+        ArrayList<MarkAsRead> list = new ArrayList();
+        if (data != null) {
+            Type type = new TypeToken<ArrayList<MarkAsRead>>() {}.getType();
+            list = gson.fromJson(data, type);
+        }
+        list.add(new MarkAsRead(target));
+        String json = gson.toJson(list);
+        editor.putString("markAsReadFailedRequests", json);
+        editor.apply();
+    }
+
     private class Message {
         String target;
         String message;
         public Message(String target,String message) {
             this.target = target;
             this.message = message;
+        }
+    }
+
+    private class MarkAsRead {
+        String target;
+        public MarkAsRead(String target) {
+            this.target = target;
         }
     }
 
