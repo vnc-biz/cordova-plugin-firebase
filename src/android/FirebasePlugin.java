@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Random;
 
 // Firebase PhoneAuth
 import java.util.concurrent.TimeUnit;
@@ -73,6 +74,8 @@ public class FirebasePlugin extends CordovaPlugin {
     private static ArrayList<Bundle> notificationStack = null;
     private static CallbackContext notificationCallbackContext;
     private static CallbackContext tokenRefreshCallbackContext;
+
+    private FirebasePluginMessagingService mFirebasePluginMsgService;
 
     @Override
     protected void pluginInitialize() {
@@ -213,6 +216,8 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clear")) {
             this.clear(callbackContext, args.getInt(0));
             return true;
+        } else if (action.equals("scheduleLocalNotification")) {
+            this.scheduleLocalNotification(callbackContext, args.getJSONObject(0));
         }
 
         return false;
@@ -1120,6 +1125,26 @@ public class FirebasePlugin extends CordovaPlugin {
                     if(FirebasePlugin.crashlyticsInit()){
                         Crashlytics.log(e.getMessage());
                     }
+                }
+            }
+        });
+    }
+
+    public void scheduleLocalNotification(final CallbackContext callbackContext, final JSONObject params) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    Context context = cordova.getActivity();
+                    Random rand = new Random();
+                    int n = rand.nextInt(1000) + 1;
+                    String id = Integer.toString(n);
+                    String peerjid = params.getString("peerjid");
+                    String title = params.getString("title");
+                    String text = params.getString("text");
+                    mFirebasePluginMsgService.sendNotification(id, peerjid, title, "", text, "chat", "", true, "", "");
+                    callbackContext.success();
+                } catch (Exception e) {
+                    
                 }
             }
         });
