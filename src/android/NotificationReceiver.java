@@ -18,6 +18,7 @@ import java.net.URL;
 public class NotificationReceiver extends BroadcastReceiver {
 
     private static final String NOTIFICATION_REPLY = "NotificationReply";
+    private static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
     private static final String VNC_PEER_JID = "vncPeerJid";
     private static final String  NOTIFY_ID = "id";
 
@@ -27,14 +28,23 @@ public class NotificationReceiver extends BroadcastReceiver {
             String[] actionParts = intent.getAction().split("@@");
             int notificationId = Integer.parseInt(actionParts[1]);
             String sender = actionParts[2];
-            Log.i("VNC", "NotificationReceiver onReceive, notificationId: " + notificationId + ", sender: " + sender);
-
             CharSequence message = getReplyMessage(intent);
-            Log.i("VNC", "NotificationReceiver onReceive,message: " + message);
+
+            Log.i("VNC", "NotificationReceiver onReceive NotificationReply, notificationId: " + notificationId + ", sender: " + sender + ", message: " + message);
+
             if (message != null && message.length() > 0) {
                 Thread thread = new Thread(new HttpPost(message.toString(), sender, notificationId, context));
                 thread.start();
             }
+        }else if (intent.getAction().contains(MARK_AS_READ_REPLY)) {
+          String[] actionParts = intent.getAction().split("@@");
+          int notificationId = Integer.parseInt(actionParts[1]);
+          String sender = actionParts[2];
+
+          Log.i("VNC", "NotificationReceiver onReceive MarkAsReadReply, notificationId: " + notificationId + ", sender: " + sender);
+
+          Thread thread = new Thread(new HttpPost(sender, notificationId, context));
+          thread.start();
         }
     }
 

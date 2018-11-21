@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 class HttpPost implements Runnable {
     private String body;
@@ -27,19 +28,55 @@ class HttpPost implements Runnable {
     private NotificationCompat.Builder notificationBuilder;
     private String mToken;
     private String mApiUrl;
+    private RequestType requestType;
     private static final String TOKEN_CONSTANT = "auth-token";
     private static final String API_URL = "apiUrl";
 
-
+    // constructor for 'inline reply request'
     HttpPost(String body, String sender, int notificationId, Context context) {
         this.body = body;
         this.sender = sender;
         this.context = context;
         this.notificationId = notificationId;
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationBuilder = new NotificationCompat.Builder(context);
-        mToken = getPreference(context, TOKEN_CONSTANT);
-        mApiUrl = getPreference(context, API_URL);
+        this.requestType = RequestType.INLINE_REPLY;
+
+        chooseAndSetApiUrl();
+        initToken();
+        initNotificationObjects();
+    }
+
+    // constructor for 'mark as read request'
+    HttpPost(String sender, int notificationId, Context context) {
+        this.sender = sender;
+        this.context = context;
+        this.notificationId = notificationId;
+        this.requestType = RequestType.MARK_AS_READ;
+
+        chooseAndSetApiUrl();
+        initToken();
+        initNotificationObjects();
+    }
+
+    private void initNotificationObjects(){
+        notificationManager = (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationBuilder = new NotificationCompat.Builder(this.context);
+    }
+
+    private void initToken(){
+        mToken = getPreference(this.context, TOKEN_CONSTANT);
+    }
+
+    private void chooseAndSetApiUrl(){
+        String baseApiUrl = baseApiUrl();
+        if(this.requestType == RequestType.INLINE_REPLY){
+            mApiUrl = baseApiUrl + "/xmpp-rest";
+        }else if(this.requestType == RequestType.MARK_AS_READ){
+            mApiUrl = baseApiUrl + "/markConversationsRead";
+        }
+    }
+
+    private String baseApiUrl(){
+        return getPreference(this.context, API_URL);
     }
 
     @Override
@@ -48,12 +85,21 @@ class HttpPost implements Runnable {
             Log.i("VNC", "Token : " + mToken);
             Log.i("VNC", "notificationId : " + notificationId);
             Log.i("VNC", "To : " + sender);
-            Log.i("VNC", "Message : " + body);
+            if(requestType == RequestType.INLINE_REPLY){
+                Log.i("VNC", "Message body : " + body);
+            }
             Log.i("VNC", "Api Url : " + mApiUrl);
 
             JSONObject postData = new JSONObject();
-            postData.put("target", sender);
-            postData.put("messagetext", body);
+            if(requestType == RequestType.INLINE_REPLY){
+                postData.put("target", sender);
+                postData.put("messagetext", body);
+            }else if(requestType == RequestType.MARK_AS_READ){
+                postData.put(sender, new Date().getTime()/1000);
+            }
+
+            Log.i("VNC", "postData : " + postData);
+
             URL url = new URL(mApiUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setDoInput(true);
@@ -74,21 +120,24 @@ class HttpPost implements Runnable {
                 writer.flush();
             }
             int statusCode = urlConnection.getResponseCode();
-            Log.i("VNC", "statusCode: " + statusCode);
+            Log.i("VNC", "Server response, statusCode: " + statusCode);
             if (statusCode == 200) {
-                Log.i("VNC", "Success");
-                Log.i("VNC", "Cancel notificationId : " + notificationId);
-               notificationManager.cancel(notificationId);
-                Log.i("VNC", "Done");
+                notificationManager.cancel(notificationId);
             } else {
-                this.insertInlineReply(context, sender, body);
+                if(requestType == RequestType.INLINE_REPLY){
+                    this.saveInlineReplyOnError(context, sender, body);
+                }else if(requestType == RequestType.MARK_AS_READ){
+                    this.saveMarkAsReadOnError(context, sender);
+                }
                 notificationManager.cancel(notificationId);
             }
-
-
         } catch (Exception e) {
             Log.i("VNC", e.getLocalizedMessage());
-            this.insertInlineReply(context, sender, body);
+            if(requestType == RequestType.INLINE_REPLY){
+                this.saveInlineReplyOnError(context, sender, body);
+            }else if(requestType == RequestType.MARK_AS_READ){
+                this.saveMarkAsReadOnError(context, sender);
+            }
             notificationManager.cancel(notificationId);
         }
     }
@@ -98,7 +147,9 @@ class HttpPost implements Runnable {
         return settings.getString(key, null);
     }
 
-    private void insertInlineReply(Context context, String target, String message) {
+    private void saveInlineReplyOnError(Context context, String target, String message) {
+        Log.i("VNC", "saveInlineReplyOnError, target: " + target + ", message: " + message);
+
         Gson gson = new Gson();
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
@@ -114,6 +165,24 @@ class HttpPost implements Runnable {
         editor.apply();
     }
 
+    private void saveMarkAsReadOnError(Context context, String target) {
+        Log.i("VNC", "saveMarkAsReadOnError, target: " + target);
+
+        Gson gson = new Gson();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        String data = preferences.getString("markAsReadFailedRequests", null);
+        ArrayList<MarkAsRead> list = new ArrayList();
+        if (data != null) {
+            Type type = new TypeToken<ArrayList<MarkAsRead>>() {}.getType();
+            list = gson.fromJson(data, type);
+        }
+        list.add(new MarkAsRead(target));
+        String json = gson.toJson(list);
+        editor.putString("markAsReadFailedRequests", json);
+        editor.apply();
+    }
+
     private class Message {
         String target;
         String message;
@@ -123,10 +192,14 @@ class HttpPost implements Runnable {
         }
     }
 
+    private class MarkAsRead {
+        String target;
+        public MarkAsRead(String target) {
+            this.target = target;
+        }
+    }
 
+    enum RequestType {
+        INLINE_REPLY, MARK_AS_READ;
+    }
 }
-
-
-
-
-
