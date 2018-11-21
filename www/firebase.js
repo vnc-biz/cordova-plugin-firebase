@@ -180,6 +180,6 @@ exports.clear = function (id, success, error) {
     exec(success, error, "FirebasePlugin", "clear", [id]);
 };
 
-exports.scheduleLocalNotification = function (id, target, username, groupName, message, eventType, nsound, sound, lights) {
-    exec(success, error, "FirebasePlugin", "scheduleLocalNotification", [id, target, username, groupName, message, eventType, nsound, sound, lights]);
+exports.scheduleLocalNotification = function (params, success, error) {
+    exec(success, error, "FirebasePlugin", "scheduleLocalNotification", [params]);
 };
