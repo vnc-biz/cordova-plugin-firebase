@@ -320,11 +320,11 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             notificationBuilder.addAction(actionMarkAsRead);
         }
 
-        int resID = getResources().getIdentifier("logo", "drawable", getPackageName());
+        int resID = activityOrServiceContext.getResources().getIdentifier("logo", "drawable", activityOrServiceContext.getPackageName());
         if (resID != 0) {
             notificationBuilder.setSmallIcon(resID);
         } else {
-            notificationBuilder.setSmallIcon(getApplicationInfo().icon);
+            notificationBuilder.setSmallIcon(activityOrServiceContext.getApplicationInfo().icon);
         }
 
         if (nsound.equals("mute")) {
@@ -332,7 +332,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         } else {
             if (sound != null) {
                 Log.d(TAG, "sound before path is: " + sound);
-                Uri soundPath = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/" + sound);
+                Uri soundPath = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + activityOrServiceContext.getPackageName() + "/raw/" + sound);
                 Log.d(TAG, "Parsed sound is: " + soundPath.toString());
                 notificationBuilder.setSound(soundPath);
             } else {
@@ -355,20 +355,20 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            int accentID = getResources().getIdentifier("accent", "color", getPackageName());
-            notificationBuilder.setColor(getResources().getColor(accentID, null));
+            int accentID = activityOrServiceContext.getResources().getIdentifier("accent", "color", activityOrServiceContext.getPackageName());
+            notificationBuilder.setColor(activityOrServiceContext.getResources().getColor(accentID, null));
         }
 
         Notification notification = notificationBuilder.build();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             int iconID = android.R.id.icon;
-            int notiID = getResources().getIdentifier("icon" +
-                    "", "mipmap", getPackageName());
+            int notiID = activityOrServiceContext.getResources().getIdentifier("icon" +
+                    "", "mipmap", activityOrServiceContext.getPackageName());
             if (notification.contentView != null) {
                 notification.contentView.setImageViewResource(iconID, notiID);
             }
         }
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         //  Since android Oreo notification channel is needed.
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
