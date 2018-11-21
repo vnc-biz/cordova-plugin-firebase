@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Random;
 
 // Firebase PhoneAuth
 import java.util.concurrent.TimeUnit;
@@ -1135,9 +1134,7 @@ public class FirebasePlugin extends CordovaPlugin {
                try {
                    Context context = cordova.getActivity();
 
-                   Random rand = new Random();
-                   int n = rand.nextInt(1000) + 1;
-                   String id = Integer.toString(n);
+                   String id = params.getString("id");
                    String target = params.getString("target");
                    String username = params.getString("username");
                    String groupName = params.getString("groupName");
