@@ -1152,6 +1152,7 @@ public class FirebasePlugin extends CordovaPlugin {
                    if(FirebasePlugin.crashlyticsInit()){
                        Crashlytics.log(e.getMessage());
                    }
+                   callbackContext.error(e.getMessage());
                }
            }
        });
