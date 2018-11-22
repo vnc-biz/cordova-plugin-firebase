@@ -194,8 +194,10 @@ class HttpPost implements Runnable {
 
     private class MarkAsRead {
         String target;
+        long timestamp;
         public MarkAsRead(String target) {
             this.target = target;
+            this.timestamp = new Date().getTime();
         }
     }
 
