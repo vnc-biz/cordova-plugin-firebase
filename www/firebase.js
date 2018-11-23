@@ -179,3 +179,7 @@ exports.clearAllNotifications = function (success, error) {
 exports.clear = function (id, success, error) {
     exec(success, error, "FirebasePlugin", "clear", [id]);
 };
+
+exports.scheduleLocalNotification = function (params, success, error) {
+    exec(success, error, "FirebasePlugin", "scheduleLocalNotification", [params]);
+};
