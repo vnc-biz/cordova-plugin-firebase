@@ -145,8 +145,8 @@ class HttpPost implements Runnable {
                 // hide all other notifications for this target
                 ArrayList<String> nIds = FirebasePluginMessagingService.removeFromFileAndHideNotificationsForTarget(context, sender);
                 if(nIds != null){
-                    for (int i=0; i<nIds.length(); i++){
-                        notificationManager.cancel(nIds.get(i));
+                    for (int i=0; i<nIds.size(); i++){
+                        notificationManager.cancel(Integer.parseInt(nIds.get(i)));
                     }
                 }
             }

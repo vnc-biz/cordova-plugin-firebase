@@ -180,7 +180,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
       // create file if does nto exist
       if (!file.exists()) {
-          return;
+          return null;
       }
 
       ArrayList<String> nIds = null;
@@ -189,7 +189,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
           // read file into string
           String response = readNotificationsFile(file);
           if(response == null){
-            return;
+            return null;
           }
 
           // parse file content
