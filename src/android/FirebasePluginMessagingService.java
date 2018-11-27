@@ -383,7 +383,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(notificationId, notification);
 
-        saveNotificationsIdInFile(target, id);
+        saveNotificationsIdInFile(activityOrServiceContext, target, id);
     }
 
 
