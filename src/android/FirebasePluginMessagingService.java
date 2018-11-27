@@ -1,24 +1,24 @@
 package org.apache.cordova.firebase;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
-
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
-import android.util.Log;
-import android.app.Notification;
 import android.text.TextUtils;
-import android.content.ContentResolver;
-import android.graphics.Color;
+import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -34,9 +34,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import de.appplant.cordova.plugin.notification.Manager;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -49,11 +52,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String VNC_PEER_JID = "vncPeerJid";
     private static final String NOTIFY_ID = "id";
 
+    private static final String PREVIOUS_MESSAGES_KEY = "previous_messages";
+    private static final String NOTIFY_ID_FOR_DELETING = "notif_id_for_deleting";
+
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
-                activityOrServiceContext.getResources().getIdentifier(
-                        name, "string", activityOrServiceContext.getPackageName()
-                )
+            activityOrServiceContext.getResources().getIdentifier(
+                name, "string", activityOrServiceContext.getPackageName()
+            )
         );
     }
 
@@ -116,7 +122,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
-		            Log.d(TAG, "received empty data?");
+                Log.d(TAG, "received empty data?");
                 return;
             }
 
@@ -133,7 +139,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 String nsound = notification.nsound;
 
                 if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
-		                Log.d(TAG, "returning due to empty 'target' or 'username' values");
+                    Log.d(TAG, "returning due to empty 'target' or 'username' values");
                     return;
                 }
 
@@ -183,19 +189,19 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     }
 
     public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String target, String name, String groupName, String message, String eventType, String nsound, boolean showNotification, String sound, String lights) {
-        Log.d(TAG, "displayNotification: id: " + id);
-        Log.d(TAG, "displayNotification: Target: " + target);
-        Log.d(TAG, "displayNotification: username: " + name);
-        Log.d(TAG, "displayNotification: groupName: " + groupName);
-        Log.d(TAG, "displayNotification: message: " + message);
-        Log.d(TAG, "displayNotification: eventType: " + eventType);
-        Log.d(TAG, "displayNotification: nsound: " + nsound);
-        Log.d(TAG, "displayNotification: showNotification: " + showNotification);
-        Log.d(TAG, "displayNotification: sound: " + sound);
-        Log.d(TAG, "displayNotification: lights: " + lights);
+        Log.i(TAG, "displayNotification: id: " + id);
+        Log.i(TAG, "displayNotification: Target: " + target);
+        Log.i(TAG, "displayNotification: username: " + name);
+        Log.i(TAG, "displayNotification: groupName: " + groupName);
+        Log.i(TAG, "displayNotification: message: " + message);
+        Log.i(TAG, "displayNotification: eventType: " + eventType);
+        Log.i(TAG, "displayNotification: nsound: " + nsound);
+        Log.i(TAG, "displayNotification: showNotification: " + showNotification);
+        Log.i(TAG, "displayNotification: sound: " + sound);
+        Log.i(TAG, "displayNotification: lights: " + lights);
 
         if (!showNotification) {
-          return;
+            return;
         }
 
         Integer notificationId = Integer.parseInt(id);
@@ -210,42 +216,42 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
 
             replyPendingIntent = PendingIntent.getBroadcast(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(inlineReplyActionName),
-                    0);
+                REQUEST_CODE_HELP,
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                    .setAction(inlineReplyActionName),
+                0);
 
             markAsReadPendingIntent = PendingIntent.getBroadcast(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(markAsReadActionName),
-                    0);
+                REQUEST_CODE_HELP,
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                    .setAction(markAsReadActionName),
+                0);
         } else {
             Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
 
             replyPendingIntent = PendingIntent.getActivity(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, ReplyActivity.class)
-                            .setAction(inlineReplyActionName),
-                    0);
+                REQUEST_CODE_HELP,
+                new Intent(activityOrServiceContext, ReplyActivity.class)
+                    .setAction(inlineReplyActionName),
+                0);
 
             markAsReadPendingIntent = PendingIntent.getActivity(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, ReplyActivity.class)
-                            .setAction(markAsReadActionName),
-                    0);
+                REQUEST_CODE_HELP,
+                new Intent(activityOrServiceContext, ReplyActivity.class)
+                    .setAction(markAsReadActionName),
+                0);
         }
 
         NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
-                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
-                .addRemoteInput(new RemoteInput.Builder("Reply")
-                        .setLabel("Type your message").build())
-                .setAllowGeneratedReplies(true)
-                .build();
+            android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+            .addRemoteInput(new RemoteInput.Builder("Reply")
+                .setLabel("Type your message").build())
+            .setAllowGeneratedReplies(true)
+            .build();
 
         NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
-                android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent)
-                .build();
+            android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent)
+            .build();
 
         Log.d(TAG, "going to show notification with " + nsound);
 
@@ -272,47 +278,82 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (eventType.equals("chat")) {
             title = name;
             text = message;
+
         } else {
             title = groupName != null && groupName.length() > 0 ? groupName : target;
             text = name;
-            if(message != null && message.trim().length() > 0) {
+            if (message != null && message.trim().length() > 0) {
                 text = text + " : " + message;
             }
         }
 
         Log.d(TAG, "Notification group name: " + title);
 
+        /////////////////////
+
+        StatusBarNotification[] activeToasts = ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+        List<String> msgs = new ArrayList<String>();
+        int count = 0;
+        int notifId = 0;
+        for (StatusBarNotification sbn : activeToasts) {
+            count++;
+            String currentTitle = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TITLE).toString();
+            String currentText = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+            List<String> previousMessages = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES_KEY);
+            Log.i("vnc", "NOTIFICATION " + count + " : = " + currentTitle + " : " + currentText + " : " + previousMessages);
+
+            if (currentTitle.equals(title)) {
+                notifId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_DELETING);
+                msgs.addAll(previousMessages);
+                break;
+            }
+        }
+        msgs.add(text);
+
+        /////////////////////
+        // deleting previous notification
+        NotificationManager nMgr = (NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancel(notifId);
+        /////////////////////
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
+
+        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(null);
+        messagingStyle.setConversationTitle(title);
+
+        for (String msg : msgs) {
+            messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+        }
 
         if (nsound.equals("mute")) {
             Log.d(TAG, "notification nsound: " + title);
-
             notificationBuilder
-                    .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
-                    .setContentTitle(title)
-                    .setContentText(text)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
-                    .setAutoCancel(true)
-                    .setShowWhen(true)
-                    .setContentIntent(pendingIntent)
-                    .setSound(null)
-                    .setGroup(title)
-                    .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                //.setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                .setStyle(messagingStyle)
+                .setAutoCancel(true)
+                .setShowWhen(true)
+                .setContentIntent(pendingIntent)
+                .setSound(null)
+                .setGroup(title)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
 
         } else {
             notificationBuilder
-                    .setDefaults(NotificationCompat.DEFAULT_ALL)
-                    .setContentTitle(title)
-                    .setContentText(text)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
-                    .setAutoCancel(true)
-                    .setShowWhen(true)
-                    .setContentIntent(pendingIntent)
-                    .setSound(defaultSoundUri)
-                    .setGroup(title)
-                    .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setStyle(messagingStyle)
+                .setAutoCancel(true)
+                .setShowWhen(true)
+                .setContentIntent(pendingIntent)
+                .setSound(defaultSoundUri)
+                .setGroup(title)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
         }
 
         if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
@@ -360,10 +401,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         Notification notification = notificationBuilder.build();
+
+        notification.extras.putStringArrayList(PREVIOUS_MESSAGES_KEY, (ArrayList<String>) msgs);
+        notification.extras.putInt(NOTIFY_ID_FOR_DELETING, notificationId);
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             int iconID = android.R.id.icon;
             int notiID = activityOrServiceContext.getResources().getIdentifier("icon" +
-                    "", "mipmap", activityOrServiceContext.getPackageName());
+                "", "mipmap", activityOrServiceContext.getPackageName());
             if (notification.contentView != null) {
                 notification.contentView.setImageViewResource(iconID, notiID);
             }
@@ -391,14 +436,16 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         return settings.getString(key, null);
     }
+
+    class Payload {
+        public String jid;
+        public String name;
+        public String eType;
+        public String body;
+        public String gt;
+        public String nType;
+        public String nsound;
+    }
 }
 
-class Payload {
-    public String jid;
-    public String name;
-    public String eType;
-    public String body;
-    public String gt;
-    public String nType;
-    public String nsound;
-}
+
