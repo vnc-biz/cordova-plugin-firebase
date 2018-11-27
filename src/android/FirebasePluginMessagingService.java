@@ -69,28 +69,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        File file = new File(this.getFilesDir(), FILE_NAME);
-
-        FileReader fileReader = null;
-        FileWriter fileWriter = null;
-        BufferedReader bufferedReader = null;
-        BufferedWriter bufferedWriter = null;
-
-        String response = null;
-
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                fileWriter = new FileWriter(file.getAbsoluteFile());
-                bufferedWriter = new BufferedWriter(fileWriter);
-                bufferedWriter.write("{}");
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -139,46 +117,66 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
                 displayNotification(this, getApplicationContext(), id, target, username, groupName, message, eventType, nsound, showNotification, "", "");
-
-                try {
-                    StringBuffer output = new StringBuffer();
-                    fileReader = new FileReader(file.getAbsolutePath());
-                    bufferedReader = new BufferedReader(fileReader);
-
-                    String line = "";
-
-                    while ((line = bufferedReader.readLine()) != null) {
-                        output.append(line + "\n");
-                    }
-
-                    response = output.toString();
-                    bufferedReader.close();
-
-                    JSONObject messageDetails = new JSONObject(response);
-                    Boolean isUserExisting = messageDetails.has(target);
-
-                    if (isUserExisting) {
-                        JSONArray userMessages = (JSONArray) messageDetails.get(target);
-                        userMessages.put(id);
-                    } else {
-                        JSONArray newUserMessages = new JSONArray();
-                        newUserMessages.put(id);
-                        messageDetails.put(target, newUserMessages);
-                    }
-
-                    fileWriter = new FileWriter(file.getAbsoluteFile());
-                    BufferedWriter bw = new BufferedWriter(fileWriter);
-                    bw.write(messageDetails.toString());
-                    bw.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
             return;
+        }
+    }
+
+    private static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, String id){
+        File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        BufferedReader bufferedReader = null;
+        BufferedWriter bufferedWriter = null;
+        String response = null;
+
+        // create file if does nto exist
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                fileWriter = new FileWriter(file.getAbsoluteFile());
+                bufferedWriter = new BufferedWriter(fileWriter);
+                bufferedWriter.write("{}");
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            // read file into string
+            StringBuffer output = new StringBuffer();
+            fileReader = new FileReader(file.getAbsolutePath());
+            bufferedReader = new BufferedReader(fileReader);
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+            response = output.toString();
+            bufferedReader.close();
+             // parse file content
+            JSONObject messageDetails = new JSONObject(response);
+             // put notification id
+            Boolean isConversationExisting = messageDetails.has(target);
+            if (isConversationExisting) {
+                JSONArray userMessages = (JSONArray) messageDetails.get(target);
+                userMessages.put(id);
+            } else {
+                JSONArray newUserMessages = new JSONArray();
+                newUserMessages.put(id);
+                messageDetails.put(target, newUserMessages);
+            }
+             // save file
+            fileWriter = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fileWriter);
+            bw.write(messageDetails.toString());
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -384,6 +382,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         notificationManager.notify(notificationId, notification);
+
+        saveNotificationsIdInFile(target, id);
     }
 
 
