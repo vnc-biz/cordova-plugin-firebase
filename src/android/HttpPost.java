@@ -18,6 +18,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.ArrayList;
 
 class HttpPost implements Runnable {
     private String body;
@@ -139,6 +140,16 @@ class HttpPost implements Runnable {
                 this.saveMarkAsReadOnError(context, sender);
             }
             notificationManager.cancel(notificationId);
+        } finally {
+            if(requestType == RequestType.MARK_AS_READ){
+                // hide all other notifications for this target
+                ArrayList<String> nIds = FirebasePluginMessagingService.removeFromFileAndHideNotificationsForTarget(context, sender);
+                if(nIds != null){
+                    for (int i=0; i<nIds.length(); i++){
+                        notificationManager.cancel(nIds.get(i));
+                    }
+                }
+            }
         }
     }
 
