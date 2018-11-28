@@ -105,9 +105,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
             for (int i = 0; i < data.length(); i++) {
                 Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
-                Random rand = new Random();
-                int n = rand.nextInt(1000) + 1;
-                String id = Integer.toString(n);
                 String target = notification.jid;
                 String username = notification.name;
                 String groupName = notification.gt;
@@ -121,7 +118,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                displayNotification(this, getApplicationContext(), id, target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                displayNotification(this, getApplicationContext(), 0, target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -261,7 +258,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     }
 
     public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String target, String name, String groupName, String message, String eventType, String nsound, boolean showNotification, String sound, String lights) {
-        Log.i(TAG, "displayNotification: id: " + id);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
         Log.i(TAG, "displayNotification: groupName: " + groupName);
@@ -276,7 +272,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        Integer notificationId = Integer.parseInt(id);
+        Integer notificationId = Integer.valueOf(id);
+        if(notificationId == 0){
+            notificationId = target.hashCode();
+        }
+
+        Log.i(TAG, "displayNotification: id: " + notificationId);
 
         String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
         String channelName = getStringResource(activityOrServiceContext, "default_notification_channel_name");
@@ -319,13 +320,16 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             List<String> previousMessages = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES);
 
             Log.i("vnc", "NOTIFICATION " + count + " : = " + currentTitle + " : " + currentTarget + " : "
-                    + currentText + " : " + previousMessages);
+                    + currentText + " : " + previousMessages + ". Message: " + message);
 
             if (currentTarget != null && currentTarget.equals(target)) {
                 notificationId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_UPDATING);
                 msgs.addAll(previousMessages);
                 break;
             }
+        }
+        if(count == 0){
+          Log.i("vnc", "no notifications in Status bar, when message: " + message);
         }
         msgs.add(text);
 
