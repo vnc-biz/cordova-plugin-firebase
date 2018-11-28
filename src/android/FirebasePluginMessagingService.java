@@ -131,7 +131,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, String id){
+    private static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, Integer nId){
         File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
 
         FileWriter fileWriter;
@@ -156,6 +156,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
               return;
             }
 
+            String nIdString = String.valueOf(nId);
+
             // parse file content
             JSONObject messageDetails = new JSONObject(response);
 
@@ -163,10 +165,20 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Boolean isConversationExisting = messageDetails.has(target);
             if (isConversationExisting) {
                 JSONArray userMessages = (JSONArray) messageDetails.get(target);
-                userMessages.put(id);
+
+                boolean idAlreadyExists = false;
+                for (int i = 0; i < userMessages.length(); i++) {
+                  if (userMessages.get(i).toString().equals(nIdString)){
+                    idAlreadyExists = true;
+                    break;
+                  }
+                }
+                if(!idAlreadyExists){
+                    userMessages.put(nIdString);
+                }
             } else {
                 JSONArray newUserMessages = new JSONArray();
-                newUserMessages.put(id);
+                newUserMessages.put(nIdString);
                 messageDetails.put(target, newUserMessages);
             }
              // save file
@@ -317,14 +329,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         Log.d(TAG, "going to show notification with " + nsound);
 
-        Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(VNC_PEER_JID, target);
-        bundle.putString("vncEventType", "chat");
-        bundle.putInt(NOTIFY_ID, notificationId);
-        intent.putExtras(bundle);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(activityOrServiceContext, Integer.parseInt(id), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
         String channelName = getStringResource(activityOrServiceContext, "default_notification_channel_name");
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -356,7 +360,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         StatusBarNotification[] activeToasts = ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
         List<String> msgs = new ArrayList<String>();
         int count = 0;
-        int notifId = 0;
         for (StatusBarNotification sbn : activeToasts) {
             count++;
             String currentTitle = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TITLE).toString();
@@ -365,18 +368,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Log.i("vnc", "NOTIFICATION " + count + " : = " + currentTitle + " : " + currentText + " : " + previousMessages);
 
             if (currentTitle.equals(title)) {
-                notifId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_DELETING);
+                notificationId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_DELETING);
                 msgs.addAll(previousMessages);
                 break;
             }
         }
         msgs.add(text);
-
-        /////////////////////
-        // deleting previous notification
-        NotificationManager nMgr = (NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        nMgr.cancel(notifId);
-        /////////////////////
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
 
@@ -386,6 +383,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         for (String msg : msgs) {
             messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
         }
+
+        Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(VNC_PEER_JID, target);
+        bundle.putString("vncEventType", "chat");
+        bundle.putInt(NOTIFY_ID, notificationId);
+        intent.putExtras(bundle);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (nsound.equals("mute")) {
             Log.d(TAG, "notification nsound: " + title);
@@ -492,7 +497,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(notificationId, notification);
 
-        saveNotificationsIdInFile(activityOrServiceContext, target, id);
+        saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
 
@@ -511,5 +516,3 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         public String nsound;
     }
 }
-
-
