@@ -118,7 +118,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                displayNotification(this, getApplicationContext(), 0, target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                displayNotification(this, getApplicationContext(), "0", target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {
             e.printStackTrace();
