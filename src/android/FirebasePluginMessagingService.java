@@ -278,55 +278,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         Integer notificationId = Integer.parseInt(id);
 
-        String inlineReplyActionName = NOTIFICATION_REPLY + "@@" + id + "@@" + target;
-        String markAsReadActionName = MARK_AS_READ_REPLY + "@@" + id + "@@" + target;
-        //
-        PendingIntent replyPendingIntent;
-        PendingIntent markAsReadPendingIntent;
-        //
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
-
-            replyPendingIntent = PendingIntent.getBroadcast(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(inlineReplyActionName),
-                    0);
-
-            markAsReadPendingIntent = PendingIntent.getBroadcast(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(markAsReadActionName),
-                    0);
-        } else {
-            Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
-
-            replyPendingIntent = PendingIntent.getActivity(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, ReplyActivity.class)
-                            .setAction(inlineReplyActionName),
-                    0);
-
-            markAsReadPendingIntent = PendingIntent.getActivity(appContext,
-                    REQUEST_CODE_HELP,
-                    new Intent(activityOrServiceContext, ReplyActivity.class)
-                            .setAction(markAsReadActionName),
-                    0);
-        }
-
-        NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
-                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
-                .addRemoteInput(new RemoteInput.Builder("Reply")
-                        .setLabel("Type your message").build())
-                .setAllowGeneratedReplies(true)
-                .build();
-
-        NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
-                android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent)
-                .build();
-
-        Log.d(TAG, "going to show notification with " + nsound);
-
         String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
         String channelName = getStringResource(activityOrServiceContext, "default_notification_channel_name");
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -342,7 +293,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (eventType.equals("chat")) {
             title = name;
             text = message;
-
         } else {
             title = groupName != null && groupName.length() > 0 ? groupName : target;
             text = name;
@@ -351,7 +301,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
         }
 
-        Log.d(TAG, "Notification group name: " + title);
+        Log.d(TAG, "Notification title: " + title);
 
         ////////////////////////////////////////////////////////////////////////////////////
         // Find previous messages and update notification ID
@@ -425,6 +375,56 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     .setGroup(title)
                     .setPriority(NotificationCompat.PRIORITY_MAX);
         }
+
+        // Add actions
+        //
+        String notificationIdString = String.valueOf(notificationId);
+        String inlineReplyActionName = NOTIFICATION_REPLY + "@@" + notificationIdString + "@@" + target;
+        String markAsReadActionName = MARK_AS_READ_REPLY + "@@" + notificationIdString + "@@" + target;
+        //
+        PendingIntent replyPendingIntent;
+        PendingIntent markAsReadPendingIntent;
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
+
+            replyPendingIntent = PendingIntent.getBroadcast(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(inlineReplyActionName),
+                    0);
+
+            markAsReadPendingIntent = PendingIntent.getBroadcast(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(markAsReadActionName),
+                    0);
+        } else {
+            Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
+
+            replyPendingIntent = PendingIntent.getActivity(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(inlineReplyActionName),
+                    0);
+
+            markAsReadPendingIntent = PendingIntent.getActivity(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(markAsReadActionName),
+                    0);
+        }
+
+        NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+                .addRemoteInput(new RemoteInput.Builder("Reply")
+                        .setLabel("Type your message").build())
+                .setAllowGeneratedReplies(true)
+                .build();
+
+        NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent)
+                .build();
 
         if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
             notificationBuilder.addAction(actionReply);
