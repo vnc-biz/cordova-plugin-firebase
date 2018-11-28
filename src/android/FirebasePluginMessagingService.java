@@ -53,7 +53,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String PREVIOUS_MESSAGES = "previousMessages";
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
-        
+
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
                 activityOrServiceContext.getResources().getIdentifier(
@@ -371,7 +371,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Log.i("vnc", "NOTIFICATION " + count + " : = " + currentTitle + " : " + currentTarget + " : "
                     + currentText + " : " + previousMessages);
 
-            if (currentTarget.equals(target)) {
+            if (currentTarget != null && currentTarget.equals(target)) {
                 notificationId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_UPDATING);
                 msgs.addAll(previousMessages);
                 break;
