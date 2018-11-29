@@ -307,7 +307,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         ////////////////////////////////////////////////////////////////////////////////////
         // Find previous messages and update notification ID
         ////////////////////////////////////////////////////////////////////////////////////
-        StatusBarNotification[] activeToasts = ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+        StatusBarNotification[] activeToasts = new StatusBarNotification[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            activeToasts = ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+        }
         List<String> msgs = new ArrayList<String>();
         int count = 0;
         for (StatusBarNotification sbn : activeToasts) {
