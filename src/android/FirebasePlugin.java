@@ -73,6 +73,7 @@ public class FirebasePlugin extends CordovaPlugin {
     private static ArrayList<Bundle> notificationStack = null;
     private static CallbackContext notificationCallbackContext;
     private static CallbackContext tokenRefreshCallbackContext;
+    private static CallbackContext notificationMarkAsReadCallbackContext;
 
     @Override
     protected void pluginInitialize() {
@@ -133,6 +134,9 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("onNotificationOpen")) {
             this.onNotificationOpen(callbackContext);
+            return true;
+        } else if (action.equals("onNotificationMarkAsRead")) {
+            this.onNotificationMarkAsRead(callbackContext);
             return true;
         } else if (action.equals("onTokenRefresh")) {
             this.onTokenRefresh(callbackContext);
@@ -235,6 +239,7 @@ public class FirebasePlugin extends CordovaPlugin {
     public void onReset() {
         FirebasePlugin.notificationCallbackContext = null;
         FirebasePlugin.tokenRefreshCallbackContext = null;
+        FirebasePlugin.notificationMarkAsReadCallbackContext = null;
     }
 
     @Override
@@ -302,6 +307,10 @@ public class FirebasePlugin extends CordovaPlugin {
         }
     }
 
+    private void onNotificationMarkAsRead(final CallbackContext callbackContext) {
+      FirebasePlugin.notificationMarkAsReadCallbackContext = callbackContext;
+    }
+
     private void onTokenRefresh(final CallbackContext callbackContext) {
         FirebasePlugin.tokenRefreshCallbackContext = callbackContext;
 
@@ -352,6 +361,32 @@ public class FirebasePlugin extends CordovaPlugin {
             pluginresult.setKeepCallback(true);
             callbackContext.sendPluginResult(pluginresult);
         }
+    }
+
+    public static void sendNotificationMarkAsRead(Bundle bundle) {
+        final CallbackContext callbackContext = FirebasePlugin.notificationMarkAsReadCallbackContext;
+
+        if(callbackContext == null || bundle = null){
+            return;
+        }
+
+        JSONObject json = new JSONObject();
+        Set<String> keys = bundle.keySet();
+        for (String key : keys) {
+            try {
+                json.put(key, bundle.get(key));
+            } catch (JSONException e) {
+                if(FirebasePlugin.crashlyticsInit()){
+                  Crashlytics.logException(e);
+                }
+                callbackContext.error(e.getMessage());
+                return;
+            }
+        }
+
+        PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, json);
+        pluginresult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginresult);
     }
 
     public static void sendToken(String token) {

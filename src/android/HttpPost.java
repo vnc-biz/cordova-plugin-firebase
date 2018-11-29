@@ -149,6 +149,10 @@ class HttpPost implements Runnable {
                         notificationManager.cancel(Integer.parseInt(nIds.get(i)));
                     }
                 }
+
+                Bundle data = new Bundle();
+                // data.putBoolean("tap", true);
+                FirebasePlugin.sendNotificationMarkAsRead(data);
             }
         }
     }
