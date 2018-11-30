@@ -151,7 +151,7 @@ class HttpPost implements Runnable {
                 }
 
                 Bundle data = new Bundle();
-                // data.putBoolean("tap", true);
+                data.putBoolean("target", sender);
                 FirebasePlugin.sendNotificationMarkAsRead(data);
             }
         }

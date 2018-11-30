@@ -308,7 +308,7 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     private void onNotificationMarkAsRead(final CallbackContext callbackContext) {
-      FirebasePlugin.notificationMarkAsReadCallbackContext = callbackContext;
+        FirebasePlugin.notificationMarkAsReadCallbackContext = callbackContext;
     }
 
     private void onTokenRefresh(final CallbackContext callbackContext) {
