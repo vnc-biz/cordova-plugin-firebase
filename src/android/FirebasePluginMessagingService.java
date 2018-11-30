@@ -296,6 +296,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             defaultSoundUri = null;
         }
 
+        String typeOfLink = getTypeOfLink(message);
+        message = typeOfLink == null ? message : typeOfLink;
+
         String title;
         String text;
         if (eventType.equals("chat")) {
@@ -349,14 +352,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         messagingStyle.setConversationTitle(title);
 
         for (String msg : msgs) {
-            Log.i("vnc", "TYPE OF LINK = " + getTypeOfLink(msg));
-            String typeOfLink = getTypeOfLink(msg);
-            if (typeOfLink != null) {
-                msg = typeOfLink;
-            }
             messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
         }
-
 
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
