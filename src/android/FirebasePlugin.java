@@ -366,7 +366,7 @@ public class FirebasePlugin extends CordovaPlugin {
     public static void sendNotificationMarkAsRead(Bundle bundle) {
         final CallbackContext callbackContext = FirebasePlugin.notificationMarkAsReadCallbackContext;
 
-        if(callbackContext == null || bundle = null){
+        if(callbackContext == null || bundle == null){
             return;
         }
 
@@ -420,6 +420,10 @@ public class FirebasePlugin extends CordovaPlugin {
 
     public static boolean hasNotificationsCallback() {
         return FirebasePlugin.notificationCallbackContext != null;
+    }
+
+    public static boolean hasNotificationsMarkAsReadCallback() {
+        return FirebasePlugin.notificationMarkAsReadCallbackContext != null;
     }
 
     @Override

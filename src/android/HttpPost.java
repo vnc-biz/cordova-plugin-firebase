@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
+import android.os.Bundle;
 
 import org.json.JSONObject;
 import com.google.gson.Gson;
@@ -151,7 +151,7 @@ class HttpPost implements Runnable {
                 }
 
                 Bundle data = new Bundle();
-                data.putBoolean("target", sender);
+                data.putString("target", sender);
                 FirebasePlugin.sendNotificationMarkAsRead(data);
             }
         }
