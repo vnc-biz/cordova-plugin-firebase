@@ -35,9 +35,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -53,6 +53,13 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String PREVIOUS_MESSAGES = "previousMessages";
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
+
+    private static final String AUDIO_FORMAT = "Audio";
+    private static final String VOICE_FORMAT = "Voice Message";
+    private static final String PHOTO_FORMAT = "Photo";
+    private static final String LINK_FORMAT = "Link";
+    private final String EMODJI_FORMAT = "Emodji";
+
 
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
@@ -273,7 +280,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         Integer notificationId = Integer.valueOf(id);
-        if(notificationId == 0){
+        if (notificationId == 0) {
             notificationId = target.hashCode();
         }
 
@@ -331,8 +338,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 break;
             }
         }
-        if(count == 0){
-          Log.i("vnc", "no notifications in Status bar, when message: " + message);
+        if (count == 0) {
+            Log.i("vnc", "no notifications in Status bar, when message: " + message);
         }
         msgs.add(text);
 
@@ -342,8 +349,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         messagingStyle.setConversationTitle(title);
 
         for (String msg : msgs) {
+            Log.i("vnc", "TYPE OF LINK = " + getTypeOfLink(msg));
+            String typeOfLink = getTypeOfLink(msg);
+            if (typeOfLink != null) {
+                msg = typeOfLink;
+            }
             messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
         }
+
 
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
@@ -509,6 +522,36 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         notificationManager.notify(notificationId, notification);
 
         saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
+    }
+
+    private static String getTypeOfLink(String text) {
+        if (text == null || text.isEmpty()) {
+            return null;
+        }
+        text = text.trim();
+        if (!text.startsWith("http") && !text.startsWith("https") ||
+                ((text.startsWith("http") || text.startsWith("https") && text.length() > 8))) {
+            return null;
+        }
+
+        List<String> photoFormat = Arrays.asList("jpg", "jpeg", "png", "gif", "bmp");
+        List<String> audioFormat = Arrays.asList("wav", "mp3", "wma", "webm", "ogg");
+
+        if (text.contains("audio_recording_")) {
+            return VOICE_FORMAT;
+        }
+
+        String extension = text.substring(text.lastIndexOf(".") + 1);
+
+        if (photoFormat.indexOf(extension) != -1) {
+            return PHOTO_FORMAT;
+        }
+
+        if (audioFormat.indexOf(extension) != -1) {
+            return AUDIO_FORMAT;
+        }
+
+        return LINK_FORMAT;
     }
 
 
