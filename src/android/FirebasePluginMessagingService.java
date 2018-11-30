@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePlugin";
@@ -59,7 +58,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String VOICE_FORMAT = "Voice Message";
     private static final String PHOTO_FORMAT = "Photo";
     private static final String LINK_FORMAT = "Link";
-    private final String EMODJI_FORMAT = "Emoji";
+    private final String EMODJI_FORMAT = "Emodji";
 
 
     private static String getStringResource(Context activityOrServiceContext, String name) {
@@ -367,20 +366,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         intent.putExtras(bundle);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        //RemoteViews contentView = new RemoteViews(activityOrServiceContext.getPackageName(), R.layout.custom_push);
-        //contentView.setImageViewResource(R.id.image, R.mipmap.icon);
-        //contentView.setTextViewText(R.id.title, "Custom notification");
-        //contentView.setTextViewText(R.id.text, text);
-
-
         if (nsound.equals("mute")) {
             Log.d(TAG, "notification nsound: " + title);
             notificationBuilder
                     .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
                     .setContentTitle(title)
-
+                    .setContentText(text)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//                    .setStyle(messagingStyle)
+                    .setStyle(messagingStyle)
                     .setAutoCancel(true)
                     .setShowWhen(true)
                     .setContentIntent(pendingIntent)
@@ -536,7 +529,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return null;
         }
         text = text.trim();
-        if (!text.startsWith("http") && !text.startsWith("https")) {
+        if (!text.startsWith("http") && !text.startsWith("https") ||
+                ((text.startsWith("http") || text.startsWith("https") && text.length() > 8))) {
             return null;
         }
 
