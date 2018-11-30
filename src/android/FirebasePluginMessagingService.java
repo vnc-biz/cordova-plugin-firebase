@@ -529,8 +529,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return null;
         }
         text = text.trim();
-        if (!text.startsWith("http") && !text.startsWith("https") ||
-                ((text.startsWith("http") || text.startsWith("https") && text.length() > 8))) {
+        if (!text.startsWith("http") && !text.startsWith("https")) {
             return null;
         }
 
