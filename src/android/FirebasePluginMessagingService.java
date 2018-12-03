@@ -54,12 +54,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
 
-    private static final String AUDIO_FORMAT = "Audio";
-    private static final String VOICE_FORMAT = "Voice Message";
-    private static final String PHOTO_FORMAT = "Photo";
-    private static final String LINK_FORMAT = "Link";
-    private final String EMODJI_FORMAT = "Emodji";
-
+    private static final String AUDIO_FORMAT = "\uD83D\uDCFC Audio";
+    private static final String VOICE_FORMAT = "\uD83C\uDF99 Voice Message";
+    private static final String PHOTO_FORMAT = "\uD83D\uDCF7 Photo";
+    private static final String LINK_FORMAT = "\uD83D\uDD17 Link";
 
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
