@@ -349,10 +349,17 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
 
         NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(null);
-        messagingStyle.setConversationTitle(title);
-
+        //
+        if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
+            messagingStyle.setConversationTitle(title);
+        }
+        //
         for (String msg : msgs) {
-            messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+            if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
+                messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+            }else{
+                messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
+            }
         }
 
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
