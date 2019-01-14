@@ -1,26 +1,18 @@
 package org.apache.cordova.firebase;
 
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
-
-import org.json.JSONObject;
-
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
     private static final String NOTIFICATION_REPLY = "NotificationReply";
     private static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
     private static final String VNC_PEER_JID = "vncPeerJid";
-    private static final String  NOTIFY_ID = "id";
+    private static final String NOTIFY_ID = "id";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -36,15 +28,15 @@ public class NotificationReceiver extends BroadcastReceiver {
                 Thread thread = new Thread(new HttpPost(message.toString(), target, notificationId, context));
                 thread.start();
             }
-        }else if (intent.getAction().contains(MARK_AS_READ_REPLY)) {
-          String[] actionParts = intent.getAction().split("@@");
-          int notificationId = Integer.parseInt(actionParts[1]);
-          String target = actionParts[2];
+        } else if (intent.getAction().contains(MARK_AS_READ_REPLY)) {
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            String target = actionParts[2];
 
-          Log.i("VNC", "NotificationReceiver onReceive MarkAsReadReply, notificationId: " + notificationId + ", target: " + target);
+            Log.i("VNC", "NotificationReceiver onReceive MarkAsReadReply, notificationId: " + notificationId + ", target: " + target);
 
-          Thread thread = new Thread(new HttpPost(target, notificationId, context));
-          thread.start();
+            Thread thread = new Thread(new HttpPost(target, notificationId, context));
+            thread.start();
         }
     }
 

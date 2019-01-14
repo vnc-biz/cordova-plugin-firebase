@@ -2,23 +2,24 @@ package org.apache.cordova.firebase;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.os.Bundle;
 
-import org.json.JSONObject;
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.lang.reflect.Type;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.cordova.firebase.notification.NotificationDisplayManager;
+import org.apache.cordova.firebase.utils.NotificationUtils;
+import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.json.JSONObject;
+
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 
 class HttpPost implements Runnable {
     private String body;
@@ -58,26 +59,26 @@ class HttpPost implements Runnable {
         initNotificationObjects();
     }
 
-    private void initNotificationObjects(){
+    private void initNotificationObjects() {
         notificationManager = (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(this.context);
     }
 
-    private void initToken(){
-        mToken = getPreference(this.context, TOKEN_CONSTANT);
+    private void initToken() {
+        mToken = SharedPrefsUtils.getString(this.context, TOKEN_CONSTANT);
     }
 
-    private void chooseAndSetApiUrl(){
+    private void chooseAndSetApiUrl() {
         String baseApiUrl = baseApiUrl();
-        if(this.requestType == RequestType.INLINE_REPLY){
+        if (this.requestType == RequestType.INLINE_REPLY) {
             mApiUrl = baseApiUrl + "/xmpp-rest";
-        }else if(this.requestType == RequestType.MARK_AS_READ){
+        } else if (this.requestType == RequestType.MARK_AS_READ) {
             mApiUrl = baseApiUrl + "/markConversationsRead";
         }
     }
 
-    private String baseApiUrl(){
-        return getPreference(this.context, API_URL);
+    private String baseApiUrl() {
+        return SharedPrefsUtils.getString(this.context, API_URL);
     }
 
     @Override
@@ -86,17 +87,17 @@ class HttpPost implements Runnable {
             Log.i("VNC", "Token : " + mToken);
             Log.i("VNC", "notificationId : " + notificationId);
             Log.i("VNC", "To : " + sender);
-            if(requestType == RequestType.INLINE_REPLY){
+            if (requestType == RequestType.INLINE_REPLY) {
                 Log.i("VNC", "Message body : " + body);
             }
             Log.i("VNC", "Api Url : " + mApiUrl);
 
             JSONObject postData = new JSONObject();
-            if(requestType == RequestType.INLINE_REPLY){
+            if (requestType == RequestType.INLINE_REPLY) {
                 postData.put("target", sender);
                 postData.put("messagetext", body);
-            }else if(requestType == RequestType.MARK_AS_READ){
-                postData.put(sender, new Date().getTime()/1000);
+            } else if (requestType == RequestType.MARK_AS_READ) {
+                postData.put(sender, new Date().getTime() / 1000);
             }
 
             Log.i("VNC", "postData : " + postData);
@@ -125,27 +126,27 @@ class HttpPost implements Runnable {
             if (statusCode == 200) {
                 notificationManager.cancel(notificationId);
             } else {
-                if(requestType == RequestType.INLINE_REPLY){
+                if (requestType == RequestType.INLINE_REPLY) {
                     this.saveInlineReplyOnError(context, sender, body);
-                }else if(requestType == RequestType.MARK_AS_READ){
+                } else if (requestType == RequestType.MARK_AS_READ) {
                     this.saveMarkAsReadOnError(context, sender);
                 }
                 notificationManager.cancel(notificationId);
             }
         } catch (Exception e) {
             Log.i("VNC", e.getLocalizedMessage());
-            if(requestType == RequestType.INLINE_REPLY){
+            if (requestType == RequestType.INLINE_REPLY) {
                 this.saveInlineReplyOnError(context, sender, body);
-            }else if(requestType == RequestType.MARK_AS_READ){
+            } else if (requestType == RequestType.MARK_AS_READ) {
                 this.saveMarkAsReadOnError(context, sender);
             }
             notificationManager.cancel(notificationId);
         } finally {
-            if(requestType == RequestType.MARK_AS_READ){
+            if (requestType == RequestType.MARK_AS_READ) {
                 // hide all other notifications for this target
-                ArrayList<String> nIds = FirebasePluginMessagingService.removeFromFileAndHideNotificationsForTarget(context, sender);
-                if(nIds != null){
-                    for (int i=0; i<nIds.size(); i++){
+                ArrayList<String> nIds = NotificationUtils.removeFromFileAndHideNotificationsForTarget(context, sender);
+                if (nIds != null) {
+                    for (int i = 0; i < nIds.size(); i++) {
                         notificationManager.cancel(Integer.parseInt(nIds.get(i)));
                     }
                 }
@@ -157,51 +158,44 @@ class HttpPost implements Runnable {
         }
     }
 
-    private String getPreference(Context context, String key) {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        return settings.getString(key, null);
-    }
-
     private void saveInlineReplyOnError(Context context, String target, String message) {
         Log.i("VNC", "saveInlineReplyOnError, target: " + target + ", message: " + message);
 
         Gson gson = new Gson();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        String data = preferences.getString("replyMessages", null);
+        String data = SharedPrefsUtils.getString(context, "replyMessages");
         ArrayList<Message> list = new ArrayList();
         if (data != null) {
-            Type type = new TypeToken<ArrayList<Message>>() {}.getType();
+            Type type = new TypeToken<ArrayList<Message>>() {
+            }.getType();
             list = gson.fromJson(data, type);
         }
         list.add(new Message(target, message));
         String json = gson.toJson(list);
-        editor.putString("replyMessages", json);
-        editor.apply();
+
+        SharedPrefsUtils.putString(context, "replyMessages", json);
     }
 
     private void saveMarkAsReadOnError(Context context, String target) {
         Log.i("VNC", "saveMarkAsReadOnError, target: " + target);
 
         Gson gson = new Gson();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        String data = preferences.getString("markAsReadFailedRequests", null);
+        String data = SharedPrefsUtils.getString(context, "markAsReadFailedRequests");
         ArrayList<MarkAsRead> list = new ArrayList();
         if (data != null) {
-            Type type = new TypeToken<ArrayList<MarkAsRead>>() {}.getType();
+            Type type = new TypeToken<ArrayList<MarkAsRead>>() {
+            }.getType();
             list = gson.fromJson(data, type);
         }
         list.add(new MarkAsRead(target));
         String json = gson.toJson(list);
-        editor.putString("markAsReadFailedRequests", json);
-        editor.apply();
+        SharedPrefsUtils.putString(context, "markAsReadFailedRequests", json);
     }
 
     private class Message {
         String target;
         String message;
-        public Message(String target,String message) {
+
+        public Message(String target, String message) {
             this.target = target;
             this.message = message;
         }
@@ -210,6 +204,7 @@ class HttpPost implements Runnable {
     private class MarkAsRead {
         String target;
         long timestamp;
+
         public MarkAsRead(String target) {
             this.target = target;
             this.timestamp = new Date().getTime();
