@@ -10,12 +10,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
+import org.apache.cordova.firebase.NotificationReceiver;
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
+import org.apache.cordova.firebase.ReplyActivity;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -33,11 +37,16 @@ public class NotificationBuilder {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
 
+    private static final String NOTIFICATION_REPLY = "NotificationReply";
+    private static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
+    private static final int REQUEST_CODE_HELP = 101;
+
     private static final String AUDIO_FORMAT = "Audio";
     private static final String VOICE_FORMAT = "Voice Message";
     private static final String PHOTO_FORMAT = "Photo";
     private static final String LINK_FORMAT = "Link";
     private final String EMODJI_FORMAT = "Emodji";
+
 
 
 
@@ -276,6 +285,62 @@ public class NotificationBuilder {
         }
 
         return LINK_FORMAT;
+    }
+
+    public static void addActionsForNotification(Context activityOrServiceContext, Context appContext, String id, Integer notificationId, NotificationCompat.Builder notificationBuilder, String target) {
+        String notificationIdString = String.valueOf(notificationId);
+        String inlineReplyActionName = NOTIFICATION_REPLY + "@@" + notificationIdString + "@@" + target;
+        String markAsReadActionName = MARK_AS_READ_REPLY + "@@" + notificationIdString + "@@" + target;
+        //
+        PendingIntent replyPendingIntent;
+        PendingIntent markAsReadPendingIntent;
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
+
+            replyPendingIntent = PendingIntent.getBroadcast(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(inlineReplyActionName),
+                    0);
+
+            markAsReadPendingIntent = PendingIntent.getBroadcast(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(markAsReadActionName),
+                    0);
+        } else {
+            Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
+
+            replyPendingIntent = PendingIntent.getActivity(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(inlineReplyActionName),
+                    0);
+
+            markAsReadPendingIntent = PendingIntent.getActivity(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(markAsReadActionName),
+                    0);
+        }
+
+        NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+                .addRemoteInput(new RemoteInput.Builder("Reply")
+                        .setLabel("Type your message").build())
+                .setAllowGeneratedReplies(true)
+                .build();
+
+        NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent)
+                .build();
+
+        if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
+            notificationBuilder.addAction(actionReply);
+            notificationBuilder.addAction(actionMarkAsRead);
+        }
+
     }
 
 

@@ -8,7 +8,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
 import org.apache.cordova.firebase.models.Payload;
-import org.apache.cordova.firebase.notification.NotificationDisplayManager;
+import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,7 +75,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                NotificationDisplayManager.displayNotification(this, getApplicationContext(), "0",
+                NotificationManager.displayNotification(this, getApplicationContext(), "0",
                         target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {

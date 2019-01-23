@@ -1,7 +1,9 @@
 package org.apache.cordova.firebase.utils;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
+import android.support.v4.app.NotificationCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,4 +117,13 @@ public class NotificationUtils {
         }
         return statusBarNotifications;
     }
+
+    public static NotificationManager getManager(Context context) {
+        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    public static NotificationCompat.Builder getBuilder(Context context) {
+        return (new NotificationCompat.Builder(context));
+    }
+
 }

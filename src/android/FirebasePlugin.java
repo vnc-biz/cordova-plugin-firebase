@@ -1,6 +1,5 @@
 package org.apache.cordova.firebase;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,8 +31,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.firebase.models.Payload;
-import org.apache.cordova.firebase.notification.NotificationDisplayManager;
+import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1130,7 +1128,7 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     Context context = cordova.getActivity();
-                    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nm.cancelAll();
                     callbackContext.success();
                 } catch (Exception e) {
@@ -1147,7 +1145,7 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     Context context = cordova.getActivity();
-                    NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nm.cancel(id);
                     callbackContext.success();
                 } catch (Exception e) {
@@ -1176,7 +1174,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
 
-                    NotificationDisplayManager.displayNotification(activityContext, appContext, id, target, username, groupName, message, eventType, nsound, true, sound, lights);
+                    NotificationManager.displayNotification(activityContext, appContext, id, target, username, groupName, message, eventType, nsound, true, sound, lights);
 
                     callbackContext.success();
                 } catch (Exception e) {
