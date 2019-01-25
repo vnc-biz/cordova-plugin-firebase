@@ -39,7 +39,7 @@ public class MarkAsReadPost extends HttpPost {
 
             Log.i("VNC", "postData : " + postData);
 
-            HttpURLConnection urlConnection = createUrlConnection(mApiUrl);
+            HttpURLConnection urlConnection = createUrlConnection();
 
             NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
 

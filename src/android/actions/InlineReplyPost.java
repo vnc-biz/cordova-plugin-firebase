@@ -36,7 +36,7 @@ public class InlineReplyPost extends HttpPost {
             postData.put("messagetext", body);
 
             Log.i("VNC", "postData : " + postData);
-            HttpURLConnection urlConnection = createUrlConnection(mApiUrl);
+            HttpURLConnection urlConnection = createUrlConnection();
 
             NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
 
