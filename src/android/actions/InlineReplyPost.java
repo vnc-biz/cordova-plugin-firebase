@@ -6,13 +6,13 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.json.JSONObject;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class InlineReplyPost extends HttpPost {
@@ -36,20 +36,9 @@ public class InlineReplyPost extends HttpPost {
             postData.put("messagetext", body);
 
             Log.i("VNC", "postData : " + postData);
+            HttpURLConnection urlConnection = createUrlConnection(mApiUrl);
 
-            URL url = new URL(mApiUrl);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestProperty("Content-Type", "application/json");
-            urlConnection.setRequestProperty("Authorization", mToken);
-            urlConnection.setRequestMethod("POST");
-            int resID = context.getResources().getIdentifier("logo", "drawable", context.getPackageName());
-            if (resID != 0) {
-                notificationBuilder.setSmallIcon(resID);
-            } else {
-                notificationBuilder.setSmallIcon(context.getApplicationInfo().icon);
-            }
+            NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
 
             if (postData != null) {
                 OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());

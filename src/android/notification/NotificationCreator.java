@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class NotificationBuilder {
+public class NotificationCreator {
 
     private static final String TAG = "NotificationDisplay";
 
@@ -185,7 +185,7 @@ public class NotificationBuilder {
 
     }
 
-    static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
+    public static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
         int resID = activityOrServiceContext.getResources().getIdentifier("logo", "drawable", activityOrServiceContext.getPackageName());
         if (resID != 0) {
             notificationBuilder.setSmallIcon(resID);

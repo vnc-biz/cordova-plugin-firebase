@@ -3,9 +3,19 @@ package org.apache.cordova.firebase.actions;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 
 public abstract class HttpPost implements Runnable {
     protected String body;
@@ -49,6 +59,17 @@ public abstract class HttpPost implements Runnable {
 
     @Override
     public void run() {
+    }
+
+    protected HttpURLConnection createUrlConnection(String mApiUrl) throws IOException {
+        URL url = new URL(mApiUrl);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setDoInput(true);
+        urlConnection.setDoOutput(true);
+        urlConnection.setRequestProperty("Content-Type", "application/json");
+        urlConnection.setRequestProperty("Authorization", mToken);
+        urlConnection.setRequestMethod("POST");
+        return urlConnection;
     }
 
 }

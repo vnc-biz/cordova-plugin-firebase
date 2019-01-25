@@ -41,23 +41,23 @@ public class NotificationManager {
             return;
         }
 
-        Integer notificationId = NotificationBuilder.createNotifIdIfNecessary(id, target);
+        Integer notificationId = NotificationCreator.createNotifIdIfNecessary(id, target);
 
         // defineChannelData
-        String channelId = NotificationBuilder.defineChannelId(activityOrServiceContext, nsound);
-        String channelName = NotificationBuilder.defineChannelName(activityOrServiceContext, nsound);
-        Uri defaultSoundUri = NotificationBuilder.defineSoundUri(nsound);
+        String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
+        String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
         // defineTitleAndText()
-        String title = NotificationBuilder.defineNotificationTitle(eventType, target, name, groupName);
+        String title = NotificationCreator.defineNotificationTitle(eventType, target, name, groupName);
         Log.d(TAG, "Notification title: " + title);
-        String text = NotificationBuilder.defineNotificationText(eventType, name, message);
+        String text = NotificationCreator.defineNotificationText(eventType, name, message);
 
 
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
         List<String> msgs = new ArrayList<String>();
-        notificationId = NotificationBuilder.findPreviousMessagesAndUpdateNotifId(target, notificationId,
+        notificationId = NotificationCreator.findPreviousMessagesAndUpdateNotifId(target, notificationId,
                 statusBarNotifications, msgs);
         if (msgs.size() == 0) {
             Log.i("vnc", "no notifications in Status bar, when message: " + message);
@@ -66,25 +66,25 @@ public class NotificationManager {
         msgs.add(text);
 
         // fill messaging style object
-        NotificationCompat.MessagingStyle messagingStyle = NotificationBuilder.defineMessagingStyle(title, msgs);
+        NotificationCompat.MessagingStyle messagingStyle = NotificationCreator.defineMessagingStyle(title, msgs);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationBuilder.createNotifPendingIntent(activityOrServiceContext,
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntent(activityOrServiceContext,
                 target, notificationId, "vncEventType", "chat");
 
         // createNotification
-        NotificationCompat.Builder notificationBuilder = NotificationBuilder.createNotification(activityOrServiceContext, channelId, nsound,
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
                 title, text, messagingStyle, pendingIntent, defaultSoundUri);
 
         // Add actions
-        NotificationBuilder.addActionsForNotification(activityOrServiceContext, appContext, id,
+        NotificationCreator.addActionsForNotification(activityOrServiceContext, appContext, id,
                 notificationId, notificationBuilder, target);
 
         //
-        NotificationBuilder.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
-        NotificationBuilder.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
-        NotificationBuilder.setNotificationLights(notificationBuilder, lights);
-        NotificationBuilder.setNotificationColor(activityOrServiceContext, notificationBuilder);
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
+        NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
+        NotificationCreator.setNotificationLights(notificationBuilder, lights);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
 
@@ -94,9 +94,9 @@ public class NotificationManager {
         notification.extras.putString(MESSAGE_TARGET, target);
 
         //
-        NotificationBuilder.setNotificationImageRes(activityOrServiceContext, notification);
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationBuilder.createNotificationChannel(notificationManager, channelId, channelName, nsound);
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
         //
         notificationManager.notify(notificationId, notification);
