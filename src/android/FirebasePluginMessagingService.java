@@ -36,8 +36,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -60,6 +63,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String LINK_FORMAT = "Link";
     private final String EMODJI_FORMAT = "Emodji";
 
+    public static final String PREFS_STRING_SET_KEY = "previousNotifications";
 
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
@@ -112,6 +116,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
             for (int i = 0; i < data.length(); i++) {
                 Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
+                String msgid = notification.msgid;
                 String target = notification.jid;
                 String username = notification.name;
                 String groupName = notification.gt;
@@ -125,7 +130,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                displayNotification(this, getApplicationContext(), "0", target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                displayNotification(this, getApplicationContext(), "0", msgid, target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -264,7 +269,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         return response;
     }
 
-    public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String target, String name, String groupName, String message, String eventType, String nsound, boolean showNotification, String sound, String lights) {
+    public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String msgid, String target, String name, String groupName, String message, String eventType, String nsound, boolean showNotification, String sound, String lights) {
+        Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
         Log.i(TAG, "displayNotification: groupName: " + groupName);
@@ -285,6 +291,11 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         Log.i(TAG, "displayNotification: id: " + notificationId);
+
+        if (checkIfNotificationExist(appContext, msgid)) {
+            Log.i(TAG, "Notification EXIST = " + msgid);
+            return;
+        }
 
         String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
         String channelName = getStringResource(activityOrServiceContext, "default_notification_channel_name");
@@ -357,7 +368,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         for (String msg : msgs) {
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
-            }else{
+            } else {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
             }
         }
@@ -563,7 +574,53 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         return settings.getString(key, null);
     }
 
+    private static boolean checkIfNotificationExist(Context appContext, String msgid) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        Set<String> previousNotifications = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
+
+        String stringNotificationId = msgid;
+        long currentTime = System.currentTimeMillis();
+
+        if (previousNotifications != null && previousNotifications.size() > 0) {
+            //Checking notifications on time to expire
+            long day = 1000 * 60 * 60 * 24;
+            Iterator<String> iter = previousNotifications.iterator();
+            while (iter.hasNext()) {
+                String prevNotif = iter.next();
+                long timeNotif = prefs.getLong(prevNotif, 0);
+                if (timeNotif != 0 && currentTime - timeNotif > day) {
+                    //remove timeStamp for given notificationId
+                    editor.remove(prevNotif).apply();
+                    //removed notificationId from Set
+                    iter.remove();
+                }
+            }
+            //Check if notificationId already exist in set
+            if (previousNotifications.contains(stringNotificationId)) {
+                return true;
+            } else {
+                //add to set, and create record in prefs with timestamp
+                writeNotificationToPrefs(stringNotificationId, currentTime, previousNotifications, editor);
+            }
+        } else {
+            //add to set, and create record in prefs with timestamp
+            writeNotificationToPrefs(stringNotificationId, currentTime, new HashSet<String>(), editor);
+        }
+        return false;
+    }
+
+
+    private static void writeNotificationToPrefs(String notificationId, long currentTime, Set<String> existedSet,
+                                                 SharedPreferences.Editor editor) {
+        existedSet.add(notificationId);
+        editor.putStringSet(PREFS_STRING_SET_KEY, existedSet).apply();
+        editor.putLong(notificationId, currentTime).apply();
+    }
+
     class Payload {
+        public String msgid;
         public String jid;
         public String name;
         public String eType;
