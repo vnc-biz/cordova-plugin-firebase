@@ -294,7 +294,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "displayNotification: id: " + notificationId);
 
         if (checkIfNotificationExist(appContext, msgid)) {
-            Log.i(TAG, "Notification EXIST = " + msgid);
             return;
         }
 
@@ -588,8 +587,13 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             //Checking notifications on time to expire
             long hour = 1000 * 60 * 60;
             if (counter > 100) {
+                Log.d(TAG, "Run checkIfNotificationExist on 100s message");
+
+                // reset counter
                 editor.putInt(PREFS_NOTIF_COUNTER, 0);
-                Set<String> curNotif = new HashSet<String>();
+
+                Log.d(TAG, "before clean set: " + previousNotifications.size());
+
                 Iterator<String> iter = previousNotifications.iterator();
                 while (iter.hasNext()) {
                     String prevNotif = iter.next();
@@ -599,16 +603,19 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                         editor.remove(prevNotif).apply();
                         //removed notificationId from Set
                         iter.remove();
-                    } else{
-                        curNotif.add(prevNotif);
                     }
                 }
-                previousNotifications = curNotif;
+                // save cleaned notifications data to shared prefs
+                Log.d(TAG, "after clean set: " + previousNotifications.size());
+                editor.putStringSet(PREFS_STRING_SET_KEY, previousNotifications).apply();
             } else {
-                editor.putInt(PREFS_NOTIF_COUNTER, ++counter);
+                Log.d(TAG, "Ignore checkIfNotificationExist, counter: " + counter);
+                editor.putInt(PREFS_NOTIF_COUNTER, ++counter).apply();
             }
+
             //Check if notificationId already exist in set
             if (previousNotifications.contains(stringNotificationId)) {
+                Log.d(TAG, "Block notification display, already processed. Id: " + stringNotificationId);
                 return true;
             } else {
                 //add to set, and create record in prefs with timestamp
@@ -624,6 +631,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static void writeNotificationToPrefs(String notificationId, long currentTime, Set<String> existedSet,
                                                  SharedPreferences.Editor editor) {
+        Log.d(TAG, "writeNotificationToPrefs, notificationId: " + notificationId + ". existedSet size: " + existedSet.size());
         existedSet.add(notificationId);
         editor.putStringSet(PREFS_STRING_SET_KEY, existedSet).apply();
         editor.putLong(notificationId, currentTime).apply();
