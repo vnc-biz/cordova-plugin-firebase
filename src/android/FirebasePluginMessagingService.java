@@ -64,6 +64,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private final String EMODJI_FORMAT = "Emodji";
 
     public static final String PREFS_STRING_SET_KEY = "previousNotifications";
+    public static final String PREFS_NOTIF_COUNTER = "notificationCounter";
 
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
@@ -579,23 +580,32 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         SharedPreferences.Editor editor = prefs.edit();
 
         Set<String> previousNotifications = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
-
+        int counter = prefs.getInt(PREFS_NOTIF_COUNTER, 0);
         String stringNotificationId = msgid;
         long currentTime = System.currentTimeMillis();
 
         if (previousNotifications != null && previousNotifications.size() > 0) {
             //Checking notifications on time to expire
-            long day = 1000 * 60 * 60 * 24;
-            Iterator<String> iter = previousNotifications.iterator();
-            while (iter.hasNext()) {
-                String prevNotif = iter.next();
-                long timeNotif = prefs.getLong(prevNotif, 0);
-                if (timeNotif != 0 && currentTime - timeNotif > day) {
-                    //remove timeStamp for given notificationId
-                    editor.remove(prevNotif).apply();
-                    //removed notificationId from Set
-                    iter.remove();
+            long hour = 1000 * 60 * 60;
+            if (counter > 100) {
+                editor.putInt(PREFS_NOTIF_COUNTER, 0);
+                Set<String> curNotif = new HashSet<String>();
+                Iterator<String> iter = previousNotifications.iterator();
+                while (iter.hasNext()) {
+                    String prevNotif = iter.next();
+                    long timeNotif = prefs.getLong(prevNotif, 0);
+                    if (timeNotif != 0 && currentTime - timeNotif > hour) {
+                        //remove timeStamp for given notificationId
+                        editor.remove(prevNotif).apply();
+                        //removed notificationId from Set
+                        iter.remove();
+                    } else{
+                        curNotif.add(prevNotif);
+                    }
                 }
+                previousNotifications = curNotif;
+            } else {
+                editor.putInt(PREFS_NOTIF_COUNTER, ++counter);
             }
             //Check if notificationId already exist in set
             if (previousNotifications.contains(stringNotificationId)) {
