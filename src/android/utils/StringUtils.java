@@ -4,10 +4,10 @@ import android.content.Context;
 
 public class StringUtils {
 
-    public static String getStringResource(Context activityOrServiceContext, String name) {
-        return activityOrServiceContext.getString(
-                activityOrServiceContext.getResources().getIdentifier(
-                        name, "string", activityOrServiceContext.getPackageName()
+    public static String getStringResource(Context context, String name) {
+        return context.getString(
+                context.getResources().getIdentifier(
+                        name, "string", context.getPackageName()
                 )
         );
     }
