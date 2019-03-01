@@ -3,7 +3,9 @@ package org.apache.cordova.firebase.notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -11,7 +13,10 @@ import android.util.Log;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class NotificationManager {
 
@@ -21,11 +26,14 @@ public class NotificationManager {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
 
+    public static final String PREFS_NOTIF_COUNTER = "notificationCounter";
+    public static final String PREFS_STRING_SET_KEY = "previousNotifications";
 
     public static void displayNotification(Context activityOrServiceContext, Context appContext,
-                                           String id, String target, String name, String groupName,
+                                           String id, String msgid, String target, String name, String groupName,
                                            String message, String eventType, String nsound,
                                            boolean showNotification, String sound, String lights) {
+        Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
         Log.i(TAG, "displayNotification: groupName: " + groupName);
@@ -38,6 +46,11 @@ public class NotificationManager {
 
 
         if (!showNotification) {
+            return;
+        }
+
+        if (checkIfNotificationExist(appContext, msgid)) {
+            Log.i(TAG, "Notification EXIST = " + msgid);
             return;
         }
 
@@ -103,6 +116,59 @@ public class NotificationManager {
 
         //
         NotificationUtils.saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
+    }
+
+    private static boolean checkIfNotificationExist(Context appContext, String msgid) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        Set<String> previousNotifications = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
+        int counter = prefs.getInt(PREFS_NOTIF_COUNTER, 0);
+        String stringNotificationId = msgid;
+        long currentTime = System.currentTimeMillis();
+
+        if (previousNotifications != null && previousNotifications.size() > 0) {
+            //Checking notifications on time to expire
+            long hour = 1000 * 60 * 60;
+            if (counter > 100) {
+                editor.putInt(PREFS_NOTIF_COUNTER, 0);
+                Set<String> curNotif = new HashSet<String>();
+                Iterator<String> iter = previousNotifications.iterator();
+                while (iter.hasNext()) {
+                    String prevNotif = iter.next();
+                    long timeNotif = prefs.getLong(prevNotif, 0);
+                    if (timeNotif != 0 && currentTime - timeNotif > hour) {
+                        //remove timeStamp for given notificationId
+                        editor.remove(prevNotif).apply();
+                        //removed notificationId from Set
+                        iter.remove();
+                    } else{
+                        curNotif.add(prevNotif);
+                    }
+                }
+                previousNotifications = curNotif;
+            } else {
+                editor.putInt(PREFS_NOTIF_COUNTER, ++counter);
+            }
+            //Check if notificationId already exist in set
+            if (previousNotifications.contains(stringNotificationId)) {
+                return true;
+            } else {
+                //add to set, and create record in prefs with timestamp
+                writeNotificationToPrefs(stringNotificationId, currentTime, previousNotifications, editor);
+            }
+        } else {
+            //add to set, and create record in prefs with timestamp
+            writeNotificationToPrefs(stringNotificationId, currentTime, new HashSet<String>(), editor);
+        }
+        return false;
+    }
+
+    private static void writeNotificationToPrefs(String notificationId, long currentTime, Set<String> existedSet,
+                                                 SharedPreferences.Editor editor) {
+        existedSet.add(notificationId);
+        editor.putStringSet(PREFS_STRING_SET_KEY, existedSet).apply();
+        editor.putLong(notificationId, currentTime).apply();
     }
 
 

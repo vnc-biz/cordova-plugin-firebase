@@ -1,6 +1,7 @@
 package org.apache.cordova.firebase.models;
 
 public class Payload {
+    public String msgid;
     public String jid;
     public String name;
     public String eType;
@@ -8,6 +9,14 @@ public class Payload {
     public String gt;
     public String nType;
     public String nsound;
+
+    public String getMsgid() {
+        return msgid;
+    }
+
+    public void setMsgid(String msgid) {
+        this.msgid = msgid;
+    }
 
     public String getJid() {
         return jid;

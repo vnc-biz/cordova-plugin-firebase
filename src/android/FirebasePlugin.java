@@ -1165,6 +1165,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     Context appContext = activityContext.getApplicationContext();
 
                     String id = params.getString("id");
+                    String msgid = params.getString("msgid");
                     String target = params.getString("target");
                     String username = params.getString("username");
                     String groupName = params.getString("groupName");
@@ -1174,7 +1175,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
 
-                    NotificationManager.displayNotification(activityContext, appContext, id, target, username, groupName, message, eventType, nsound, true, sound, lights);
+                    NotificationManager.displayNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, true, sound, lights);
 
                     callbackContext.success();
                 } catch (Exception e) {

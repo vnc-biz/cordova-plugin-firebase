@@ -62,6 +62,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
             for (int i = 0; i < data.length(); i++) {
                 Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
+                String msgid = notification.msgid;
                 String target = notification.jid;
                 String username = notification.name;
                 String groupName = notification.gt;
@@ -75,7 +76,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                NotificationManager.displayNotification(this, getApplicationContext(), "0",
+                NotificationManager.displayNotification(this, getApplicationContext(), "0", msgid,
                         target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {
