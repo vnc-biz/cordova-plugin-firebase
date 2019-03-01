@@ -90,14 +90,14 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private ExecutorService notificationPool = Executors.newFixedThreadPool(1);
 
-    public void displayNotification(Context activityOrServiceContext, Context appContext,
+    public void displayNotification(final Context activityOrServiceContext, final Context appContext,
                                     final String id, final String msgid, final String target,
                                     final String name, final String groupName,
                                     final String message, final String eventType, final String nsound,
                                     final boolean showNotification, final String sound, final String lights) {
         notificationPool.execute(new Runnable() {
             public void run() {
-                NotificationManager.displayNotification(this, getApplicationContext(), id, msgid,
+                NotificationManager.displayNotification(activityOrServiceContext, appContext, id, msgid,
                         target, name, groupName, message, eventType, nsound, showNotification, sound, lights);
             }
         });
