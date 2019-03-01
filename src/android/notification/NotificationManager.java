@@ -26,13 +26,15 @@ public class NotificationManager {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
 
-    public static final String PREFS_NOTIF_COUNTER = "notificationCounter";
-    public static final String PREFS_STRING_SET_KEY = "previousNotifications";
+    private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
+    private static final String PREFS_STRING_SET_KEY = "previousNotifications";
 
-    public static void displayNotification(Context activityOrServiceContext, Context appContext,
-                                           String id, String msgid, String target, String name, String groupName,
-                                           String message, String eventType, String nsound,
-                                           boolean showNotification, String sound, String lights) {
+    private static long timeFromPrevNotify = 0;
+
+    synchronized public static void displayNotification(Context activityOrServiceContext, Context appContext,
+                                                        String id, String msgid, String target, String name, String groupName,
+                                                        String message, String eventType, String nsound,
+                                                        boolean showNotification, String sound, String lights) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
@@ -65,6 +67,18 @@ public class NotificationManager {
         String title = NotificationCreator.defineNotificationTitle(eventType, target, name, groupName);
         Log.d(TAG, "Notification title: " + title);
         String text = NotificationCreator.defineNotificationText(eventType, name, message);
+
+        //
+        if (timeFromPrevNotify > 0) {
+            long difference = System.currentTimeMillis() - timeFromPrevNotify;
+            if (difference <= 25) {
+                try {
+                    Thread.sleep(35);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
 
         // find previous messages and update notification id (if necessary)
@@ -115,6 +129,9 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
 
         //
+        timeFromPrevNotify = System.currentTimeMillis();
+
+        //
         NotificationUtils.saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
@@ -142,7 +159,7 @@ public class NotificationManager {
                         editor.remove(prevNotif).apply();
                         //removed notificationId from Set
                         iter.remove();
-                    } else{
+                    } else {
                         curNotif.add(prevNotif);
                     }
                 }

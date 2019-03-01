@@ -1,5 +1,6 @@
 package org.apache.cordova.firebase;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -76,7 +79,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 }
 
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                NotificationManager.displayNotification(this, getApplicationContext(), "0", msgid,
+                displayNotification(this, getApplicationContext(), "0", msgid,
                         target, username, groupName, message, eventType, nsound, showNotification, "", "");
             }
         } catch (JSONException e) {
@@ -84,4 +87,20 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             return;
         }
     }
+
+    private ExecutorService notificationPool = Executors.newFixedThreadPool(1);
+
+    public void displayNotification(Context activityOrServiceContext, Context appContext,
+                                    final String id, final String msgid, final String target,
+                                    final String name, final String groupName,
+                                    final String message, final String eventType, final String nsound,
+                                    final boolean showNotification, final String sound, final String lights) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                NotificationManager.displayNotification(this, getApplicationContext(), id, msgid,
+                        target, name, groupName, message, eventType, nsound, showNotification, sound, lights);
+            }
+        });
+    }
+
 }

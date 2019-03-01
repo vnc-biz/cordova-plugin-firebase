@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric.sdk.android.Fabric;
@@ -1157,8 +1159,10 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    private ExecutorService notificationPool = Executors.newFixedThreadPool(1);
+
     public void scheduleLocalNotification(final CallbackContext callbackContext, final JSONObject params) {
-        cordova.getThreadPool().execute(new Runnable() {
+        notificationPool.execute(new Runnable() {
             public void run() {
                 try {
                     Context activityContext = cordova.getActivity();
