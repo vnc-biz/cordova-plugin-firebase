@@ -462,7 +462,11 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 .build();
 
         if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
-            notificationBuilder.addAction(actionReply);
+            if (target.startsWith("broadcast-") && target.indexOf("@conference") == -1) {
+              // ignore 'reply' option for broadcast
+            } else {
+              notificationBuilder.addAction(actionReply);
+            }
             notificationBuilder.addAction(actionMarkAsRead);
         }
 
