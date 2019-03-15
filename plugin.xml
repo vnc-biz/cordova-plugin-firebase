@@ -50,17 +50,31 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
-		<source-file src="src/android/FirebasePlugin.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/FirebasePluginInstanceIDService.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/HttpPost.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
+		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessageReceiverManager.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessageReceiver.java" target-dir="src/org/apache/cordova/firebase" />
-		<source-file src="src/android/colors.xml" target-dir="res/values" />
+		<source-file src="src/android/FirebasePluginInstanceIDService.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/FirebasePlugin.java" target-dir="src/org/apache/cordova/firebase" />
+
+		<source-file src="src/android/utils/FileUtils.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/utils/Logger.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/utils/NotificationUtils.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/utils/SharedPrefsUtils.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/utils/StringUtils.java" target-dir="src/org/apache/cordova/firebase" />
+
+		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase" />
+
+		<source-file src="src/android/models/Payload.java" target-dir="src/org/apache/cordova/firebase" />
+
+		<source-file src="src/android/actions/HttpPost.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/actions/InlineReplyPost.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/actions/MarkAsReadPost.java" target-dir="src/org/apache/cordova/firebase" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />
