@@ -29,6 +29,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.i(TAG, "onMessageReceived");
+        Log.i(TAG, "onMessageReceived: remoteMessage: " + remoteMessage);
+
         String token = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
         if (token == null) {
             return;
@@ -54,6 +57,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         Map<String, String> payload = remoteMessage.getData();
+        Log.i(TAG, "payload received" + payload);
+
         JSONArray data;
         try {
             data = new JSONArray(payload.get("vnc"));
