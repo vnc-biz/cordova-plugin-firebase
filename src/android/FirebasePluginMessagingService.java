@@ -8,10 +8,12 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
-import org.apache.cordova.firebase.models.Payload;
+import org.apache.cordova.firebase.models.PayloadTalk;
+import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONException;
 
 import java.util.Map;
@@ -29,9 +31,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Log.i(TAG, "onMessageReceived");
-        Log.i(TAG, "onMessageReceived: remoteMessage: " + remoteMessage);
-
         String token = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
         if (token == null) {
             return;
@@ -59,33 +58,52 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         Map<String, String> payload = remoteMessage.getData();
         Log.i(TAG, "payload received" + payload);
 
-        JSONArray data;
         try {
-            data = new JSONArray(payload.get("vnc"));
+            // talk
+            if (payload.get("vnc") != null) {
+                JSONArray data = new JSONArray(payload.get("vnc"));
 
-            if (data == null || data.length() == 0) {
-                Log.d(TAG, "received empty data?");
-                return;
-            }
-
-            for (int i = 0; i < data.length(); i++) {
-                Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
-                String msgid = notification.msgid;
-                String target = notification.jid;
-                String username = notification.name;
-                String groupName = notification.gt;
-                String message = notification.body;
-                String eventType = notification.eType;
-                String nsound = notification.nsound;
-
-                if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
-                    Log.d(TAG, "returning due to empty 'target' or 'username' values");
+                if (data == null || data.length() == 0) {
+                    Log.d(TAG, "received empty data?");
                     return;
                 }
 
-                boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                displayNotification(this, getApplicationContext(), "0", msgid,
-                        target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                for (int i = 0; i < data.length(); i++) {
+                    PayloadTalk notification = new Gson().fromJson(data.get(i).toString(), PayloadTalk.class);
+                    String msgid = notification.msgid;
+                    String target = notification.jid;
+                    String username = notification.name;
+                    String groupName = notification.gt;
+                    String message = notification.body;
+                    String eventType = notification.eType;
+                    String nsound = notification.nsound;
+
+                    if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
+                        Log.d(TAG, "returning due to empty 'target' or 'username' values");
+                        return;
+                    }
+
+                    boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
+                    displayTalkNotification(this, getApplicationContext(), "0", msgid,
+                            target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                }
+
+            // task
+            } else if (payload.get("vnctask") != null) {
+                JSONObject data = new JSONObject(payload.get("vnctask"));
+
+                if (data == null) {
+                    Log.d(TAG, "received empty data?");
+                    return;
+                }
+
+                PayloadTask notification = new Gson().fromJson(data.toString(), PayloadTask.class);
+                String body = notification.body;
+                String username = notification.username;
+                String taskId = notification.taskId;
+                String type = notification.type;
+
+                displayTaskNotification(this, getApplicationContext(), body, username, taskId, type);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -95,15 +113,25 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private ExecutorService notificationPool = Executors.newFixedThreadPool(1);
 
-    public void displayNotification(final Context activityOrServiceContext, final Context appContext,
+    public void displayTalkNotification(final Context activityOrServiceContext, final Context appContext,
                                     final String id, final String msgid, final String target,
                                     final String name, final String groupName,
                                     final String message, final String eventType, final String nsound,
                                     final boolean showNotification, final String sound, final String lights) {
         notificationPool.execute(new Runnable() {
             public void run() {
-                NotificationManager.displayNotification(activityOrServiceContext, appContext, id, msgid,
+                NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, id, msgid,
                         target, name, groupName, message, eventType, nsound, showNotification, sound, lights);
+            }
+        });
+    }
+
+    public void displayTaskNotification(final Context activityOrServiceContext, final Context appContext,
+                                      final String body, final String username, final String taskId, final String type) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
+                        body, username, taskId, type);
             }
         });
     }

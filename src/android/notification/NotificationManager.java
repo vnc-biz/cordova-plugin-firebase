@@ -31,7 +31,53 @@ public class NotificationManager {
 
     private static long timeFromPrevNotify = 0;
 
-    synchronized public static void displayNotification(Context activityOrServiceContext, Context appContext,
+    synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
+                                                          String body, String username, String taskId, String type) {
+        Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", taskId: " + taskId + ", type: " + type);
+
+        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Integer notificationId = (taskId + body).hashCode();
+
+        // defineChannelData
+        String nsound = "";
+        String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
+        String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTask(activityOrServiceContext,
+                taskId, notificationId, "vncTaskEventType", type);
+
+        String title;
+        if (type.equals("assignment")) {
+            title = "Task assignment";
+        } else {
+            title = "Task reminder";
+        }
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
+                title, body, null, pendingIntent, defaultSoundUri);
+
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
+        // NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
+        // NotificationCreator.setNotificationLights(notificationBuilder, lights);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+
+        Log.i(TAG, "displayTaskNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
+        Log.i(TAG, "displayTaskNotification: display notificationId: " + notificationId);
+
+        //
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
+
+
+        notificationManager.notify(notificationId, notification);
+    }
+
+    synchronized public static void displayTalkNotification(Context activityOrServiceContext, Context appContext,
                                                         String id, String msgid, String target, String name, String groupName,
                                                         String message, String eventType, String nsound,
                                                         boolean showNotification, String sound, String lights) {
@@ -96,7 +142,7 @@ public class NotificationManager {
         NotificationCompat.MessagingStyle messagingStyle = NotificationCreator.defineMessagingStyle(title, msgs);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntent(activityOrServiceContext,
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
                 target, notificationId, "vncEventType", "chat");
 
         // createNotification

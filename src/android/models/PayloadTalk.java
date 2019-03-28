@@ -1,6 +1,6 @@
 package org.apache.cordova.firebase.models;
 
-public class Payload {
+public class PayloadTalk {
     public String msgid;
     public String jid;
     public String name;

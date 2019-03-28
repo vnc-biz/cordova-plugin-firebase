@@ -31,6 +31,7 @@ public class NotificationCreator {
     private static final String TAG = "NotificationDisplay";
 
     private static final String VNC_PEER_JID = "vncPeerJid";
+    private static final String VNC_TASK_TASKID = "vncTaskTaskId";
     private static final String NOTIFY_ID = "id";
 
     private static final String PREVIOUS_MESSAGES = "previousMessages";
@@ -155,7 +156,7 @@ public class NotificationCreator {
         return messagingStyle;
     }
 
-    static PendingIntent createNotifPendingIntent(Context activityOrServiceContext, String target,
+    static PendingIntent createNotifPendingIntentTalk(Context activityOrServiceContext, String target,
                                                   Integer notificationId, String vncEventType, String vncEventValue) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
@@ -164,7 +165,17 @@ public class NotificationCreator {
         bundle.putInt(NOTIFY_ID, notificationId);
         intent.putExtras(bundle);
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
 
+    static PendingIntent createNotifPendingIntentTask(Context activityOrServiceContext, String taskId,
+                                                  Integer notificationId, String vncEventType, String vncEventValue) {
+        Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(VNC_TASK_TASKID, taskId);
+        bundle.putString(vncEventType, vncEventValue);
+        bundle.putInt(NOTIFY_ID, notificationId);
+        intent.putExtras(bundle);
+        return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.MessagingStyle messagingStyle, PendingIntent pendingIntent, Uri defaultSoundUri) {
@@ -174,13 +185,19 @@ public class NotificationCreator {
                 .setContentTitle(title)
                 .setContentText(text)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setStyle(messagingStyle)
                 .setAutoCancel(true)
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)
                 .setSound(nsound.equals("mute") ? null : defaultSoundUri)
                 .setGroup(title)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
+
+        if (messagingStyle != null) {
+          notificationBuilder.setStyle(messagingStyle);
+        } else {
+          // ... do we have a default style ?
+        }
+
         return notificationBuilder;
 
     }
