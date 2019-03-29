@@ -63,6 +63,11 @@ public class NotificationManager {
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
                 title, body, null, pendingIntent, defaultSoundUri);
 
+        if (type.equals("reminder")) {
+            NotificationCreator.addSnoozeAction(activityOrServiceContext, appContext,
+                  notificationId, notificationBuilder, taskId);
+        }
+
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         // NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
         // NotificationCreator.setNotificationLights(notificationBuilder, lights);
@@ -76,11 +81,6 @@ public class NotificationManager {
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
-
-        if (type.equals("reminder")) {
-            NotificationCreator.addSnoozeAction(activityOrServiceContext, appContext,
-                  notificationId, notificationBuilder, taskId);
-        }
 
         notificationManager.notify(notificationId, notification);
     }

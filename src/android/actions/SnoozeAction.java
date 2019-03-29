@@ -18,6 +18,9 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.StringBuffer;
 
 public class SnoozeAction extends BaseActionTask {
     private static final String TAG = "Firebase.SnoozeAction";
@@ -25,7 +28,7 @@ public class SnoozeAction extends BaseActionTask {
     protected Date remindOn;
 
     public SnoozeAction(String taskId, int notificationId, Date remindOn, Context context) {
-        super(taskId, notificationId, context, "/issues/" + taskId);
+        super(taskId, notificationId, context, "/issues/" + taskId + "?journals,attachments,tags,list");
 
         this.remindOn = remindOn;
     }
@@ -56,6 +59,20 @@ public class SnoozeAction extends BaseActionTask {
             int statusCode = urlConnection.getResponseCode();
             Log.i(TAG, "Server response, statusCode: " + statusCode);
             if (statusCode != 200) {
+                Log.i(TAG, "Server response: " + urlConnection.getResponseMessage());
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+                 // _is = httpConn.getErrorStream();
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                Log.i(TAG, "Server response: " + response.toString());
+
                 saveSnoozeOnError(context, taskId);
             }
             notificationManager.cancel(notificationId);
@@ -74,13 +91,20 @@ public class SnoozeAction extends BaseActionTask {
 
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "snoozeFailedRequests");
-        ArrayList<SnoozeEntity> list = new ArrayList();
+
+        ArrayList<SnoozeEntity> list;
         if (data != null) {
             Type type = new TypeToken<ArrayList<SnoozeEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);
+            if (list == null) {
+                list = new ArrayList();
+            }
+        } else {
+            list = new ArrayList();
         }
-        list.add(new SnoozeEntity(taskId));
+        SnoozeEntity se = new SnoozeEntity(taskId);
+        list.add(se);
         String json = gson.toJson(list);
         SharedPrefsUtils.putString(context, "snoozeFailedRequests", json);
     }

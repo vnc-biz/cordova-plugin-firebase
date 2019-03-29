@@ -312,7 +312,7 @@ public class NotificationCreator {
         PendingIntent markAsReadPendingIntent;
         //
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i(TAG, "Create notification actions (>=N)");
+            Log.i(TAG, "addReplyAndMarkAsReadActions (>=N)");
 
             replyPendingIntent = PendingIntent.getBroadcast(appContext,
                     REQUEST_CODE_HELP,
@@ -326,7 +326,7 @@ public class NotificationCreator {
                             .setAction(markAsReadActionName),
                     0);
         } else {
-            Log.i(TAG, "Create notification actions");
+            Log.i(TAG, "addReplyAndMarkAsReadActions");
 
             replyPendingIntent = PendingIntent.getActivity(appContext,
                     REQUEST_CODE_HELP,
@@ -363,10 +363,12 @@ public class NotificationCreator {
 
         String snoozeActionName = SNOOZE_REPLY + "@@" + notificationIdString + "@@" + taskId;
 
+        Log.i(TAG, "addSnoozeAction, snoozeActionName: " + snoozeActionName);
+
         PendingIntent snoozePendingIntent;
         //
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i(TAG, "Create notification actions (>=N)");
+            Log.i(TAG, "addSnoozeAction (>=N)");
 
             snoozePendingIntent = PendingIntent.getBroadcast(appContext,
                     REQUEST_CODE_HELP,
@@ -374,7 +376,7 @@ public class NotificationCreator {
                             .setAction(snoozeActionName),
                     0);
         } else {
-            Log.i(TAG, "Create notification actions");
+            Log.i(TAG, "addSnoozeAction");
 
             snoozePendingIntent = PendingIntent.getActivity(appContext,
                     REQUEST_CODE_HELP,
