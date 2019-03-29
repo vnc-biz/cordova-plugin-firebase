@@ -15,27 +15,23 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
-public class InlineReplyPost extends HttpPost {
+public class InlineReplyAction extends BaseActionTalk {
+    private static final String TAG = "Firebase.InlineReplyAction";
 
-    public InlineReplyPost(String body, String sender, int notificationId, Context context) {
+    public InlineReplyAction(String body, String sender, int notificationId, Context context) {
         super(body, sender, notificationId, context, "/xmpp-rest");
     }
 
     @Override
     public void run() {
         super.run();
-        try {
-            Log.i("VNC", "Token : " + mToken);
-            Log.i("VNC", "notificationId : " + notificationId);
-            Log.i("VNC", "To : " + sender);
-            Log.i("VNC", "Message body : " + body);
-            Log.i("VNC", "Api Url : " + mApiUrl);
 
+        try {
             JSONObject postData = new JSONObject();
             postData.put("target", sender);
             postData.put("messagetext", body);
 
-            Log.i("VNC", "postData : " + postData);
+            Log.i(TAG, "postData : " + postData);
             HttpURLConnection urlConnection = createUrlConnection();
 
             NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
@@ -46,13 +42,13 @@ public class InlineReplyPost extends HttpPost {
                 writer.flush();
             }
             int statusCode = urlConnection.getResponseCode();
-            Log.i("VNC", "Server response, statusCode: " + statusCode);
+            Log.i(TAG, "Server response, statusCode: " + statusCode);
             if (statusCode != 200) {
                 saveInlineReplyOnError(context, sender, body);
             }
             notificationManager.cancel(notificationId);
         } catch (Exception e) {
-            Log.i("VNC", e.getLocalizedMessage());
+            Log.i(TAG, e.getLocalizedMessage());
             saveInlineReplyOnError(context, sender, body);
             notificationManager.cancel(notificationId);
         } finally {
@@ -61,27 +57,27 @@ public class InlineReplyPost extends HttpPost {
     }
 
     private void saveInlineReplyOnError(Context context, String target, String message) {
-        Log.i("VNC", "saveInlineReplyOnError, target: " + target + ", message: " + message);
+        Log.i(TAG, "saveInlineReplyOnError, target: " + target + ", message: " + message);
 
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "replyMessages");
-        ArrayList<Message> list = new ArrayList();
+        ArrayList<InlineReplyEntity> list = new ArrayList();
         if (data != null) {
-            Type type = new TypeToken<ArrayList<Message>>() {
+            Type type = new TypeToken<ArrayList<InlineReplyEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);
         }
-        list.add(new Message(target, message));
+        list.add(new InlineReplyEntity(target, message));
         String json = gson.toJson(list);
 
         SharedPrefsUtils.putString(context, "replyMessages", json);
     }
 
-    private class Message {
+    private class InlineReplyEntity {
         String target;
         String message;
 
-        public Message(String target, String message) {
+        public InlineReplyEntity(String target, String message) {
             this.target = target;
             this.message = message;
         }

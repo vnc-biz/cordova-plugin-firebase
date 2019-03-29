@@ -3,6 +3,7 @@ package org.apache.cordova.firebase.actions;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
@@ -11,26 +12,20 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public abstract class HttpPost implements Runnable {
-    protected String body;
-    protected String sender;
+public abstract class BaseAction implements Runnable {
     protected Context context;
     int notificationId;
     NotificationManager notificationManager;
     NotificationCompat.Builder notificationBuilder;
-    String mToken;
+
     String mApiUrl;
-    private static final String TOKEN_CONSTANT = "auth-token";
     private static final String API_URL = "apiUrl";
 
-    HttpPost(String body, String sender, int notificationId, Context context, String urlSupplement) {
-        this.body = body;
-        this.sender = sender;
+    BaseAction(int notificationId, Context context, String urlSupplement) {
         this.context = context;
         this.notificationId = notificationId;
 
         chooseAndSetApiUrl(urlSupplement);
-        initToken();
         initNotificationObjects();
     }
 
@@ -43,16 +38,13 @@ public abstract class HttpPost implements Runnable {
         notificationBuilder = NotificationUtils.getBuilder(context);
     }
 
-    private void initToken() {
-        mToken = SharedPrefsUtils.getString(this.context, TOKEN_CONSTANT);
-    }
-
     String baseApiUrl() {
         return SharedPrefsUtils.getString(this.context, API_URL);
     }
 
     @Override
     public void run() {
+
     }
 
     HttpURLConnection createUrlConnection() throws IOException {
@@ -60,10 +52,18 @@ public abstract class HttpPost implements Runnable {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(true);
-        urlConnection.setRequestProperty("Content-Type", "application/json");
-        urlConnection.setRequestProperty("Authorization", mToken);
-        urlConnection.setRequestMethod("POST");
+        
+        setRequestHeaders(urlConnection);
+        setRequestMethod(urlConnection);
+
         return urlConnection;
     }
 
+    protected void setRequestHeaders(HttpURLConnection urlConnection) throws IOException {
+
+    }
+
+    protected void setRequestMethod(HttpURLConnection urlConnection) throws IOException {
+
+    }
 }

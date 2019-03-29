@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.apache.cordova.firebase.actions.InlineReplyPost;
+import org.apache.cordova.firebase.actions.InlineReplyAction;
 
 public class ReplyActivity extends Activity implements View.OnClickListener {
     private EditText mMessageTextField;
@@ -44,7 +44,7 @@ public class ReplyActivity extends Activity implements View.OnClickListener {
             int notificationId = Integer.parseInt(getIntent().getExtras().getString(NOTIFY_ID));
             Log.i("VNC", "inside receive");
 
-            Thread thread = new Thread(new InlineReplyPost(mReplyMessage, sender, notificationId, getApplicationContext()));
+            Thread thread = new Thread(new InlineReplyAction(mReplyMessage, sender, notificationId, getApplicationContext()));
             thread.start();
         }
         finishAndRemoveTask();

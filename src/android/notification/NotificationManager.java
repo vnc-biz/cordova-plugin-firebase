@@ -54,8 +54,10 @@ public class NotificationManager {
             title = "Task assignment";
         } else if (type.equals("task_update")) {
             title = "Task updated";
-        } else {
+        } else if (type.equals("reminder")) {
             title = "Task reminder";
+        } else {
+            title = "Task notification";
         }
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
@@ -75,6 +77,10 @@ public class NotificationManager {
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
+        if (type.equals("reminder")) {
+            NotificationCreator.addSnoozeAction(activityOrServiceContext, appContext,
+                  notificationId, notificationBuilder, taskId);
+        }
 
         notificationManager.notify(notificationId, notification);
     }
@@ -152,7 +158,7 @@ public class NotificationManager {
                 title, text, messagingStyle, pendingIntent, defaultSoundUri);
 
         // Add actions
-        NotificationCreator.addActionsForNotification(activityOrServiceContext, appContext, id,
+        NotificationCreator.addReplyAndMarkAsReadActions(activityOrServiceContext, appContext,
                 notificationId, notificationBuilder, target);
 
         //

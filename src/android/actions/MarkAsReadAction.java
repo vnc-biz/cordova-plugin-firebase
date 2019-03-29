@@ -19,25 +19,23 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MarkAsReadPost extends HttpPost {
+public class MarkAsReadAction extends BaseActionTalk {
+    private static final String TAG = "Firebase.MarkAsReadAction";
 
-    public MarkAsReadPost(String sender, int notificationId, Context context) {
+
+    public MarkAsReadAction(String sender, int notificationId, Context context) {
         super(null, sender, notificationId, context, "/markConversationsRead");
     }
 
     @Override
     public void run() {
         super.run();
+        
         try {
-            Log.i("VNC", "Token : " + mToken);
-            Log.i("VNC", "notificationId : " + notificationId);
-            Log.i("VNC", "To : " + sender);
-            Log.i("VNC", "Api Url : " + mApiUrl);
-
             JSONObject postData = new JSONObject();
             postData.put(sender, new Date().getTime() / 1000);
 
-            Log.i("VNC", "postData : " + postData);
+            Log.i(TAG, "postData : " + postData);
 
             HttpURLConnection urlConnection = createUrlConnection();
 
@@ -49,13 +47,14 @@ public class MarkAsReadPost extends HttpPost {
                 writer.flush();
             }
             int statusCode = urlConnection.getResponseCode();
-            Log.i("VNC", "Server response, statusCode: " + statusCode);
+            Log.i(TAG, "Server response, statusCode: " + statusCode);
             if (statusCode != 200) {
                 saveMarkAsReadOnError(context, sender);
             }
             notificationManager.cancel(notificationId);
         } catch (Exception e) {
-            Log.i("VNC", e.getLocalizedMessage());
+            Log.i(TAG, e.getLocalizedMessage());
+
             saveMarkAsReadOnError(context, sender);
             notificationManager.cancel(notificationId);
         } finally {
@@ -73,27 +72,26 @@ public class MarkAsReadPost extends HttpPost {
     }
 
     private void saveMarkAsReadOnError(Context context, String target) {
-        Log.i("VNC", "saveMarkAsReadOnError, target: " + target);
+        Log.i(TAG, "saveMarkAsReadOnError, target: " + target);
 
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "markAsReadFailedRequests");
-        ArrayList<MarkAsRead> list = new ArrayList();
+        ArrayList<MarkAsReadEntity> list = new ArrayList();
         if (data != null) {
-            Type type = new TypeToken<ArrayList<MarkAsRead>>() {
+            Type type = new TypeToken<ArrayList<MarkAsReadEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);
         }
-        list.add(new MarkAsRead(target));
+        list.add(new MarkAsReadEntity(target));
         String json = gson.toJson(list);
         SharedPrefsUtils.putString(context, "markAsReadFailedRequests", json);
     }
 
-
-    private class MarkAsRead {
+    private class MarkAsReadEntity {
         String target;
         long timestamp;
 
-        public MarkAsRead(String target) {
+        public MarkAsReadEntity(String target) {
             this.target = target;
             this.timestamp = new Date().getTime();
         }

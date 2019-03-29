@@ -28,7 +28,7 @@ import java.util.List;
 
 public class NotificationCreator {
 
-    private static final String TAG = "NotificationDisplay";
+    private static final String TAG = "Firebase.NotificationCreator";
 
     private static final String VNC_PEER_JID = "vncPeerJid";
     private static final String VNC_TASK_TASKID = "vncTaskTaskId";
@@ -38,8 +38,10 @@ public class NotificationCreator {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
 
-    private static final String NOTIFICATION_REPLY = "NotificationReply";
-    private static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
+    public static final String NOTIFICATION_REPLY = "NotificationReply";
+    public static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
+    public static final String SNOOZE_REPLY = "SnoozeReply";
+    //
     private static final int REQUEST_CODE_HELP = 101;
 
     private static final String AUDIO_FORMAT = "Audio";
@@ -47,9 +49,6 @@ public class NotificationCreator {
     private static final String PHOTO_FORMAT = "Photo";
     private static final String LINK_FORMAT = "Link";
     private final String EMODJI_FORMAT = "Emodji";
-
-
-
 
     static Integer createNotifIdIfNecessary(String id, String target) {
         Integer notificationId = Integer.valueOf(id);
@@ -304,7 +303,7 @@ public class NotificationCreator {
         return LINK_FORMAT;
     }
 
-    public static void addActionsForNotification(Context activityOrServiceContext, Context appContext, String id, Integer notificationId, NotificationCompat.Builder notificationBuilder, String target) {
+    public static void addReplyAndMarkAsReadActions(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String target) {
         String notificationIdString = String.valueOf(notificationId);
         String inlineReplyActionName = NOTIFICATION_REPLY + "@@" + notificationIdString + "@@" + target;
         String markAsReadActionName = MARK_AS_READ_REPLY + "@@" + notificationIdString + "@@" + target;
@@ -313,7 +312,7 @@ public class NotificationCreator {
         PendingIntent markAsReadPendingIntent;
         //
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
+            Log.i(TAG, "Create notification actions (>=N)");
 
             replyPendingIntent = PendingIntent.getBroadcast(appContext,
                     REQUEST_CODE_HELP,
@@ -327,7 +326,7 @@ public class NotificationCreator {
                             .setAction(markAsReadActionName),
                     0);
         } else {
-            Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
+            Log.i(TAG, "Create notification actions");
 
             replyPendingIntent = PendingIntent.getActivity(appContext,
                     REQUEST_CODE_HELP,
@@ -357,7 +356,38 @@ public class NotificationCreator {
             notificationBuilder.addAction(actionReply);
             notificationBuilder.addAction(actionMarkAsRead);
         }
+    }
 
+    public static void addSnoozeAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String taskId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String snoozeActionName = SNOOZE_REPLY + "@@" + notificationIdString + "@@" + taskId;
+
+        PendingIntent snoozePendingIntent;
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i(TAG, "Create notification actions (>=N)");
+
+            snoozePendingIntent = PendingIntent.getBroadcast(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(snoozeActionName),
+                    0);
+        } else {
+            Log.i(TAG, "Create notification actions");
+
+            snoozePendingIntent = PendingIntent.getActivity(appContext,
+                    REQUEST_CODE_HELP,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(snoozeActionName),
+                    0);
+        }
+
+        NotificationCompat.Action actionSnooze = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Snooze for 1h", snoozePendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionSnooze);
     }
 
 
