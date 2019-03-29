@@ -3,7 +3,7 @@ package org.apache.cordova.firebase.models;
 public class PayloadTask {
     public String body;
     public String username;
-    public String taskId;
+    public String task_id;
     public String type;
 
     public String getBody() {
@@ -23,11 +23,11 @@ public class PayloadTask {
     }
 
     public String getTaskId() {
-        return taskId;
+        return task_id;
     }
 
     public void setTaskId(String taskId) {
-        this.taskId = taskId;
+        this.task_id = taskId;
     }
 
     public String getType() {

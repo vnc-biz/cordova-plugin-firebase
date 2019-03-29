@@ -104,7 +104,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 PayloadTask notification = new Gson().fromJson(data.toString(), PayloadTask.class);
                 String body = notification.body;
                 String username = notification.username;
-                String taskId = notification.taskId;
+                String taskId = notification.task_id;
                 String type = notification.type;
 
                 displayTaskNotification(this, getApplicationContext(), body, username, taskId, type);
