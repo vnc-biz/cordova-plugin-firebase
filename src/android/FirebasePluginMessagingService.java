@@ -92,6 +92,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             } else if (payload.get("vnctask") != null) {
                 JSONObject data = new JSONObject(payload.get("vnctask"));
 
+                // {vnctask={"task_id":46568,"type":"assignment","body":"Task \"Kskdk\" has been assigned to you by Luna Beier","username":"Luna Beier"}}
+                // {vnctask={"task_id":46568,"type":"task_update","body":"Task has been updated","username":null}}
+                // {vnctask={"task_id":46568,"type":"reminder","body":"A task \"Kskdk\" has a due date 03\/29\/2019","username":null}}
+
                 if (data == null) {
                     Log.d(TAG, "received empty data?");
                     return;

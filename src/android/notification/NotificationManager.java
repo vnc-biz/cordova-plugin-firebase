@@ -52,6 +52,8 @@ public class NotificationManager {
         String title;
         if (type.equals("assignment")) {
             title = "Task assignment";
+        } else if (type.equals("task_update")) {
+            title = "Task updated";
         } else {
             title = "Task reminder";
         }
