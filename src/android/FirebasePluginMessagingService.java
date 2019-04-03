@@ -31,7 +31,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.i(TAG, "onMessageReceived" + remoteMessage);
+
         String token = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
+        Log.i(TAG, "onMessageReceived token: " + token);
         if (token == null) {
             return;
         }
@@ -56,7 +59,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         Map<String, String> payload = remoteMessage.getData();
-        Log.i(TAG, "payload received" + payload);
+        Log.i(TAG, "payload 'data' received" + payload);
 
         try {
             // talk
@@ -105,9 +108,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 String body = notification.body;
                 String username = notification.username;
                 String taskId = notification.task_id;
+                String taskUpdatedOn = notification.task_updated_on;
                 String type = notification.type;
 
-                displayTaskNotification(this, getApplicationContext(), body, username, taskId, type);
+                displayTaskNotification(this, getApplicationContext(), body, username, taskId, taskUpdatedOn, type);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -131,11 +135,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     }
 
     public void displayTaskNotification(final Context activityOrServiceContext, final Context appContext,
-                                      final String body, final String username, final String taskId, final String type) {
+                                      final String body, final String username, final String taskId, final String taskUpdatedOn,
+                                      final String type) {
         notificationPool.execute(new Runnable() {
             public void run() {
                 NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
-                        body, username, taskId, type);
+                        body, username, taskId, taskUpdatedOn, type);
             }
         });
     }

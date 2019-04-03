@@ -32,6 +32,7 @@ public class NotificationCreator {
 
     private static final String VNC_PEER_JID = "vncPeerJid";
     private static final String VNC_TASK_TASKID = "vncTaskTaskId";
+    private static final String VNC_TASK_TASKUPDATEDON = "vncTaskTaskUpdatedOn";
     private static final String NOTIFY_ID = "id";
 
     private static final String PREVIOUS_MESSAGES = "previousMessages";
@@ -167,12 +168,16 @@ public class NotificationCreator {
     }
 
     static PendingIntent createNotifPendingIntentTask(Context activityOrServiceContext, String taskId,
-                                                  Integer notificationId, String vncEventType, String vncEventValue) {
+                                                  Integer notificationId, String vncEventType, String taskUpdatedOn,
+                                                  String vncEventValue) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_TASK_TASKID, taskId);
         bundle.putString(vncEventType, vncEventValue);
         bundle.putInt(NOTIFY_ID, notificationId);
+        if (taskUpdatedOn != null) {
+            bundle.putString(VNC_TASK_TASKUPDATEDON, taskUpdatedOn);
+        }
         intent.putExtras(bundle);
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }

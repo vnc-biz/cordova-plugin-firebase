@@ -5,6 +5,7 @@ public class PayloadTask {
     public String username;
     public String task_id;
     public String type;
+    public String task_updated_on;
 
     public String getBody() {
         return body;
@@ -28,6 +29,14 @@ public class PayloadTask {
 
     public void setTaskId(String taskId) {
         this.task_id = taskId;
+    }
+
+    public String getTaskUpdatedOn() {
+        return task_updated_on;
+    }
+
+    public void setTaskUpdatedOn(String taskUpdatedOn) {
+        this.task_updated_on = taskUpdatedOn;
     }
 
     public String getType() {
