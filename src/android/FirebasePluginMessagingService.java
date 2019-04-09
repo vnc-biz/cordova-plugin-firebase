@@ -111,8 +111,21 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
-                Log.d(TAG, "received empty data?");
+                Log.i(TAG, "received empty data?");
                 return;
+            } else {
+                Log.i(TAG, "received data: " + data);
+                // [{"jid":"bob@dev2.zimbra-vnc.de",
+                //  "nto":"george@dev2.zimbra-vnc.de",
+                //  "name":"Georgy Georg",
+                //  "eType":"chat",
+                //  "msgid":"3s30gl48am",
+                //  "body":"1",
+                //  "lang":"en",
+                //  "nsound":"nomute",
+                //  "aft":"",
+                //  "nType":"local_notification",
+                //  "mention":[]}]
             }
 
             for (int i = 0; i < data.length(); i++) {
@@ -136,16 +149,21 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
                   if (FirebasePlugin.hasNotificationsReceivedCallback()) {
-                      Bundle data = new Bundle();
-                      data.putString("msgid", msgid);
-                      data.putString("target", target);
-                      data.putString("username", username);
-                      data.putString("groupName", groupName);
-                      data.putString("message", message);
-                      data.putString("eventType", eventType);
-                      data.putString("nsound", nsound);
+                      Log.i(TAG, "onNotificationReceived callback provided");
 
-                      FirebasePlugin.sendNotificationReceived(data);
+                      Bundle dataBundle = new Bundle();
+                      dataBundle.putString("msgid", msgid);
+                      dataBundle.putString("target", target);
+                      dataBundle.putString("username", username);
+                      dataBundle.putString("groupName", groupName);
+                      dataBundle.putString("message", message);
+                      dataBundle.putString("eventType", eventType);
+                      dataBundle.putString("nsound", nsound);
+                      dataBundle.putStringArray("mention", notification.mention);
+
+                      FirebasePlugin.sendNotificationReceived(dataBundle);
+                  } else {
+                      Log.i(TAG, "no onNotificationReceived callback provided");
                   }
                 }
             }
@@ -662,5 +680,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         public String gt;
         public String nType;
         public String nsound;
+        public String[] mention;
     }
 }

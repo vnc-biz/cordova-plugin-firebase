@@ -136,6 +136,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("onNotificationOpen")) {
             this.onNotificationOpen(callbackContext);
             return true;
+        } else if (action.equals("onNotificationReceived")) {
+            this.onNotificationReceived(callbackContext);
+            return true;
         } else if (action.equals("onNotificationMarkAsRead")) {
             this.onNotificationMarkAsRead(callbackContext);
             return true;
@@ -397,6 +400,8 @@ public class FirebasePlugin extends CordovaPlugin {
 
     public static void sendNotificationReceived(Bundle bundle) {
         final CallbackContext callbackContext = FirebasePlugin.notificationReceivedCallbackContext;
+
+        Log.i("FirebasePlugin", "sendNotificationReceived: " + bundle + ", " + callbackContext);
 
         if(callbackContext == null || bundle == null){
             return;
@@ -1221,7 +1226,7 @@ public class FirebasePlugin extends CordovaPlugin {
                    String sound = params.getString("sound");
                    String lights = params.getString("lights");
 
-                   FirebasePluginMessagingService.displayNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, true, sound, lights);
+                   FirebasePluginMessagingService.displayNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, sound, lights);
 
                    callbackContext.success();
                } catch (Exception e) {
