@@ -32,6 +32,10 @@ exports.onNotificationOpen = function (success, error) {
   exec(success, error, "FirebasePlugin", "onNotificationOpen", []);
 };
 
+exports.onNotificationReceived = function (success, error) {
+  exec(success, error, "FirebasePlugin", "onNotificationReceived", []);
+};
+
 exports.onNotificationMarkAsRead = function (success, error) {
   exec(success, error, "FirebasePlugin", "onNotificationMarkAsRead", []);
 };

@@ -89,7 +89,7 @@ public class NotificationManager {
     synchronized public static void displayTalkNotification(Context activityOrServiceContext, Context appContext,
                                                         String id, String msgid, String target, String name, String groupName,
                                                         String message, String eventType, String nsound,
-                                                        boolean showNotification, String sound, String lights) {
+                                                        String sound, String lights) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
@@ -97,14 +97,8 @@ public class NotificationManager {
         Log.i(TAG, "displayNotification: message: " + message);
         Log.i(TAG, "displayNotification: eventType: " + eventType);
         Log.i(TAG, "displayNotification: nsound: " + nsound);
-        Log.i(TAG, "displayNotification: showNotification: " + showNotification);
         Log.i(TAG, "displayNotification: sound: " + sound);
         Log.i(TAG, "displayNotification: lights: " + lights);
-
-
-        if (!showNotification) {
-            return;
-        }
 
         if (checkIfNotificationExist(appContext, msgid)) {
             Log.i(TAG, "Notification EXIST = " + msgid);

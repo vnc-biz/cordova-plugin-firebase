@@ -9,6 +9,7 @@ public class PayloadTalk {
     public String gt;
     public String nType;
     public String nsound;
+    public String[] mention;
 
     public String getMsgid() {
         return msgid;

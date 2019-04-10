@@ -67,9 +67,10 @@ public class FirebasePlugin extends CordovaPlugin {
     private static boolean performanceInit = false;
     private static boolean inBackground = true;
     private static ArrayList<Bundle> notificationStack = null;
-    private static CallbackContext notificationCallbackContext;
+    private static CallbackContext notificationOpenCallbackContext;
     private static CallbackContext tokenRefreshCallbackContext;
     private static CallbackContext notificationMarkAsReadCallbackContext;
+    private static CallbackContext notificationReceivedCallbackContext;
 
     @Override
     protected void pluginInitialize() {
@@ -131,6 +132,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("onNotificationOpen")) {
             this.onNotificationOpen(callbackContext);
             return true;
+        } else if (action.equals("onNotificationReceived")) {
+             this.onNotificationReceived(callbackContext);
+             return true;
         } else if (action.equals("onNotificationMarkAsRead")) {
             this.onNotificationMarkAsRead(callbackContext);
             return true;
@@ -233,9 +237,10 @@ public class FirebasePlugin extends CordovaPlugin {
 
     @Override
     public void onReset() {
-        FirebasePlugin.notificationCallbackContext = null;
+        FirebasePlugin.notificationOpenCallbackContext = null;
         FirebasePlugin.tokenRefreshCallbackContext = null;
         FirebasePlugin.notificationMarkAsReadCallbackContext = null;
+        FirebasePlugin.notificationReceivedCallbackContext = null;
     }
 
     @Override
@@ -294,7 +299,7 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     private void onNotificationOpen(final CallbackContext callbackContext) {
-        FirebasePlugin.notificationCallbackContext = callbackContext;
+        FirebasePlugin.notificationOpenCallbackContext = callbackContext;
         if (FirebasePlugin.notificationStack != null) {
             for (Bundle bundle : FirebasePlugin.notificationStack) {
                 FirebasePlugin.sendNotification(bundle, this.cordova.getActivity().getApplicationContext());
@@ -305,6 +310,10 @@ public class FirebasePlugin extends CordovaPlugin {
 
     private void onNotificationMarkAsRead(final CallbackContext callbackContext) {
         FirebasePlugin.notificationMarkAsReadCallbackContext = callbackContext;
+    }
+
+    private void onNotificationReceived(final CallbackContext callbackContext) {
+        FirebasePlugin.notificationReceivedCallbackContext = callbackContext;
     }
 
     private void onTokenRefresh(final CallbackContext callbackContext) {
@@ -328,7 +337,7 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     public static void sendNotification(Bundle bundle, Context context) {
-        if (!FirebasePlugin.hasNotificationsCallback()) {
+        if (!FirebasePlugin.hasNotificationsOpenCallback()) {
             String packageName = context.getPackageName();
             if (FirebasePlugin.notificationStack == null) {
                 FirebasePlugin.notificationStack = new ArrayList<Bundle>();
@@ -337,7 +346,7 @@ public class FirebasePlugin extends CordovaPlugin {
 
             return;
         }
-        final CallbackContext callbackContext = FirebasePlugin.notificationCallbackContext;
+        final CallbackContext callbackContext = FirebasePlugin.notificationOpenCallbackContext;
         if (callbackContext != null && bundle != null) {
             JSONObject json = new JSONObject();
             Set<String> keys = bundle.keySet();
@@ -385,6 +394,32 @@ public class FirebasePlugin extends CordovaPlugin {
         callbackContext.sendPluginResult(pluginresult);
     }
 
+    public static void sendNotificationReceived(Bundle bundle) {
+        final CallbackContext callbackContext = FirebasePlugin.notificationReceivedCallbackContext;
+
+        if(callbackContext == null || bundle == null){
+            return;
+        }
+
+        JSONObject json = new JSONObject();
+        Set<String> keys = bundle.keySet();
+        for (String key : keys) {
+            try {
+                json.put(key, bundle.get(key));
+            } catch (JSONException e) {
+                if(FirebasePlugin.crashlyticsInit()){
+                  Crashlytics.logException(e);
+                }
+                callbackContext.error(e.getMessage());
+                return;
+            }
+        }
+
+        PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, json);
+        pluginresult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginresult);
+    }
+
     public static void sendToken(String token) {
         if (FirebasePlugin.tokenRefreshCallbackContext == null) {
             return;
@@ -414,12 +449,16 @@ public class FirebasePlugin extends CordovaPlugin {
         return FirebasePlugin.performanceInit;
     }
 
-    public static boolean hasNotificationsCallback() {
-        return FirebasePlugin.notificationCallbackContext != null;
+    public static boolean hasNotificationsOpenCallback() {
+        return FirebasePlugin.notificationOpenCallbackContext != null;
     }
 
     public static boolean hasNotificationsMarkAsReadCallback() {
         return FirebasePlugin.notificationMarkAsReadCallbackContext != null;
+    }
+
+    public static boolean hasNotificationsReceivedCallback() {
+       return FirebasePlugin.notificationReceivedCallbackContext != null;
     }
 
     @Override
@@ -1179,7 +1218,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
 
-                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, true, sound, lights);
+                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, sound, lights);
 
                     callbackContext.success();
                 } catch (Exception e) {
