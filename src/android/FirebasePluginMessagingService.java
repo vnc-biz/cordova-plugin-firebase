@@ -151,6 +151,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                   if (FirebasePlugin.hasNotificationsReceivedCallback()) {
                       Log.i(TAG, "onNotificationReceived callback provided");
 
+                      // Log.i(TAG, "onNotificationReceived notification.mention: " + notification.mention);
+
                       Bundle dataBundle = new Bundle();
                       dataBundle.putString("msgid", msgid);
                       dataBundle.putString("target", target);
@@ -159,7 +161,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                       dataBundle.putString("message", message);
                       dataBundle.putString("eventType", eventType);
                       dataBundle.putString("nsound", nsound);
-                      dataBundle.putStringArray("mention", notification.mention);
+                      dataBundle.putString("mention", TextUtils.join(",", notification.mention));
 
                       FirebasePlugin.sendNotificationReceived(dataBundle);
                   } else {
@@ -680,6 +682,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         public String gt;
         public String nType;
         public String nsound;
-        public String[] mention;
+        public List<String> mention;
     }
 }
