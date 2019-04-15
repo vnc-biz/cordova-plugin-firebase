@@ -112,7 +112,8 @@ public class NotificationCreator {
         return text;
     }
 
-    static Integer findPreviousMessagesAndUpdateNotifId(String target, Integer notificationId, StatusBarNotification[] activeToasts, List<String> msgs) {
+    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, List<String> msgs) {
+        Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
             String currentTarget = bundle.getString(MESSAGE_TARGET);

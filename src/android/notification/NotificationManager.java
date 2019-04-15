@@ -133,10 +133,9 @@ public class NotificationManager {
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
         List<String> msgs = new ArrayList<String>();
-        notificationId = NotificationCreator.findPreviousMessagesAndUpdateNotifId(target, notificationId,
-                statusBarNotifications, msgs);
-        if (msgs.size() == 0) {
-            Log.i("vnc", "no notifications in Status bar, when message: " + message);
+        Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, msgs);
+        if (existingNotificationId > -1) {
+            notificationId = existingNotificationId;
         }
 
         msgs.add(text);
