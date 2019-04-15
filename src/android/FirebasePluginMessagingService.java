@@ -14,7 +14,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebasePluginMessagingService";
 
-    private PayloadProcessor payloadProcessor = new PayloadProcessor(this, getApplicationContext());
+    private PayloadProcessor payloadProcessor;
 
 
     /**
@@ -51,6 +51,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         Map<String, String> payload = remoteMessage.getData();
         Log.i(TAG, "payload 'data' received" + payload);
+
+        if (payloadProcessor == null) {
+            payloadProcessor = new PayloadProcessor(this, getApplicationContext());
+        }
 
         if (payload.get("vnc") != null) {
             payloadProcessor.processTalkPayload(payload);
