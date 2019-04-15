@@ -1,5 +1,7 @@
 package org.apache.cordova.firebase.models;
 
+import java.util.List;
+
 public class PayloadTalk {
     public String msgid;
     public String jid;
@@ -9,7 +11,7 @@ public class PayloadTalk {
     public String gt;
     public String nType;
     public String nsound;
-    public String[] mention;
+    public List<String> mention;
 
     public String getMsgid() {
         return msgid;

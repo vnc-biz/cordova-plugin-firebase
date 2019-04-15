@@ -75,7 +75,7 @@ public class PayloadProcessor {
                       dataBundle.putString("message", message);
                       dataBundle.putString("eventType", eventType);
                       dataBundle.putString("nsound", nsound);
-                      dataBundle.putStringArray("mention", notification.mention);
+                      dataBundle.putString("mention", TextUtils.join(",", notification.mention));
 
                       FirebasePlugin.sendNotificationReceived(dataBundle);
                   } else {
