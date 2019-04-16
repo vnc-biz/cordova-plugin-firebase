@@ -111,8 +111,21 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
-                Log.d(TAG, "received empty data?");
+                Log.i(TAG, "received empty data?");
                 return;
+            } else {
+                Log.i(TAG, "received data: " + data);
+                // [{"jid":"bob@dev2.zimbra-vnc.de",
+                //  "nto":"george@dev2.zimbra-vnc.de",
+                //  "name":"Georgy Georg",
+                //  "eType":"chat",
+                //  "msgid":"3s30gl48am",
+                //  "body":"1",
+                //  "lang":"en",
+                //  "nsound":"nomute",
+                //  "aft":"",
+                //  "nType":"local_notification",
+                //  "mention":[]}]
             }
 
             for (int i = 0; i < data.length(); i++) {
@@ -130,8 +143,31 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     return;
                 }
 
-                boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback());
-                displayNotification(this, getApplicationContext(), "0", msgid, target, username, groupName, message, eventType, nsound, showNotification, "", "");
+                if (FirebasePlugin.inBackground()) {
+                    displayNotification(this, getApplicationContext(), "0", msgid, target, username, groupName, message, eventType, nsound, "", "");
+                } else {
+                  // pass a notification to JS app in foreground
+                  // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                  if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                      Log.i(TAG, "onNotificationReceived callback provided");
+
+                      // Log.i(TAG, "onNotificationReceived notification.mention: " + notification.mention);
+
+                      Bundle dataBundle = new Bundle();
+                      dataBundle.putString("msgid", msgid);
+                      dataBundle.putString("target", target);
+                      dataBundle.putString("username", username);
+                      dataBundle.putString("groupName", groupName);
+                      dataBundle.putString("message", message);
+                      dataBundle.putString("eventType", eventType);
+                      dataBundle.putString("nsound", nsound);
+                      dataBundle.putString("mention", TextUtils.join(",", notification.mention));
+
+                      FirebasePlugin.sendNotificationReceived(dataBundle);
+                  } else {
+                      Log.i(TAG, "no onNotificationReceived callback provided");
+                  }
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -270,7 +306,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         return response;
     }
 
-    public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String msgid, String target, String name, String groupName, String message, String eventType, String nsound, boolean showNotification, String sound, String lights) {
+    public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String msgid, String target, String name, String groupName, String message, String eventType, String nsound, String sound, String lights) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
@@ -278,13 +314,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "displayNotification: message: " + message);
         Log.i(TAG, "displayNotification: eventType: " + eventType);
         Log.i(TAG, "displayNotification: nsound: " + nsound);
-        Log.i(TAG, "displayNotification: showNotification: " + showNotification);
         Log.i(TAG, "displayNotification: sound: " + sound);
         Log.i(TAG, "displayNotification: lights: " + lights);
-
-        if (!showNotification) {
-            return;
-        }
+        Log.i(TAG, "displayNotification: inBackground: " + FirebasePlugin.inBackground());
 
         Integer notificationId = Integer.valueOf(id);
         if (notificationId == 0) {
@@ -650,5 +682,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         public String gt;
         public String nType;
         public String nsound;
+        public List<String> mention;
     }
 }
