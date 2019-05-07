@@ -166,42 +166,42 @@ public class FirebasePlugin extends CordovaPlugin {
                 this.fetch(callbackContext);
             }
             return true;
-        } else if (action.equals("getByteArray")) {
-            if (args.length() > 1) {
-                this.getByteArray(callbackContext, args.getString(0), args.getString(1));
-            } else {
-                this.getByteArray(callbackContext, args.getString(0), null);
-            }
-            return true;
-        } else if (action.equals("getValue")) {
-            if (args.length() > 1) {
-                this.getValue(callbackContext, args.getString(0), args.getString(1));
-            } else {
-                this.getValue(callbackContext, args.getString(0), null);
-            }
-            return true;
+        // } else if (action.equals("getByteArray")) {
+        //     if (args.length() > 1) {
+        //         this.getByteArray(callbackContext, args.getString(0), args.getString(1));
+        //     } else {
+        //         this.getByteArray(callbackContext, args.getString(0), null);
+        //     }
+        //     return true;
+        // } else if (action.equals("getValue")) {
+        //     if (args.length() > 1) {
+        //         this.getValue(callbackContext, args.getString(0), args.getString(1));
+        //     } else {
+        //         this.getValue(callbackContext, args.getString(0), null);
+        //     }
+        //     return true;
         } else if (action.equals("getInfo")) {
             this.getInfo(callbackContext);
             return true;
         } else if (action.equals("setConfigSettings")) {
             this.setConfigSettings(callbackContext, args.getJSONObject(0));
             return true;
-        } else if (action.equals("setDefaults")) {
-            if (args.length() > 1) {
-                this.setDefaults(callbackContext, args.getJSONObject(0), args.getString(1));
-            } else {
-                this.setDefaults(callbackContext, args.getJSONObject(0), null);
-            }
-            return true;
+        // } else if (action.equals("setDefaults")) {
+        //     if (args.length() > 1) {
+        //         this.setDefaults(callbackContext, args.getJSONObject(0), args.getString(1));
+        //     } else {
+        //         this.setDefaults(callbackContext, args.getJSONObject(0), null);
+        //     }
+        //     return true;
         } else if (action.equals("verifyPhoneNumber")) {
             this.verifyPhoneNumber(callbackContext, args.getString(0), args.getInt(1));
             return true;
         } else if (action.equals("startTrace")) {
             this.startTrace(callbackContext, args.getString(0));
             return true;
-        } else if (action.equals("incrementCounter")) {
-            this.incrementCounter(callbackContext, args.getString(0), args.getString(1));
-            return true;
+        // } else if (action.equals("incrementCounter")) {
+        //     this.incrementCounter(callbackContext, args.getString(0), args.getString(1));
+        //     return true;
         } else if (action.equals("stopTrace")) {
             this.stopTrace(callbackContext, args.getString(0));
             return true;
@@ -787,43 +787,43 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
-    private void getByteArray(final CallbackContext callbackContext, final String key, final String namespace) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    byte[] bytes = namespace == null ? FirebaseRemoteConfig.getInstance().getByteArray(key)
-                            : FirebaseRemoteConfig.getInstance().getByteArray(key, namespace);
-                    JSONObject object = new JSONObject();
-                    object.put("base64", Base64.encodeToString(bytes, Base64.DEFAULT));
-                    object.put("array", new JSONArray(bytes));
-                    callbackContext.success(object);
-                } catch (Exception e) {
-                    if (FirebasePlugin.crashlyticsInit()) {
-                        Crashlytics.logException(e);
-                    }
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
+    // private void getByteArray(final CallbackContext callbackContext, final String key, final String namespace) {
+    //     cordova.getThreadPool().execute(new Runnable() {
+    //         public void run() {
+    //             try {
+    //                 byte[] bytes = namespace == null ? FirebaseRemoteConfig.getInstance().getByteArray(key)
+    //                         : FirebaseRemoteConfig.getInstance().getByteArray(key, namespace);
+    //                 JSONObject object = new JSONObject();
+    //                 object.put("base64", Base64.encodeToString(bytes, Base64.DEFAULT));
+    //                 object.put("array", new JSONArray(bytes));
+    //                 callbackContext.success(object);
+    //             } catch (Exception e) {
+    //                 if (FirebasePlugin.crashlyticsInit()) {
+    //                     Crashlytics.logException(e);
+    //                 }
+    //                 callbackContext.error(e.getMessage());
+    //             }
+    //         }
+    //     });
+    // }
 
-    private void getValue(final CallbackContext callbackContext, final String key, final String namespace) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    FirebaseRemoteConfigValue value = namespace == null
-                            ? FirebaseRemoteConfig.getInstance().getValue(key)
-                            : FirebaseRemoteConfig.getInstance().getValue(key, namespace);
-                    callbackContext.success(value.asString());
-                } catch (Exception e) {
-                    if (FirebasePlugin.crashlyticsInit()) {
-                        Crashlytics.logException(e);
-                    }
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
+    // private void getValue(final CallbackContext callbackContext, final String key, final String namespace) {
+    //     cordova.getThreadPool().execute(new Runnable() {
+    //         public void run() {
+    //             try {
+    //                 FirebaseRemoteConfigValue value = namespace == null
+    //                         ? FirebaseRemoteConfig.getInstance().getValue(key)
+    //                         : FirebaseRemoteConfig.getInstance().getValue(key, namespace);
+    //                 callbackContext.success(value.asString());
+    //             } catch (Exception e) {
+    //                 if (FirebasePlugin.crashlyticsInit()) {
+    //                     Crashlytics.logException(e);
+    //                 }
+    //                 callbackContext.error(e.getMessage());
+    //             }
+    //         }
+    //     });
+    // }
 
     private void getInfo(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
@@ -869,24 +869,24 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
-    private void setDefaults(final CallbackContext callbackContext, final JSONObject defaults, final String namespace) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    if (namespace == null)
-                        FirebaseRemoteConfig.getInstance().setDefaults(defaultsToMap(defaults));
-                    else
-                        FirebaseRemoteConfig.getInstance().setDefaults(defaultsToMap(defaults), namespace);
-                    callbackContext.success();
-                } catch (Exception e) {
-                    if (FirebasePlugin.crashlyticsInit()) {
-                        Crashlytics.logException(e);
-                    }
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
+    // private void setDefaults(final CallbackContext callbackContext, final JSONObject defaults, final String namespace) {
+    //     cordova.getThreadPool().execute(new Runnable() {
+    //         public void run() {
+    //             try {
+    //                 if (namespace == null)
+    //                     FirebaseRemoteConfig.getInstance().setDefaults(defaultsToMap(defaults));
+    //                 else
+    //                     FirebaseRemoteConfig.getInstance().setDefaults(defaultsToMap(defaults), namespace);
+    //                 callbackContext.success();
+    //             } catch (Exception e) {
+    //                 if (FirebasePlugin.crashlyticsInit()) {
+    //                     Crashlytics.logException(e);
+    //                 }
+    //                 callbackContext.error(e.getMessage());
+    //             }
+    //         }
+    //     });
+    // }
 
     private static Map<String, Object> defaultsToMap(JSONObject object) throws JSONException {
         final Map<String, Object> map = new HashMap<String, Object>();
@@ -1055,37 +1055,37 @@ public class FirebasePlugin extends CordovaPlugin {
         }
     }
 
-    private void incrementCounter(final CallbackContext callbackContext, final String name, final String counterNamed) {
-        final FirebasePlugin self = this;
-        if (FirebasePlugin.performanceInit()) {
-            cordova.getThreadPool().execute(new Runnable() {
-                public void run() {
-                    try {
-
-                        Trace myTrace = null;
-                        if (self.traces.containsKey(name)) {
-                            myTrace = self.traces.get(name);
-                        }
-
-                        if (myTrace != null && myTrace instanceof Trace) {
-                            myTrace.incrementCounter(counterNamed);
-                            callbackContext.success();
-                        } else {
-                            callbackContext.error("Trace not found");
-                        }
-                    } catch (Exception e) {
-                        if (FirebasePlugin.crashlyticsInit()) {
-                            Crashlytics.logException(e);
-                        }
-                        e.printStackTrace();
-                        callbackContext.error(e.getMessage());
-                    }
-                }
-            });
-        } else {
-            callbackContext.error(ERRORINITPERFORMANCE);
-        }
-    }
+    // private void incrementCounter(final CallbackContext callbackContext, final String name, final String counterNamed) {
+    //     final FirebasePlugin self = this;
+    //     if (FirebasePlugin.performanceInit()) {
+    //         cordova.getThreadPool().execute(new Runnable() {
+    //             public void run() {
+    //                 try {
+    //
+    //                     Trace myTrace = null;
+    //                     if (self.traces.containsKey(name)) {
+    //                         myTrace = self.traces.get(name);
+    //                     }
+    //
+    //                     if (myTrace != null && myTrace instanceof Trace) {
+    //                         myTrace.incrementCounter(counterNamed);
+    //                         callbackContext.success();
+    //                     } else {
+    //                         callbackContext.error("Trace not found");
+    //                     }
+    //                 } catch (Exception e) {
+    //                     if (FirebasePlugin.crashlyticsInit()) {
+    //                         Crashlytics.logException(e);
+    //                     }
+    //                     e.printStackTrace();
+    //                     callbackContext.error(e.getMessage());
+    //                 }
+    //             }
+    //         });
+    //     } else {
+    //         callbackContext.error(ERRORINITPERFORMANCE);
+    //     }
+    // }
 
     private void stopTrace(final CallbackContext callbackContext, final String name) {
         final FirebasePlugin self = this;
