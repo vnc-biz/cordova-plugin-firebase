@@ -58,11 +58,10 @@ public class SnoozeAction extends BaseActionTask {
             }
             int statusCode = urlConnection.getResponseCode();
             Log.i(TAG, "Server response, statusCode: " + statusCode);
-            if (statusCode != 200) {
+            if (statusCode > 400) {
                 Log.i(TAG, "Server response: " + urlConnection.getResponseMessage());
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
-                 // _is = httpConn.getErrorStream();
                 String inputLine;
                 StringBuffer response = new StringBuffer();
 
@@ -71,7 +70,7 @@ public class SnoozeAction extends BaseActionTask {
                 }
                 in.close();
 
-                Log.i(TAG, "Server response: " + response.toString());
+                Log.i(TAG, "Server error response: " + response.toString());
 
                 saveSnoozeOnError(context, taskId);
             }

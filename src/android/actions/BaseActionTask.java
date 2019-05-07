@@ -45,13 +45,19 @@ public abstract class BaseActionTask extends BaseAction {
 
     @Override
     protected void setRequestHeaders(HttpURLConnection urlConnection) throws IOException {
+        super.setRequestHeaders(urlConnection);
+
         urlConnection.setRequestProperty("Content-Type", "application/json");
         urlConnection.setRequestProperty("Accept", "application/json");
         urlConnection.setRequestProperty("X-Redmine-API-Key", mApiKey);
+
+        Log.i(TAG, "setRequestHeaders");
     }
 
     @Override
     protected void setRequestMethod(HttpURLConnection urlConnection) throws IOException {
+        super.setRequestMethod(urlConnection);
+
         urlConnection.setRequestMethod("PUT");
     }
 }
