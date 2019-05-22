@@ -33,7 +33,7 @@ public class NotificationManager {
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
-                                                          String type, String: sound) {
+                                                          String type, String sound) {
         Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", taskId: " + taskId + ", taskUpdatedOn: " + taskUpdatedOn + ", type: " + type);
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
