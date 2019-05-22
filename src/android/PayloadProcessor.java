@@ -108,11 +108,12 @@ public class PayloadProcessor {
           final String taskId = notification.task_id;
           final String taskUpdatedOn = notification.task_updated_on;
           final String type = notification.type;
+          final String sound = notification.sound;
 
           notificationPool.execute(new Runnable() {
               public void run() {
                   NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
-                          body, username, taskId, taskUpdatedOn, type);
+                          body, username, taskId, taskUpdatedOn, type, sound);
               }
           });
       } catch (JSONException e) {

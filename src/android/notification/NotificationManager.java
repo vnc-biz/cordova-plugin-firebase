@@ -33,7 +33,7 @@ public class NotificationManager {
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
-                                                          String type) {
+                                                          String type, String: sound) {
         Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", taskId: " + taskId + ", taskUpdatedOn: " + taskUpdatedOn + ", type: " + type);
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -41,7 +41,7 @@ public class NotificationManager {
         Integer notificationId = (taskId + body).hashCode();
 
         // defineChannelData
-        String nsound = "";
+        String nsound = sound.equals("false") ? "mute" : "";
         String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
         String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
