@@ -6,6 +6,7 @@ public class PayloadTask {
     public String task_id;
     public String type;
     public String task_updated_on;
+    public String sound;
 
     public String getBody() {
         return body;
@@ -45,5 +46,13 @@ public class PayloadTask {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getSound() {
+        return sound;
+    }
+
+    public void setSound(String sound) {
+        this.sound = sound;
     }
 }
