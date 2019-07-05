@@ -28,7 +28,7 @@ public class SnoozeAction extends BaseActionTask {
     protected Date remindOn;
 
     public SnoozeAction(String taskId, int notificationId, Date remindOn, Context context) {
-        super(taskId, notificationId, context, "/issues/" + taskId + "?journals,attachments,tags,list");
+        super(taskId, notificationId, context, "/issues/" + taskId + ".json?include=journals,attachments,tags,list");
 
         this.remindOn = remindOn;
     }

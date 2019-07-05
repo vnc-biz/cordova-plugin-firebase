@@ -47,7 +47,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.i(TAG, "NotificationReceiver onReceive Snooze, notificationId: " + notificationId + ", taskId: " + taskId);
 
-            Date remindOn = new Date(System.currentTimeMillis() - 3600 * 1000);
+            Date remindOn = new Date(System.currentTimeMillis() + 3600 * 1000);
             Thread thread = new Thread(new SnoozeAction(taskId, notificationId, remindOn, context));
             thread.start();
         }
