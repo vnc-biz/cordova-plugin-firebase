@@ -175,137 +175,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, Integer nId) {
-        File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
-
-        FileWriter fileWriter;
-
-        // create file if does nto exist
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                fileWriter = new FileWriter(file.getAbsoluteFile());
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                bufferedWriter.write("{}");
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            // read file into string
-            String response = readNotificationsFile(file);
-            if (response == null) {
-                return;
-            }
-
-            String nIdString = String.valueOf(nId);
-
-            // parse file content
-            JSONObject messageDetails = new JSONObject(response);
-
-            // put notification id
-            Boolean isConversationExisting = messageDetails.has(target);
-            if (isConversationExisting) {
-                JSONArray userMessages = (JSONArray) messageDetails.get(target);
-
-                boolean idAlreadyExists = false;
-                for (int i = 0; i < userMessages.length(); i++) {
-                    if (userMessages.get(i).toString().equals(nIdString)) {
-                        idAlreadyExists = true;
-                        break;
-                    }
-                }
-                if (!idAlreadyExists) {
-                    userMessages.put(nIdString);
-                }
-            } else {
-                JSONArray newUserMessages = new JSONArray();
-                newUserMessages.put(nIdString);
-                messageDetails.put(target, newUserMessages);
-            }
-            // save file
-            fileWriter = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fileWriter);
-            bw.write(messageDetails.toString());
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static ArrayList<String> removeFromFileAndHideNotificationsForTarget(Context activityOrServiceContext, String target) {
-        File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
-
-        // create file if does nto exist
-        if (!file.exists()) {
-            return null;
-        }
-
-        ArrayList<String> nIds = null;
-
-        try {
-            // read file into string
-            String response = readNotificationsFile(file);
-            if (response == null) {
-                return null;
-            }
-
-            // parse file content
-            JSONObject messageDetails = new JSONObject(response);
-
-            // remove notification ids
-            Boolean isConversationExisting = messageDetails.has(target);
-            if (isConversationExisting) {
-                nIds = new ArrayList<String>();
-
-                // collect notifications ids
-                JSONArray userMessages = (JSONArray) messageDetails.get(target);
-                for (int i = 0; i < userMessages.length(); i++) {
-                    nIds.add(userMessages.getString(i));
-                }
-
-                // remove
-                messageDetails.remove(target);
-
-                // save file
-                FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
-                BufferedWriter bw = new BufferedWriter(fileWriter);
-                bw.write(messageDetails.toString());
-                bw.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return nIds;
-    }
-
-    private static String readNotificationsFile(File file) {
-        String response = null;
-        try {
-            // read file into string
-            StringBuffer output = new StringBuffer();
-            FileReader fileReader = new FileReader(file.getAbsolutePath());
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line = "";
-            while ((line = bufferedReader.readLine()) != null) {
-                output.append(line + "\n");
-            }
-            response = output.toString();
-            bufferedReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return response;
-    }
-
     public static void displayNotification(Context activityOrServiceContext, Context appContext, String id, String msgid, String target, String name, String groupName, String message, String eventType, String nsound, String sound, String lights) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
@@ -571,8 +440,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         }
 
         notificationManager.notify(notificationId, notification);
-
-        saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
     private static String getTypeOfLink(String text) {
@@ -608,6 +475,26 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private String getPreference(Context context, String key) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         return settings.getString(key, null);
+    }
+
+    public static void hideNotificationsForTarget(Context activityOrServiceContext, String target) {
+        try {
+            StatusBarNotification[] activeToasts = new StatusBarNotification[0];
+            NotificationManager notificationManager = (NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                activeToasts = notificationManager.getActiveNotifications();
+            }
+            for (StatusBarNotification sbn : activeToasts) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                if (currentTarget != null && currentTarget.equals(target)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {

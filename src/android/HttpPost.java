@@ -143,13 +143,7 @@ class HttpPost implements Runnable {
         } finally {
             if(requestType == RequestType.MARK_AS_READ){
                 // hide all other notifications for this target
-                ArrayList<String> nIds = FirebasePluginMessagingService.removeFromFileAndHideNotificationsForTarget(context, sender);
-                if(nIds != null){
-                    for (int i=0; i<nIds.size(); i++){
-                        notificationManager.cancel(Integer.parseInt(nIds.get(i)));
-                    }
-                }
-
+                FirebasePluginMessagingService.hideNotificationsForTarget(context, sender);
                 Bundle data = new Bundle();
                 data.putString("target", sender);
                 FirebasePlugin.sendNotificationMarkAsRead(data);

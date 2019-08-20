@@ -1,5 +1,7 @@
 package org.apache.cordova.firebase;
 
+
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,6 +28,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigValue;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+import android.service.notification.StatusBarNotification;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
 
@@ -37,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -224,8 +228,13 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("scheduleLocalNotification")) {
             this.scheduleLocalNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("getActiveIdsByTarget")) {
+            this.getActiveIdsByTarget(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearNotificationsByTarget")) {
+            this.clearNotificationsByTarget(callbackContext, args.getString(0));
+            return true;
         }
-
         return false;
     }
 
@@ -285,6 +294,61 @@ public class FirebasePlugin extends CordovaPlugin {
           callbackContext.error(ERRORINITANALYTICS);
         }
     }
+
+    private NotificationManager getNotMgr() {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        return (NotificationManager) context.getSystemService(
+                Context.NOTIFICATION_SERVICE);
+    }
+
+    public void getActiveIdsByTarget(final CallbackContext callbackContext, final String target) {
+        Log.d(TAG, "getActiveIdsByTarget: " + target);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    StatusBarNotification[] activeToasts = getActiveNotifications();
+                    List<Integer> activeIds              = new ArrayList<Integer>();
+                    for (StatusBarNotification toast : activeToasts) {
+                        Notification curNotif = toast.getNotification();
+                        Bundle bundle = curNotif.extras;
+                        String currentTarget = bundle.getString("messageTarget");
+                        if (currentTarget != null && currentTarget.equals(target)) {
+                            activeIds.add(toast.getId());
+                        }
+                    }
+                    JSONObject info = new JSONObject();
+                    info.put("ids", activeIds);
+                    callbackContext.success(info);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearNotificationsByTarget(final CallbackContext callbackContext, final String target) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearNotificationsByTarget: " + target);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FirebasePluginMessagingService.hideNotificationsForTarget(context, target);
+                    callbackContext.success(target);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    StatusBarNotification[] getActiveNotifications() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            return getNotMgr().getActiveNotifications();
+        } else {
+            return new StatusBarNotification[0];
+        }
+    }
+
 
     private void initPerformance(final CallbackContext callbackContext) {
         final Context context = this.cordova.getActivity().getApplicationContext();
