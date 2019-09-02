@@ -20,6 +20,8 @@ import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -66,6 +68,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     public static final String PREFS_STRING_SET_KEY = "previousNotifications";
     public static final String PREFS_NOTIF_COUNTER = "notificationCounter";
 
+    public static final String CRASHLITICS_TAG = "FCM onMessageReceived";
+
     private static String getStringResource(Context activityOrServiceContext, String name) {
         return activityOrServiceContext.getString(
                 activityOrServiceContext.getResources().getIdentifier(
@@ -81,6 +85,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        if(FirebasePlugin.crashlyticsInit()){
+          Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received: " + remoteMessage.getData());
+        }
+
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -106,7 +114,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             data = new JSONArray(payload.get("vnc"));
 
             if (data == null || data.length() == 0) {
-                Log.i(TAG, "received empty data?");
+                Log.i(TAG, "received empty data");
+
+                if(FirebasePlugin.crashlyticsInit()){
+                  Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received empty data");
+                }
+
                 return;
             } else {
                 Log.i(TAG, "received data: " + data);
@@ -135,12 +148,29 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
                 if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
                     Log.d(TAG, "returning due to empty 'target' or 'username' values");
+
+                    if(FirebasePlugin.crashlyticsInit()){
+                      Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "returning due to empty 'target' or 'username' values");
+                    }
+
                     return;
                 }
 
+                if(FirebasePlugin.crashlyticsInit()){
+                  Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "About to process: " + target + ": " + message);
+                }
+
                 if (FirebasePlugin.inBackground()) {
+                    if(FirebasePlugin.crashlyticsInit()){
+                        Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "Display: " + target + ": " + message);
+                    }
                     displayNotification(this, getApplicationContext(), "0", msgid, target, username, groupName, message, eventType, nsound, "", "");
                 } else {
+
+                  if(FirebasePlugin.crashlyticsInit()){
+                     Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "Pass to JS" + "(" + FirebasePlugin.hasNotificationsReceivedCallback() + "): " + target + ": " + message);
+                  }
+
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
                   if (FirebasePlugin.hasNotificationsReceivedCallback()) {
@@ -166,6 +196,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            if(FirebasePlugin.crashlyticsInit()){
+              Crashlytics.logException(e);
+            }
             return;
         }
     }
