@@ -81,11 +81,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        String token = getPreference(getApplicationContext(), "auth-token");
-        if (token == null) {
-            return;
-        }
-
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
