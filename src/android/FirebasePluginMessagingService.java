@@ -110,6 +110,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
         Map<String, String> payload = remoteMessage.getData();
         JSONArray data;
+        if (payload.get("vnc") == null) {
+            if(FirebasePlugin.crashlyticsInit()){
+                Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "no payload vnc");
+              }
+            return;
+        }
         try {
             data = new JSONArray(payload.get("vnc"));
 
