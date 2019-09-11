@@ -110,12 +110,32 @@ public class PayloadProcessor {
           final String type = notification.type;
           final String sound = notification.sound;
 
-          notificationPool.execute(new Runnable() {
-              public void run() {
-                  NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
-                          body, username, taskId, taskUpdatedOn, type, sound);
-              }
-          });
+          if (FirebasePlugin.inBackground()) {
+            notificationPool.execute(new Runnable() {
+                public void run() {
+                    NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
+                            body, username, taskId, taskUpdatedOn, type, sound);
+                }
+            });
+          } else {
+            // pass a notification to JS app in foreground
+            // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+            if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                Log.i(TAG, "onNotificationReceived callback provided");
+
+                Bundle dataBundle = new Bundle();
+                dataBundle.putString("body", body);
+                dataBundle.putString("username", username);
+                dataBundle.putString("task_id", taskId);
+                dataBundle.putString("task_updated_on", taskUpdatedOn);
+                dataBundle.putString("type", type);
+                dataBundle.putString("sound", sound);
+
+                FirebasePlugin.sendNotificationReceived(dataBundle);
+            } else {
+                Log.i(TAG, "no onNotificationReceived callback provided");
+            }
+          }
       } catch (JSONException e) {
           e.printStackTrace();
           return;
