@@ -59,6 +59,10 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (payload.get("vnc") != null) {
             payloadProcessor.processTalkPayload(payload);
         } else if (payload.get("vnctask") != null) {
+            String mApiKey = SharedPrefsUtils.getString(getApplicationContext(), "redmine-api-key");
+            if (mApiKey == null) {
+                return;
+            }
             payloadProcessor.processTaskPayload(payload);
         }
     }
