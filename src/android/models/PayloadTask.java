@@ -7,6 +7,15 @@ public class PayloadTask {
     public String type;
     public String task_updated_on;
     public String sound;
+    public String open_in_browser = "false";
+
+    public String getOpen_in_browser() {
+        return this.open_in_browser;
+    }
+
+    public void setOpen_in_browser(String open_in_browser) {
+        this.open_in_browser = open_in_browser;
+    }
 
     public String getBody() {
         return body;

@@ -109,12 +109,13 @@ public class PayloadProcessor {
           final String taskUpdatedOn = notification.task_updated_on;
           final String type = notification.type;
           final String sound = notification.sound;
+          final String open_in_browser = notification.open_in_browser;
 
           if (FirebasePlugin.inBackground()) {
             notificationPool.execute(new Runnable() {
                 public void run() {
                     NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
-                            body, username, taskId, taskUpdatedOn, type, sound);
+                            body, username, taskId, taskUpdatedOn, type, sound, open_in_browser);
                 }
             });
           } else {
@@ -130,6 +131,7 @@ public class PayloadProcessor {
                 dataBundle.putString("task_updated_on", taskUpdatedOn);
                 dataBundle.putString("type", type);
                 dataBundle.putString("sound", sound);
+                dataBundle.putString("open_in_browser", open_in_browser);
 
                 FirebasePlugin.sendNotificationReceived(dataBundle);
             } else {

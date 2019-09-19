@@ -33,7 +33,7 @@ public class NotificationManager {
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
-                                                          String type, String sound) {
+                                                          String type, String sound, String open_in_browser) {
         Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", taskId: " + taskId + ", taskUpdatedOn: " + taskUpdatedOn + ", type: " + type);
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -48,7 +48,7 @@ public class NotificationManager {
 
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTask(activityOrServiceContext,
-                taskId, notificationId, "vncTaskEventType", taskUpdatedOn, type);
+                taskId, notificationId, "vncTaskEventType", taskUpdatedOn, type, open_in_browser);
 
         String title;
         if (type.equals("assignment")) {
@@ -57,6 +57,10 @@ public class NotificationManager {
             title = "Task updated";
         } else if (type.equals("reminder")) {
             title = "Task reminder";
+        } else if (type.equals("mentioning")) {
+            title = "Task mention";
+        } else if (type.equals("overdue_tasks")) {
+            title = "Task overdue";
         } else {
             title = "Task notification";
         }
