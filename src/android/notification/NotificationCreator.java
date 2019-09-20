@@ -36,6 +36,8 @@ public class NotificationCreator {
     private static final String OPEN_IN_BROWSER = "open_in_browser";
     private static final String NOTIFY_ID = "id";
 
+    private static final String VNC_MAIL_MSG_ID = "vncMailMsgId";
+
     private static final String PREVIOUS_MESSAGES = "previousMessages";
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
@@ -43,6 +45,9 @@ public class NotificationCreator {
     public static final String NOTIFICATION_REPLY = "NotificationReply";
     public static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
     public static final String SNOOZE_REPLY = "SnoozeReply";
+
+    public static final String MAIL_MARK_AS_READ = "MailMarkAsRead";
+    public static final String MAIL_DELETE = "MailDelete";
     //
     private static final int REQUEST_CODE_HELP = 101;
 
@@ -185,7 +190,17 @@ public class NotificationCreator {
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.MessagingStyle messagingStyle, PendingIntent pendingIntent, Uri defaultSoundUri) {
+    static PendingIntent createNotifPendingIntentMail(Context activityOrServiceContext, String msgId, Integer notificationId) {
+        Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(VNC_MAIL_MSG_ID, msgId);
+        bundle.putInt(NOTIFY_ID, notificationId);
+
+        intent.putExtras(bundle);
+        return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
         notificationBuilder
                 .setDefaults(nsound.equals("mute") ? NotificationCompat.DEFAULT_VIBRATE : NotificationCompat.DEFAULT_ALL)
@@ -199,8 +214,8 @@ public class NotificationCreator {
                 .setGroup(title)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
 
-        if (messagingStyle != null) {
-          notificationBuilder.setStyle(messagingStyle);
+        if (style != null) {
+          notificationBuilder.setStyle(style);
         } else {
           // ... do we have a default style ?
         }
@@ -400,5 +415,46 @@ public class NotificationCreator {
         notificationBuilder.addAction(actionSnooze);
     }
 
+    public static void addMarkMailAsReadAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String markAsReadActionName = MAIL_MARK_AS_READ + "@@" + notificationIdString + "@@" + msgId;
+
+        Log.i(TAG, "addMarkMailAsReadAction, markAsReadActionName: " + markAsReadActionName);
+
+        PendingIntent markAsReadPendingIntent = PendingIntent.getBroadcast(
+                    appContext,
+                    Integer.parseInt(msgId),
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(markAsReadActionName),
+                    0);
+
+        NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
+                0, "Mark as read", markAsReadPendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionMarkAsRead);
+    }
+
+    public static void addDeleteMailAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String deleteActionParams = MAIL_DELETE + "@@" + notificationIdString + "@@" + msgId;
+
+        Log.i(TAG, "addMarkMailAsReadAction, deleteActionParams: " + deleteActionParams);
+
+        PendingIntent markAsReadPendingIntent = PendingIntent.getBroadcast(
+                    appContext,
+                    Integer.parseInt(msgId),
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(deleteActionParams),
+                    0);
+
+        NotificationCompat.Action actionDelete = new NotificationCompat.Action.Builder(
+                0, "Delete", markAsReadPendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionDelete);
+    }
 
 }

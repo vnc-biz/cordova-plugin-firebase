@@ -11,6 +11,7 @@ import java.util.Date;
 import org.apache.cordova.firebase.actions.InlineReplyAction;
 import org.apache.cordova.firebase.actions.MarkAsReadAction;
 import org.apache.cordova.firebase.actions.SnoozeAction;
+import org.apache.cordova.firebase.actions.MailOptionsAction;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
 
@@ -49,6 +50,24 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Date remindOn = new Date(System.currentTimeMillis() + 3600 * 1000);
             Thread thread = new Thread(new SnoozeAction(taskId, notificationId, remindOn, context));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.MAIL_MARK_AS_READ)) {
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+
+            Log.i(TAG, "NotificationReceiver onReceive MarkAsRead, notificationId: " + notificationId + ", msgId: " + msgId);
+
+            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "read", msgId));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.MAIL_DELETE)) {
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+
+            Log.i(TAG, "NotificationReceiver onReceive Delete, notificationId: " + notificationId + ", msgId: " + msgId);
+
+            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "delete", msgId));
             thread.start();
         }
     }

@@ -31,6 +31,55 @@ public class NotificationManager {
 
     private static long timeFromPrevNotify = 0;
 
+    synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject, String title, 
+                                                            String body, String username, String msgId,  String type, String sound) {                                                              
+        Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", msgId: " + msgId + ", type: " + type);
+
+        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        Integer notificationId = msgId.hashCode();
+
+        // defineChannelData
+        String nsound = sound.equals("false") ? "mute" : "";
+        String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
+        String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId);
+
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
+            new NotificationCompat.Builder(activityOrServiceContext, channelId)
+                .setContentTitle(username)
+                .setContentText(subject)
+                );
+
+        bigTextStyle.setBigContentTitle(subject);
+        bigTextStyle.bigText(body);
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
+                username, subject, bigTextStyle, pendingIntent, defaultSoundUri);
+
+        NotificationCreator.addMarkMailAsReadAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
+        NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
+
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
+        // NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
+        // NotificationCreator.setNotificationLights(notificationBuilder, lights);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+
+        Log.i(TAG, "displayTaskNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
+        Log.i(TAG, "displayTaskNotification: display notificationId: " + notificationId);
+
+        //
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
+
+        notificationManager.notify(notificationId, notification);
+    }
+
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
                                                           String type, String sound, String open_in_browser) {
