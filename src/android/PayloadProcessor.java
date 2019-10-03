@@ -177,6 +177,7 @@ public class PayloadProcessor {
                             fromDisplay, 
                             mid,
                             type, 
+                            folderId,
                             "");
                     }
                 });

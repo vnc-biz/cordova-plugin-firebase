@@ -220,6 +220,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("scheduleLocalNotification")) {
             this.scheduleLocalNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("scheduleLocalMailNotification")) {
+            this.scheduleLocalMailNotification(callbackContext, args.getJSONObject(0));
+            return true;
         }
 
         return false;
@@ -1220,6 +1223,33 @@ public class FirebasePlugin extends CordovaPlugin {
 
                     NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, sound, lights);
 
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.crashlyticsInit()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void scheduleLocalMailNotification(final CallbackContext callbackContext, final JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String subject = params.getString("subject");
+                    String title = params.getString("title");
+                    String body = params.getString("body");
+                    String fromDisplay = params.getString("fromDisplay");
+                    String folderId = params.getString("folderId");
+                    String mid = params.getString("mid");
+                    String type = params.getString("type");
+
+                    NotificationManager.displayMailNotification(activityContext, appContext, subject, title, body, fromDisplay, mid, type, folderId, ""); 
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.crashlyticsInit()) {

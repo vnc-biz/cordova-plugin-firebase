@@ -32,7 +32,7 @@ public class NotificationManager {
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject, String title, 
-                                                            String body, String username, String msgId,  String type, String sound) {                                                              
+                                                            String body, String username, String msgId,  String type, String folderId, String sound) {                                                              
         Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", msgId: " + msgId + ", type: " + type);
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -46,7 +46,7 @@ public class NotificationManager {
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId);
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId, type, folderId);
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
             new NotificationCompat.Builder(activityOrServiceContext, channelId)
