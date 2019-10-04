@@ -49,16 +49,16 @@ public class NotificationManager {
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId, type, folderId);
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
-            new NotificationCompat.Builder(activityOrServiceContext, channelId)
-                .setContentTitle(username)
-                .setContentText(subject)
-                );
+        new NotificationCompat.Builder(activityOrServiceContext, channelId)
+        .setContentTitle(username)
+        .setContentText(subject)
+        );
 
         bigTextStyle.setBigContentTitle(subject);
         bigTextStyle.bigText(body);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
-                username, subject, bigTextStyle, pendingIntent, defaultSoundUri);
+        username, subject, bigTextStyle, pendingIntent, defaultSoundUri);
 
         NotificationCreator.addMarkMailAsReadAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
         NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);

@@ -145,14 +145,14 @@ public class PayloadProcessor {
       }
   }
 
-  public void processMailPayload(Map<String, String> payload) {
-      try {
-        JSONObject data = new JSONObject(payload);
+    public void processMailPayload(Map<String, String> payload) {
+        try {
+            JSONObject data = new JSONObject(payload);
 
-        if (data == null || data.length() == 0) {
-            Log.w(TAG, "received empty data?");
-            return;
-        }
+            if (data == null || data.length() == 0) {
+                Log.w(TAG, "received empty data?");
+                return;
+            }
 
         for (int i = 0; i < data.length(); i++) {
             PayloadMail notification = new Gson().fromJson(data.toString(), PayloadMail.class);
@@ -199,13 +199,30 @@ public class PayloadProcessor {
 
                     FirebasePlugin.sendNotificationReceived(dataBundle);
                 } else {
-                    Log.i(TAG, "no onNotificationReceived callback provided");
+                    // pass a notification to JS app in foreground
+                    // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                    if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                        Log.i(TAG, "onNotificationReceived callback provided");
+
+                        Bundle dataBundle = new Bundle();
+                        dataBundle.putString("mid", mid);
+                        dataBundle.putString("ntype", type);
+                        dataBundle.putString("fromAddress", fromAddress);
+                        dataBundle.putString("subject", subject);
+                        dataBundle.putString("fromDisplay", fromDisplay);
+                        dataBundle.putString("folderId", folderId);
+                        dataBundle.putString("title", title);
+                        dataBundle.putString("body", body);
+
+                        FirebasePlugin.sendNotificationReceived(dataBundle);
+                    } else {
+                        Log.i(TAG, "no onNotificationReceived callback provided");
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return;
     }
-  }
 }

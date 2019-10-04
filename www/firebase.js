@@ -194,7 +194,7 @@ cordova.define("cordova-plugin-firebase.FirebasePlugin", function(require, expor
   };
   
   exports.scheduleLocalMailNotification = function (params, success, error) {
-      exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
+    exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
   };
   
   });
