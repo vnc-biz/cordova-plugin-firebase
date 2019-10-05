@@ -31,14 +31,14 @@ public class NotificationManager {
 
     private static long timeFromPrevNotify = 0;
 
-    synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject, String title, 
-                                                            String body, String username, String msgId,  String type, String folderId, String sound) {                                                              
-        Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", msgId: " + msgId + ", type: " + type);
+    synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
+        String body, String fromDisplay, String msgId,  String type, String folderId, String sound) {                                                              
+        
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Integer notificationId = msgId.hashCode();
-
+        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId + ", type: " + type + ", notificationId: " + notificationId);
         // defineChannelData
         String nsound = sound.equals("false") ? "mute" : "";
         String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
@@ -50,15 +50,15 @@ public class NotificationManager {
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
         new NotificationCompat.Builder(activityOrServiceContext, channelId)
-        .setContentTitle(username)
-        .setContentText(subject)
+        .setContentTitle(fromDisplay)
+        .setContentText(body)
         );
 
-        bigTextStyle.setBigContentTitle(subject);
+        bigTextStyle.setBigContentTitle(fromDisplay);
         bigTextStyle.bigText(body);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
-        username, subject, bigTextStyle, pendingIntent, defaultSoundUri);
+        fromDisplay, body, bigTextStyle, pendingIntent, defaultSoundUri);
 
         NotificationCreator.addMarkMailAsReadAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
         NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
@@ -70,8 +70,8 @@ public class NotificationManager {
 
         Notification notification = notificationBuilder.build();
 
-        Log.i(TAG, "displayTaskNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
-        Log.i(TAG, "displayTaskNotification: display notificationId: " + notificationId);
+        Log.i(TAG, "displayMailNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
+        Log.i(TAG, "displayMailNotification: display notificationId: " + notificationId);
 
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);

@@ -1242,14 +1242,19 @@ public class FirebasePlugin extends CordovaPlugin {
                     Context appContext = activityContext.getApplicationContext();
 
                     String subject = params.getString("subject");
-                    String title = params.getString("title");
                     String body = params.getString("body");
                     String fromDisplay = params.getString("fromDisplay");
                     String folderId = params.getString("folderId");
                     String mid = params.getString("mid");
                     String type = params.getString("type");
-
-                    NotificationManager.displayMailNotification(activityContext, appContext, subject, title, body, fromDisplay, mid, type, folderId, ""); 
+                    Log.d(TAG, "scheduleLocalMailNotification");
+                    Log.d(TAG, "subject=" + subject);
+                    Log.d(TAG, "body=" + body);
+                    Log.d(TAG, "fromDisplay=" + fromDisplay);
+                    Log.d(TAG, "mid=" + mid);
+                    Log.d(TAG, "type=" + type);
+                    Log.d(TAG, "folderId=" + folderId);
+                    NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, ""); 
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.crashlyticsInit()) {
