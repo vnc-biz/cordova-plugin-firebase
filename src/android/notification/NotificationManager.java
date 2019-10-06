@@ -32,8 +32,13 @@ public class NotificationManager {
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
-        String body, String fromDisplay, String msgId,  String type, String folderId, String sound) {                                                              
-        
+        String body, String fromDisplay, String msgId,  String type, String folderId, String sound) {
+
+        if (checkIfNotificationExist(appContext, msgId)) {
+          Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+          return;
+        }
+
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
