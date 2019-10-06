@@ -1247,6 +1247,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String folderId = params.getString("folderId");
                     String mid = params.getString("mid");
                     String type = params.getString("type");
+                    String fromAddress = params.getString("fromAddress");
                     Log.d(TAG, "scheduleLocalMailNotification");
                     Log.d(TAG, "subject=" + subject);
                     Log.d(TAG, "body=" + body);
@@ -1254,7 +1255,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     Log.d(TAG, "mid=" + mid);
                     Log.d(TAG, "type=" + type);
                     Log.d(TAG, "folderId=" + folderId);
-                    NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, ""); 
+                    NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, "", fromAddress);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.crashlyticsInit()) {

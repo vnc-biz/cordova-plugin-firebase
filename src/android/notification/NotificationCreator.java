@@ -47,6 +47,7 @@ public class NotificationCreator {
     public static final String SNOOZE_REPLY = "SnoozeReply";
 
     public static final String MAIL_MARK_AS_READ = "MailMarkAsRead";
+    public static final String MAIL_NOTIFICATION_REPLY = "NotificationMailReply";
     public static final String MAIL_DELETE = "MailDelete";
     //
     private static final int REQUEST_CODE_HELP = 101;
@@ -383,6 +384,49 @@ public class NotificationCreator {
             notificationBuilder.addAction(actionMarkAsRead);
         }
     }
+
+    public static void addReplyMailAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId, String subject, String fromAddress, String fromDisplay) {
+       String notificationIdString = String.valueOf(notificationId);
+       String inlineReplyActionName = MAIL_NOTIFICATION_REPLY
+           + "@@" + notificationIdString
+           + "@@" + msgId
+           + "@@" + subject
+           + "@@" + fromAddress
+           + "@@" + fromDisplay;
+
+      //
+       PendingIntent replyPendingIntent;
+       //
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+           Log.i(TAG, "addReplyAndMarkAsReadActions (>=N)");
+
+          replyPendingIntent = PendingIntent.getBroadcast(
+               appContext,
+               notificationId,
+               new Intent(activityOrServiceContext, NotificationReceiver.class)
+                   .setAction(inlineReplyActionName),
+               PendingIntent.FLAG_UPDATE_CURRENT);
+       } else {
+           Log.i(TAG, "addReplyAndMarkAsReadActions");
+
+           replyPendingIntent = PendingIntent.getActivity(
+               appContext,
+               notificationId,
+               new Intent(activityOrServiceContext, ReplyActivity.class)
+                   .setAction(inlineReplyActionName),
+               PendingIntent.FLAG_UPDATE_CURRENT);
+       }
+
+       NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
+               android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+               .addRemoteInput(new RemoteInput.Builder("Reply")
+                       .setLabel("Type your message").build())
+               .setAllowGeneratedReplies(true)
+               .build();
+
+       notificationBuilder.addAction(actionReply);
+    }
+
 
     public static void addSnoozeAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String taskId) {
         String notificationIdString = String.valueOf(notificationId);

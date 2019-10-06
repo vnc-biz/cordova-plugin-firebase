@@ -32,7 +32,7 @@ public class NotificationManager {
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
-        String body, String fromDisplay, String msgId,  String type, String folderId, String sound) {
+        String body, String fromDisplay, String msgId,  String type, String folderId, String sound, String fromAddress) {
 
         if (checkIfNotificationExist(appContext, msgId)) {
           Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
@@ -65,6 +65,7 @@ public class NotificationManager {
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
         fromDisplay, body, bigTextStyle, pendingIntent, defaultSoundUri);
 
+        NotificationCreator.addReplyMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId, subject, fromAddress, fromDisplay);
         NotificationCreator.addMarkMailAsReadAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
         NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
 
