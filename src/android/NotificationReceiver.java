@@ -67,7 +67,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.i(TAG, "NotificationReceiver onReceive Delete, notificationId: " + notificationId + ", msgId: " + msgId);
 
-            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "delete", msgId));
+            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "trash", msgId));
             thread.start();
         }
     }
