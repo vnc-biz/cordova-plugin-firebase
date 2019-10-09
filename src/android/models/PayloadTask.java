@@ -8,6 +8,15 @@ public class PayloadTask {
     public String task_updated_on;
     public String sound;
     public String open_in_browser = "false";
+    public String language = "en";
+
+    public String getLanguage() {
+        return this.language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
     public String getOpen_in_browser() {
         return this.open_in_browser;
