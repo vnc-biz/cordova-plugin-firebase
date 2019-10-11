@@ -33,7 +33,7 @@ public class NotificationManager {
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
-                                                          String type, String sound, String open_in_browser, String language) {
+                                                          String type, String sound, String open_in_browser) {
         Log.i(TAG, "displayTaskNotification: body: " + body + ", username: " + username + ", taskId: " + taskId + ", taskUpdatedOn: " + taskUpdatedOn + ", type: " + type);
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -51,34 +51,18 @@ public class NotificationManager {
                 taskId, notificationId, "vncTaskEventType", taskUpdatedOn, type, open_in_browser);
 
         String title;
-        if (language.equals("en")) {
-            if (type.equals("assignment")) {
-                title = "Task assignment";
-            } else if (type.equals("task_update")) {
-                title = "Task updated";
-            } else if (type.equals("reminder")) {
-                title = "Task reminder";
-            } else if (type.equals("mentioning")) {
-                title = "Task mention";
-            } else if (type.equals("overdue_tasks")) {
-                title = "Task overdue";
-            } else {
-                title = "Task notification";
-            }
+        if (type.equals("assignment")) {
+            title = "Task assignment";
+        } else if (type.equals("task_update")) {
+            title = "Task updated";
+        } else if (type.equals("reminder")) {
+            title = "Task reminder";
+        } else if (type.equals("mentioning")) {
+            title = "Task mention";
+        } else if (type.equals("overdue_tasks")) {
+            title = "Task overdue";
         } else {
-            if (type.equals("assignment")) {
-                title = "Aufgabenzuweisung";
-            } else if (type.equals("task_update")) {
-                title = "Aufgabenaktualisierung";
-            } else if (type.equals("reminder")) {
-                title = "Aufgabenerinnerung";
-            } else if (type.equals("mentioning")) {
-                title = "Erwähnung in Aufgaben";
-            } else if (type.equals("overdue_tasks")) {
-                title = "Überfällige Aufgaben";
-            } else {
-                title = "Aufgabenbenachrichtigung";
-            }
+            title = "Task notification";
         }
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,

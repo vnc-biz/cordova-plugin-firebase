@@ -110,13 +110,12 @@ public class PayloadProcessor {
           final String type = notification.type;
           final String sound = notification.sound;
           final String open_in_browser = notification.open_in_browser;
-          final String language = notification.language;
 
           if (FirebasePlugin.inBackground()) {
             notificationPool.execute(new Runnable() {
                 public void run() {
                     NotificationManager.displayTaskNotification(activityOrServiceContext, appContext,
-                            body, username, taskId, taskUpdatedOn, type, sound, open_in_browser, language);
+                            body, username, taskId, taskUpdatedOn, type, sound, open_in_browser);
                 }
             });
           } else {
@@ -133,7 +132,7 @@ public class PayloadProcessor {
                 dataBundle.putString("type", type);
                 dataBundle.putString("sound", sound);
                 dataBundle.putString("open_in_browser", open_in_browser);
-                dataBundle.putString("language", language);
+
                 FirebasePlugin.sendNotificationReceived(dataBundle);
             } else {
                 Log.i(TAG, "no onNotificationReceived callback provided");
