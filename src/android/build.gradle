@@ -33,7 +33,7 @@ dependencies {
     compile ('com.google.firebase:firebase-perf:17.0.0') {
       force = true
     }
-    compile('com.google.firebase:firebase-iid:17.0.4') {
+    compile('com.google.firebase:firebase-iid:17.1.1') {
       force = true
     }
     compile('com.google.firebase:firebase-messaging:17.5.0') {
@@ -53,13 +53,13 @@ dependencies {
     compile ('com.google.android.gms:play-services-stats:16.0.1') {
       force = true
     }
-    compile ('com.google.android.gms:play-services-measurement-impl:16.5.0') {
+    compile ('com.google.android.gms:play-services-measurement-impl:17.0.0') {
       force = true
     }
-    compile ('com.google.android.gms:play-services-measurement:16.5.0') {
+    compile ('com.google.android.gms:play-services-measurement:17.0.0') {
       force = true
     }
-    compile ('com.google.android.gms:play-services-measurement-sdk:16.5.0') {
+    compile ('com.google.android.gms:play-services-measurement-sdk:17.0.0') {
       force = true
     }
 

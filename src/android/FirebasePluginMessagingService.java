@@ -302,7 +302,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         //
         for (String msg : msgs) {
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
-                messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+                // messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+                messagingStyle.addMessage(msg, System.currentTimeMillis(), " ");
             } else {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
             }
