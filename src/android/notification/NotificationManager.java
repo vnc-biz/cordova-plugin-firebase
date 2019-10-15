@@ -62,6 +62,10 @@ public class NotificationManager {
                 title = "Task mention";
             } else if (type.equals("overdue_tasks")) {
                 title = "Task overdue";
+            } else if (type.equals("deletion")) {
+                title = "Task deleted";
+            } else if (type.equals("assignment_removed")) {
+                title = "Task removed";
             } else {
                 title = "Task notification";
             }
@@ -76,6 +80,10 @@ public class NotificationManager {
                 title = "Erwähnung in Aufgaben";
             } else if (type.equals("overdue_tasks")) {
                 title = "Überfällige Aufgaben";
+            } else if (type.equals("deletion")) {
+                title = "Aufgabe(n) gelöscht";
+            } else if (type.equals("assignment_removed")) {
+                title = "Aufgabe(n) entfernt";
             } else {
                 title = "Aufgabenbenachrichtigung";
             }
