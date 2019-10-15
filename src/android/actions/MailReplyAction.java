@@ -127,8 +127,8 @@ public class MailReplyAction extends BaseActionMail {
         // STUB code to test
         MailInfoItem sender = new MailInfoItem();
         sender.type = "f";
-        sender.address = "marko.malone@zimbra87.zimbra-vnc.de";
-        sender.displayName = "";
+        sender.address = SharedPrefsUtils.getString(context, "mailCurrentUserAddress");
+        sender.displayName = SharedPrefsUtils.getString(context, "mailCurrentUserDisplayName");
 
         return sender;
     }
