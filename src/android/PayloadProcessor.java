@@ -169,15 +169,16 @@ public class PayloadProcessor {
                     notificationPool.execute(new Runnable() {
                         public void run() {
                             NotificationManager.displayMailNotification(
-                                activityOrServiceContext, 
+                                activityOrServiceContext,
                                 appContext,
-                                subject, 
-                                body, 
-                                fromDisplay, 
+                                subject,
+                                body,
+                                fromDisplay,
                                 mid,
-                                type, 
+                                type,
                                 folderId,
-                                "");
+                                "",
+                                fromAddress);
                         }
                     });
                 } else {
