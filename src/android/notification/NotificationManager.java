@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.os.Bundle;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
@@ -25,6 +26,8 @@ public class NotificationManager {
     private static final String PREVIOUS_MESSAGES = "previousMessages";
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
+    private static final String MESSAGE_ID = "messageId";
+    private static final String CONV_ID = "convId";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -75,6 +78,9 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
+
+        notification.extras.putString(MESSAGE_ID, msgId);
+        // notification.extras.putString(CONV_ID, cId);
 
         Log.i(TAG, "displayMailNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
         Log.i(TAG, "displayMailNotification: display notificationId: " + notificationId);
@@ -295,5 +301,37 @@ public class NotificationManager {
         editor.putLong(notificationId, currentTime).apply();
     }
 
+    public static void hideMailNotificationsForMid(Context activityOrServiceContext, String mid) {
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (StatusBarNotification sbn : statusBarNotifications) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentMessageId = bundle.getString(MESSAGE_ID);
+                if (currentMessageId != null && currentMessageId.equals(mid)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static void hideMailNotificationsForCid(Context activityOrServiceContext, String cid) {
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (StatusBarNotification sbn : statusBarNotifications) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentCId = bundle.getString(CONV_ID);
+                if (currentCId != null && currentCId.equals(cid)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -214,6 +214,12 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearAllNotifications")) {
             this.clearAllNotifications(callbackContext);
             return true;
+        } else if (action.equals("clearMailNotification")) {
+            this.clearMailNotification(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearAllMailNotificationsForConv")) {
+            this.clearAllMailNotificationsForConv(callbackContext, args.getString(0));
+            return true;
         } else if (action.equals("clear")) {
             this.clear(callbackContext, args.getInt(0));
             return true;
@@ -1179,6 +1185,36 @@ public class FirebasePlugin extends CordovaPlugin {
                     if (FirebasePlugin.crashlyticsInit()) {
                         Crashlytics.log(e.getMessage());
                     }
+                }
+            }
+        });
+    }
+
+    public void clearMailNotification(final CallbackContext callbackContext, final String mid) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearMailNotification: " + mid);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsForMid(context, mid);
+                    callbackContext.success(mid);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearAllMailNotificationsForConv(final CallbackContext callbackContext, final String cid) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearAllMailNotificationsForConv: " + cid);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsForCid(context, cid);
+                    callbackContext.success(cid);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
                 }
             }
         });
