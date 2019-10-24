@@ -29,6 +29,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.StringBuffer;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MailReplyAction extends BaseActionMail {
     private static final String TAG = "Firebase.MailReplyAction";
 
@@ -51,6 +54,7 @@ public class MailReplyAction extends BaseActionMail {
         super.run();
 
         try {
+            // Reply
             JsonObject postData = new JsonObject();
             postData.addProperty("origid", originalMsgId);
             postData.addProperty("subject", String.format("Re: %s", subject));
@@ -94,6 +98,9 @@ public class MailReplyAction extends BaseActionMail {
                 Log.i(TAG, "Server error response: " + response.toString());
 
                 saveReplyOnError(context, originalMsgId, body);
+            } else {
+                // mark as read as well
+                markAsRead(originalMsgId);
             }
         } catch (Exception e) {
             Log.i(TAG, e.getLocalizedMessage());
@@ -164,6 +171,25 @@ public class MailReplyAction extends BaseActionMail {
             this.msgId = msgId;
             this.replyText = replyText;
         }
+    }
+
+    private void markAsRead(String msgId) throws Exception {
+        mApiUrl = baseApiUrl() + "/msgAction";
+
+        JSONObject postData = new JSONObject();
+        postData.put("op", "read");
+        postData.put("id", new JSONArray(new String[] { msgId }));
+        //
+        HttpURLConnection urlConnection = createUrlConnection();
+        //
+        if (postData != null) {
+            OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+            writer.write(postData.toString());
+            writer.flush();
+        }
+        int statusCode = urlConnection.getResponseCode();
+        Log.i(TAG, "Server response (markAsRead), statusCode: " + statusCode);
+        Log.i(TAG, "Server response (markAsRead): " + urlConnection.getResponseMessage());
     }
 
 }
