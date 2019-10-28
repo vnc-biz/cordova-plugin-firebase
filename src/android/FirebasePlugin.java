@@ -221,6 +221,12 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearAllMailNotificationsForConv")) {
             this.clearAllMailNotificationsForConv(callbackContext, args.getString(0));
             return true;
+        } else if (action.equals("clearMailNotificationsExceptMids")) {
+            this.clearMailNotificationsExceptMids(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearMailNotificationsExceptCids")) {
+            this.clearMailNotificationsExceptCids(callbackContext, args.getString(0));
+            return true;
         } else if (action.equals("clear")) {
             this.clear(callbackContext, args.getInt(0));
             return true;
