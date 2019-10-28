@@ -191,11 +191,12 @@ public class NotificationCreator {
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    static PendingIntent createNotifPendingIntentMail(Context activityOrServiceContext, String msgId, Integer notificationId, String type, String folderId) {
+    static PendingIntent createNotifPendingIntentMail(Context activityOrServiceContext, String msgId, Integer notificationId, String type, String folderId, String cId) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_MAIL_MSG_ID, msgId);
         bundle.putString("mid", msgId);
+        bundle.putString("cid", cId);
         bundle.putString("type", type);
         bundle.putString("folderId", folderId);
         bundle.putInt(NOTIFY_ID, notificationId);

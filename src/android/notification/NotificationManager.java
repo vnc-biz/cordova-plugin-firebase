@@ -35,7 +35,7 @@ public class NotificationManager {
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
-        String body, String fromDisplay, String msgId,  String type, String folderId, String sound, String fromAddress) {
+        String body, String fromDisplay, String msgId,  String type, String folderId, String sound, String fromAddress, String cId) {
 
         if (checkIfNotificationExist(appContext, msgId)) {
           Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
@@ -46,7 +46,7 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Integer notificationId = msgId.hashCode();
-        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId + ", type: " + type + ", notificationId: " + notificationId);
+        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId + ", type: " + type + ", notificationId: " + notificationId + ", cid: " + cid);
         // defineChannelData
         String nsound = sound.equals("false") ? "mute" : "";
         String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
@@ -54,7 +54,7 @@ public class NotificationManager {
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId, type, folderId);
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId, type, folderId, cId);
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
         new NotificationCompat.Builder(activityOrServiceContext, channelId)
@@ -80,7 +80,7 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         notification.extras.putString(MESSAGE_ID, msgId);
-        // notification.extras.putString(CONV_ID, cId);
+        notification.extras.putString(CONV_ID, cId);
 
         Log.i(TAG, "displayMailNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
         Log.i(TAG, "displayMailNotification: display notificationId: " + notificationId);

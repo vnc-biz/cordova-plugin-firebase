@@ -160,6 +160,7 @@ public class PayloadProcessor {
                 final String subject = notification.subject;
                 final String fromDisplay = notification.fromDisplay;
                 final String mid = notification.mid;
+                final String cid = notification.cid;
                 final String type = notification.type;
                 final String folderId = notification.folderId;
                 final String title = notification.title;
@@ -178,7 +179,8 @@ public class PayloadProcessor {
                                 type,
                                 folderId,
                                 "",
-                                fromAddress);
+                                fromAddress,
+                                cid);
                         }
                     });
                 } else {
@@ -189,6 +191,7 @@ public class PayloadProcessor {
 
                         Bundle dataBundle = new Bundle();
                         dataBundle.putString("mid", mid);
+                        dataBundle.putString("cid", cid);
                         dataBundle.putString("ntype", type);
                         dataBundle.putString("fromAddress", fromAddress);
                         dataBundle.putString("subject", subject);
