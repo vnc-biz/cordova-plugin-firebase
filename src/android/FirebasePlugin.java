@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 import io.fabric.sdk.android.Fabric;
 import me.leolin.shortcutbadger.ShortcutBadger;
@@ -213,6 +214,18 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("clearAllNotifications")) {
             this.clearAllNotifications(callbackContext);
+            return true;
+        } else if (action.equals("clearMailNotification")) {
+            this.clearMailNotification(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearAllMailNotificationsForConv")) {
+            this.clearAllMailNotificationsForConv(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearMailNotificationsExceptMids")) {
+            this.clearMailNotificationsExceptMids(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("clearMailNotificationsExceptCids")) {
+            this.clearMailNotificationsExceptCids(callbackContext, args.getString(0));
             return true;
         } else if (action.equals("clear")) {
             this.clear(callbackContext, args.getInt(0));
@@ -1184,6 +1197,76 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    public void clearMailNotification(final CallbackContext callbackContext, final String mid) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearMailNotification: " + mid);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsForMid(context, mid);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearMailNotificationsExceptMids(final CallbackContext callbackContext, final String mids) {
+        if (mids.isEmpty()) {
+            Log.d(TAG, "clearMailNotificationsExceptMids  return, empty data");
+            return;
+        }
+
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearMailNotificationsExceptMids: " + mids);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsExceptMids(context, Arrays.asList(mids.split(",")));
+                    callbackContext.success();
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearAllMailNotificationsForConv(final CallbackContext callbackContext, final String cid) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearAllMailNotificationsForConv: " + cid);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsForCid(context, cid);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearMailNotificationsExceptCids(final CallbackContext callbackContext, final String cids) {
+        if (cids.isEmpty()) {
+            Log.d(TAG, "clearMailNotificationsExceptCids return, empty data");
+            return;
+        }
+
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearMailNotificationsExceptCids: " + cids);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideMailNotificationsExceptCids(context, Arrays.asList(cids.split(",")));
+                    callbackContext.success();
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
     public void clear(final CallbackContext callbackContext, final int id) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -1248,6 +1331,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String mid = params.getString("mid");
                     String type = params.getString("type");
                     String fromAddress = params.getString("fromAddress");
+                    String cid = params.getString("cid");
                     Log.d(TAG, "scheduleLocalMailNotification");
                     Log.d(TAG, "subject=" + subject);
                     Log.d(TAG, "body=" + body);
@@ -1255,7 +1339,8 @@ public class FirebasePlugin extends CordovaPlugin {
                     Log.d(TAG, "mid=" + mid);
                     Log.d(TAG, "type=" + type);
                     Log.d(TAG, "folderId=" + folderId);
-                    NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, "", fromAddress);
+                    Log.d(TAG, "cid=" + cid);
+                    NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, "", fromAddress, cid);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.crashlyticsInit()) {

@@ -7,6 +7,7 @@ public class PayloadMail {
     public String subject;
     public String fromDisplay;
     public String mid;
+    public String cid;
     public String type;
     public String folderId;
     public String title;
@@ -42,6 +43,14 @@ public class PayloadMail {
 
     public void setMid(String mid) {
         this.mid = mid;
+    }
+
+    public String getCid() {
+        return cid;
+    }
+
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
     public String getType() {
