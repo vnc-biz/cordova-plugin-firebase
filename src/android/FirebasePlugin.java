@@ -1213,10 +1213,10 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     public void clearMailNotificationsExceptMids(final CallbackContext callbackContext, final String mids) {
-        if (mids.isEmpty()) {
-            Log.d(TAG, "clearMailNotificationsExceptMids  return, empty data");
-            return;
-        }
+        // if (mids.isEmpty()) {
+        //     Log.d(TAG, "clearMailNotificationsExceptMids  return, empty data");
+        //     return;
+        // }
 
         final Context context = this.cordova.getActivity().getApplicationContext();
         Log.d(TAG, "clearMailNotificationsExceptMids: " + mids);
@@ -1248,10 +1248,10 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     public void clearMailNotificationsExceptCids(final CallbackContext callbackContext, final String cids) {
-        if (cids.isEmpty()) {
-            Log.d(TAG, "clearMailNotificationsExceptCids return, empty data");
-            return;
-        }
+        // if (cids.isEmpty()) {
+        //     Log.d(TAG, "clearMailNotificationsExceptCids return, empty data");
+        //     return;
+        // }
 
         final Context context = this.cordova.getActivity().getApplicationContext();
         Log.d(TAG, "clearMailNotificationsExceptCids: " + cids);
