@@ -12,6 +12,7 @@ import org.apache.cordova.firebase.FirebasePlugin;
 import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -74,7 +75,10 @@ public class MailOptionsAction extends BaseActionMail {
                 Log.i(TAG, "Server error response: " + response.toString());
 
                 saveOptionOnError(context, option, msgIds);
+            } else if (HttpURLConnection.HTTP_OK == statusCode){
+                WidgetNotifier.notifyMessagesListUpdated(context);
             }
+
             notificationManager.cancel(notificationId);
         } catch (Exception e) {
             Log.i(TAG, e.getLocalizedMessage());

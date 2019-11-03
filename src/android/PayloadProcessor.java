@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.models.PayloadMail;
+import org.apache.cordova.firebase.utils.WidgetNotifier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.content.Context;
@@ -153,6 +154,8 @@ public class PayloadProcessor {
                 Log.w(TAG, "received empty data?");
                 return;
             }
+
+            WidgetNotifier.notifyMessagesListUpdated(appContext);
 
             for (int i = 0; i < data.length(); i++) {
                 PayloadMail notification = new Gson().fromJson(data.toString(), PayloadMail.class);
