@@ -18,6 +18,7 @@ import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.WidgetNotifier;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
@@ -101,6 +102,8 @@ public class MailReplyAction extends BaseActionMail {
             } else {
                 // mark as read as well
                 markAsRead(originalMsgId);
+                // notify widget data set changed
+                WidgetNotifier.notifyMessagesListUpdated(context);
             }
         } catch (Exception e) {
             Log.i(TAG, e.getLocalizedMessage());

@@ -155,6 +155,7 @@ public class PayloadProcessor {
                 return;
             }
 
+            // notify widget data set changed
             WidgetNotifier.notifyMessagesListUpdated(appContext);
 
             for (int i = 0; i < data.length(); i++) {
