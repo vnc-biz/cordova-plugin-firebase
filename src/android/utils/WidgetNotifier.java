@@ -21,8 +21,6 @@ public class WidgetNotifier {
     private static void refreshListsForWidgets(Context context, AppWidgetManager manager, int[] appWidgetIds) {
         if (appWidgetIds.length == 0) return;
 
-        for (int appWidgetId : appWidgetIds) {
-            manager.notifyAppWidgetViewDataChanged(appWidgetId, context.getResources().getIdentifier("messages_list", "id", context.getPackageName()));
-        }
+        manager.notifyAppWidgetViewDataChanged(appWidgetIds, context.getResources().getIdentifier("messages_list", "id", context.getPackageName()));
     }
 }

@@ -76,6 +76,7 @@ public class MailOptionsAction extends BaseActionMail {
 
                 saveOptionOnError(context, option, msgIds);
             } else if (HttpURLConnection.HTTP_OK == statusCode){
+                // notify widget data set changed
                 WidgetNotifier.notifyMessagesListUpdated(context);
             }
 
