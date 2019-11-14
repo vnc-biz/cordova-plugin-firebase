@@ -87,6 +87,8 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/MailOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
+		<color name="notification_accent">?android:colorPrimary</color>
+
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />
 		<framework src="com.google.firebase:firebase-core:+" />

@@ -1274,6 +1274,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     Context context = cordova.getActivity();
                     android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nm.cancel(id);
+                    NotificationManager.hideMailSummaryNotificationIfNeed(context, nm);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.crashlyticsInit()) {
