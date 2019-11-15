@@ -13,13 +13,13 @@ import android.util.Log;
 import android.os.Bundle;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
-import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 
 public class NotificationManager {
 
@@ -43,8 +43,8 @@ public class NotificationManager {
         String body, String fromDisplay, String msgId,  String type, String folderId, String sound, String fromAddress, String cId) {
 
         if (checkIfNotificationExist(appContext, msgId)) {
-          Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
-          return;
+            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+            return;
         }
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -59,10 +59,10 @@ public class NotificationManager {
         String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
+        //prepare group's root notification
         PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, null, MAIL_SUMMARY_NOTIFICATION_ID, null, null, null);
         NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
         null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
-
         summaryNotification.setGroup(MAIL_NOTIFICATIONS_GROUP_ID);
         summaryNotification.setGroupSummary(true);
         summaryNotification.setCategory(Notification.CATEGORY_EMAIL);
@@ -89,8 +89,6 @@ public class NotificationManager {
         NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
 
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
-        // NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
-        // NotificationCreator.setNotificationLights(notificationBuilder, lights);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
@@ -101,14 +99,11 @@ public class NotificationManager {
         Log.i(TAG, "displayMailNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
         Log.i(TAG, "displayMailNotification: display notificationId: " + notificationId);
 
-        //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
-        notificationManager.notify(notificationId, notification);
         notificationManager.notify(MAIL_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
-
-        // showMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager, summaryNotification.build());
+        notificationManager.notify(notificationId, notification);
     }
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
@@ -318,29 +313,6 @@ public class NotificationManager {
         existedSet.add(notificationId);
         editor.putStringSet(PREFS_STRING_SET_KEY, existedSet).apply();
         editor.putLong(notificationId, currentTime).apply();
-    }
-
-    private static void showMailSummaryNotificationIfNeed(Context context, android.app.NotificationManager notificationManager, Notification notification) {
-        Log.d(TAG, "showMailSummaryNotificationIfNeed");
-        try {
-            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
-            Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            // boolean hasSummaryNotification = false;
-            // for (StatusBarNotification sbn : statusBarNotifications) {
-                // Log.d(TAG, "statusBarNotification ID = " + sbn.getId());
-                // if (sbn.getId() == MAIL_SUMMARY_NOTIFICATION_ID){
-                    // hasSummaryNotification = true;
-                    // continue;
-                // }
-            // }
-
-            // if(!hasSummaryNotification){
-                // Log.d(TAG, "show Summary notification");
-                notificationManager.notify(MAIL_SUMMARY_NOTIFICATION_ID, notification);
-            // }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void hideMailSummaryNotificationIfNeed(Context context, android.app.NotificationManager notificationManager) {
