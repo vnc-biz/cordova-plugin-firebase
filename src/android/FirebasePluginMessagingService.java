@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import io.sentry.Sentry;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -58,6 +59,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     private static final String PREVIOUS_MESSAGES = "previousMessages";
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
+    private static final String SENTRY_URL = "https://6d65e128f84b474c83c7004445176498@sentry2.vnc.biz/2";
 
     private static final String AUDIO_FORMAT = "Audio";
     private static final String VOICE_FORMAT = "Voice Message";
@@ -85,10 +87,12 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Sentry.init(SENTRY_URL);
+        String receivedData = remoteMessage.getData().toString();
         if (FirebasePlugin.isCrashlyticsEnabled()) {
-          Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received: " + remoteMessage.getData());
+          Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received: " + receivedData);
         }
-
+        Sentry.capture("received: " + receivedData.split("\"body\"")[0] + "in background=" + String.valueOf(FirebasePlugin.inBackground()));
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -106,6 +110,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (FirebasePlugin.isCrashlyticsEnabled()) {
                 Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "Message was handled by a registered receiver");
             }
+            Sentry.capture("Message was handled by a registered receiver");
+
             // Don't process the message in this method.
             return;
         }
@@ -116,6 +122,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (FirebasePlugin.isCrashlyticsEnabled()) {
                Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "no payload vnc");
             }
+            Sentry.capture("no payload vnc:" + remoteMessage.getData().toString());
             return;
         }
         try {
@@ -127,6 +134,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 if (FirebasePlugin.isCrashlyticsEnabled()) {
                   Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received empty data");
                 }
+                Sentry.capture("received empty data");
                 return;
             } else {
                 Log.i(TAG, "received data: " + data);
@@ -219,6 +227,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "displayNotification: sound: " + sound);
         Log.i(TAG, "displayNotification: lights: " + lights);
         Log.i(TAG, "displayNotification: inBackground: " + FirebasePlugin.inBackground());
+        Sentry.capture("displayNotification: msgid: " + msgid + " - Target=" + target + " - inBackground: " + String.valueOf(FirebasePlugin.inBackground()));
         try {
             Integer notificationId = Integer.valueOf(id);
             if (notificationId == 0) {
