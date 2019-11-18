@@ -58,6 +58,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import io.sentry.Sentry;
 
 public class FirebasePlugin extends CordovaPlugin {
 
@@ -68,6 +69,7 @@ public class FirebasePlugin extends CordovaPlugin {
     private final String ERRORINITCRASHLYTICS = "Crashlytics isn't initialised";
     private final String ERRORINITANALYTICS = "Analytics isn't initialised";
     private final String ERRORINITPERFORMANCE = "Performance isn't initialised";
+    private static final String SENTRY_URL = "https://6d65e128f84b474c83c7004445176498@sentry2.vnc.biz/2";
     protected static final String KEY = "badge";
 
     private static boolean crashlyticsInit = true; // enable by default
@@ -84,6 +86,11 @@ public class FirebasePlugin extends CordovaPlugin {
     protected void pluginInitialize() {
         final Context context = this.cordova.getActivity().getApplicationContext();
         final Bundle extras = this.cordova.getActivity().getIntent().getExtras();
+        try {            
+            Sentry.init(SENTRY_URL);
+        } catch (Exception e) {
+            Log.d(TAG, "Init sentry exception" + e.getMessage());
+        }
         this.cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 Log.d(TAG, "Starting Firebase plugin");
