@@ -312,7 +312,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_PEER_JID, target);
-        bundle.putString("vncEventType", "chat");
+        bundle.putString("vncEventType", eventType);
         bundle.putInt(NOTIFY_ID, notificationId);
         intent.putExtras(bundle);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
