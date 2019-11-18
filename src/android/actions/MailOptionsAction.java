@@ -79,13 +79,12 @@ public class MailOptionsAction extends BaseActionMail {
                 // notify widget data set changed
                 WidgetNotifier.notifyMessagesListUpdated(context);
             }
-
-            notificationManager.cancel(notificationId);
+            cancelNotification();
         } catch (Exception e) {
             Log.i(TAG, e.getLocalizedMessage());
 
             saveOptionOnError(context, option, msgIds);
-            notificationManager.cancel(notificationId);
+            cancelNotification();
         } finally {
 
         }

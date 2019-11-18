@@ -109,7 +109,7 @@ public class MailReplyAction extends BaseActionMail {
             Log.i(TAG, e.getLocalizedMessage());
             saveReplyOnError(context, originalMsgId, body);
         } finally {
-            notificationManager.cancel(notificationId);
+            cancelNotification();
         }
     }
 

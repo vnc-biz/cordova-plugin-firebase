@@ -1,10 +1,10 @@
 package org.apache.cordova.firebase.actions;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
@@ -49,5 +49,10 @@ public abstract class BaseActionMail extends BaseAction {
     @Override
     protected void setRequestMethod(HttpURLConnection urlConnection) throws IOException {
         urlConnection.setRequestMethod("POST");
+    }
+
+    protected void cancelNotification(){
+        notificationManager.cancel(notificationId);
+        NotificationManager.hideMailSummaryNotificationIfNeed(context, notificationManager);
     }
 }
