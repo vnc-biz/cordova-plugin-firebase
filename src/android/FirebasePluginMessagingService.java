@@ -79,7 +79,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         );
     }
 
-    private void captureMessage(String message) {
+    private static void captureMessage(String message) {
         try {
             Sentry.capture(message);
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         if (FirebasePlugin.isCrashlyticsEnabled()) {
           Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received: " + receivedData);
         }
-        captureMessage("received: " + receivedData.split("\"body\"")[0] + "in background=" + String.valueOf(FirebasePlugin.inBackground()));
+        captureMessage("received: " + receivedData.split("\"body\"")[0] + " - in background=" + String.valueOf(FirebasePlugin.inBackground()));
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
