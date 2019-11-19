@@ -13,8 +13,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.Person;
+import androidx.core.app.RemoteInput;
 import android.util.Log;
 
 import org.apache.cordova.firebase.NotificationReceiver;
@@ -148,7 +149,7 @@ public class NotificationCreator {
     }
 
     static NotificationCompat.MessagingStyle defineMessagingStyle(String title, List<String> msgs) {
-        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(null);
+        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(title);
         //
         if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
             messagingStyle.setConversationTitle(title);
@@ -156,7 +157,7 @@ public class NotificationCreator {
         //
         for (String msg : msgs) {
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
-                messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+                messagingStyle.addMessage(msg, System.currentTimeMillis(), new Person.Builder().setName(title).build());
             } else {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
             }

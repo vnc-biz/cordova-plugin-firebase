@@ -8,7 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 import android.os.Bundle;
 
@@ -422,6 +422,23 @@ public class NotificationManager {
                 }
             }
             hideMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideNotificationsForTarget(Context activityOrServiceContext, String target) {
+        try {
+            StatusBarNotification[] activeToasts = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (StatusBarNotification sbn : activeToasts) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                if (currentTarget != null && currentTarget.equals(target)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
