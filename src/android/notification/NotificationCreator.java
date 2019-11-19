@@ -217,7 +217,7 @@ public class NotificationCreator {
                 .setContentIntent(pendingIntent)
                 .setSound(nsound.equals("mute") ? null : defaultSoundUri)
                 .setGroup(title)
-                .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         if (style != null) {
           notificationBuilder.setStyle(style);
@@ -230,7 +230,7 @@ public class NotificationCreator {
     }
 
     public static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
-        int resID = activityOrServiceContext.getResources().getIdentifier("logo", "drawable", activityOrServiceContext.getPackageName());
+        int resID = activityOrServiceContext.getResources().getIdentifier("notification_icon", "drawable", activityOrServiceContext.getPackageName());
         if (resID != 0) {
             notificationBuilder.setSmallIcon(resID);
         } else {
@@ -273,7 +273,7 @@ public class NotificationCreator {
 
     static void setNotificationColor(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            int accentID = activityOrServiceContext.getResources().getIdentifier("accent", "color", activityOrServiceContext.getPackageName());
+            int accentID = activityOrServiceContext.getResources().getIdentifier("notification_accent", "color", activityOrServiceContext.getPackageName());
             notificationBuilder.setColor(activityOrServiceContext.getResources().getColor(accentID, null));
         }
     }
@@ -292,7 +292,7 @@ public class NotificationCreator {
 
     static void createNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, String nsound) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_DEFAULT);
             if (nsound.equals("mute")) {
                 Log.d(TAG, "pushing to silentchannel");
                 channel.setSound(null, null);
