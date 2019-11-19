@@ -68,19 +68,25 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/utils/NotificationUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/SharedPrefsUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/StringUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
+		<source-file src="src/android/utils/WidgetNotifier.java" target-dir="src/org/apache/cordova/firebase/utils" />
 
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />
 
 		<source-file src="src/android/models/PayloadTalk.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadTask.java" target-dir="src/org/apache/cordova/firebase/models" />
+		<source-file src="src/android/models/PayloadMail.java" target-dir="src/org/apache/cordova/firebase/models" />
+		<source-file src="src/android/models/MailInfoItem.java" target-dir="src/org/apache/cordova/firebase/models" />
 
 		<source-file src="src/android/actions/BaseAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
+		<source-file src="src/android/actions/BaseActionMail.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionTalk.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionTask.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/InlineReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MarkAsReadAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/SnoozeAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
+		<source-file src="src/android/actions/MailOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
+		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />

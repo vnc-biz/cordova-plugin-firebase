@@ -31,12 +31,6 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.i(TAG, "onMessageReceived" + remoteMessage);
 
-        String token = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
-        Log.i(TAG, "onMessageReceived token: " + token);
-        if (token == null) {
-            return;
-        }
-
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -69,6 +63,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 return;
             }
             payloadProcessor.processTaskPayload(payload);
+        } else if (payload.containsKey("subject") && payload.containsKey("fromAddress")) {
+            payloadProcessor.processMailPayload(payload);
         }
     }
 }

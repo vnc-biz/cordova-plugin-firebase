@@ -7,6 +7,8 @@ import org.json.JSONException;
 import com.google.gson.Gson;
 import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
+import org.apache.cordova.firebase.models.PayloadMail;
+import org.apache.cordova.firebase.utils.WidgetNotifier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.content.Context;
@@ -145,7 +147,72 @@ public class PayloadProcessor {
       }
   }
 
-  public void processMailPayload(Map<String, String> payload) {
-      // TBA
-  }
+    public void processMailPayload(Map<String, String> payload) {
+        try {
+            JSONObject data = new JSONObject(payload);
+
+            if (data == null || data.length() == 0) {
+                Log.w(TAG, "received empty data?");
+                return;
+            }
+
+            // notify widget data set changed
+            WidgetNotifier.notifyMessagesListUpdated(appContext);
+
+            for (int i = 0; i < data.length(); i++) {
+                PayloadMail notification = new Gson().fromJson(data.toString(), PayloadMail.class);
+                final String fromAddress = notification.fromAddress;
+                final String subject = notification.subject;
+                final String fromDisplay = notification.fromDisplay;
+                final String mid = notification.mid;
+                final String cid = notification.cid;
+                final String type = notification.type;
+                final String folderId = notification.folderId;
+                final String title = notification.title;
+                final String body = notification.body;
+
+                if (FirebasePlugin.inBackground()) {
+                    notificationPool.execute(new Runnable() {
+                        public void run() {
+                            NotificationManager.displayMailNotification(
+                                activityOrServiceContext,
+                                appContext,
+                                subject,
+                                body,
+                                fromDisplay,
+                                mid,
+                                type,
+                                folderId,
+                                "",
+                                fromAddress,
+                                cid);
+                        }
+                    });
+                } else {
+                    // pass a notification to JS app in foreground
+                    // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                    if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                        Log.i(TAG, "onNotificationReceived callback provided");
+
+                        Bundle dataBundle = new Bundle();
+                        dataBundle.putString("mid", mid);
+                        dataBundle.putString("cid", cid);
+                        dataBundle.putString("ntype", type);
+                        dataBundle.putString("fromAddress", fromAddress);
+                        dataBundle.putString("subject", subject);
+                        dataBundle.putString("fromDisplay", fromDisplay);
+                        dataBundle.putString("folderId", folderId);
+                        dataBundle.putString("body", body);
+
+                        FirebasePlugin.sendNotificationReceived(dataBundle);
+                    } else {
+                        Log.i(TAG, "no onNotificationReceived callback provided");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
 }

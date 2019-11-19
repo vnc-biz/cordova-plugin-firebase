@@ -203,3 +203,23 @@ exports.getActiveIdsByTarget = function (target, success, error) {
 exports.clearNotificationsByTarget = function (target, success, error) {
   exec(success, error, "FirebasePlugin", "clearNotificationsByTarget", [target]);
 };
+
+exports.scheduleLocalMailNotification = function (params, success, error) {
+    exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
+};
+
+exports.clearMailNotification = function (mid, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotification", [mid]);
+};
+
+exports.clearMailNotificationsExceptMids = function (mids, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotificationsExceptMids", [mids]);
+};
+
+exports.clearAllMailNotificationsForConv = function (cid, success, error) {
+  exec(success, error, "FirebasePlugin", "clearAllMailNotificationsForConv", [cid]);
+};
+
+exports.clearMailNotificationsExceptCids = function (cids, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotificationsExceptCids", [cids]);
+};

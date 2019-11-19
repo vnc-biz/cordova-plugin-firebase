@@ -11,6 +11,10 @@ import java.util.Date;
 import org.apache.cordova.firebase.actions.InlineReplyAction;
 import org.apache.cordova.firebase.actions.MarkAsReadAction;
 import org.apache.cordova.firebase.actions.SnoozeAction;
+import org.apache.cordova.firebase.actions.MailOptionsAction;
+import org.apache.cordova.firebase.actions.MailReplyAction;
+
+import org.apache.cordova.firebase.models.MailInfoItem;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
 
@@ -50,7 +54,49 @@ public class NotificationReceiver extends BroadcastReceiver {
             Date remindOn = new Date(System.currentTimeMillis() + 3600 * 1000);
             Thread thread = new Thread(new SnoozeAction(taskId, notificationId, remindOn, context));
             thread.start();
-        }
+        } else if (intent.getAction().contains(NotificationCreator.MAIL_MARK_AS_READ)) {
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+
+            Log.i(TAG, "NotificationReceiver onReceive MarkAsRead, notificationId: " + notificationId + ", msgId: " + msgId);
+
+            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "read", msgId));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.MAIL_DELETE)) {
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+
+            Log.i(TAG, "NotificationReceiver onReceive Delete, notificationId: " + notificationId + ", msgId: " + msgId);
+
+            Thread thread = new Thread(new MailOptionsAction(context, notificationId, "trash", msgId));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.MAIL_NOTIFICATION_REPLY)) {
+            Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+            if(remoteInput == null) {
+                Log.w(TAG, "NotificationReceiver onReceive Mail Reply, reply Bundle is NULL");
+                return;
+            }
+
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            String msgId = actionParts[2];
+            String subject = actionParts[3];
+            String fromAddress = actionParts[4];
+            String fromDisplay = actionParts[5];
+            String replyText = remoteInput.getCharSequence("Reply").toString();
+
+            Log.i(TAG, "NotificationReceiver onReceive Reply, notificationId: " + notificationId + ", msgId: " + msgId);
+
+            MailInfoItem receiver = new MailInfoItem();
+            receiver.type = "t";
+            receiver.address = fromAddress;
+            receiver.displayName = fromDisplay;
+
+            Thread thread = new Thread(new MailReplyAction(context, notificationId, msgId, subject, replyText, receiver));
+            thread.start();
+         }
     }
 
     private CharSequence getReplyMessage(Intent intent) {
