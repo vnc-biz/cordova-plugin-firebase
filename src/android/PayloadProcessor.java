@@ -159,55 +159,53 @@ public class PayloadProcessor {
             // notify widget data set changed
             WidgetNotifier.notifyMessagesListUpdated(appContext);
 
-            for (int i = 0; i < data.length(); i++) {
-                PayloadMail notification = new Gson().fromJson(data.toString(), PayloadMail.class);
-                final String fromAddress = notification.fromAddress;
-                final String subject = notification.subject;
-                final String fromDisplay = notification.fromDisplay;
-                final String mid = notification.mid;
-                final String cid = notification.cid;
-                final String type = notification.type;
-                final String folderId = notification.folderId;
-                final String title = notification.title;
-                final String body = notification.body;
+            PayloadMail notification = new Gson().fromJson(data.toString(), PayloadMail.class);
+            final String fromAddress = notification.fromAddress;
+            final String subject = notification.subject;
+            final String fromDisplay = notification.fromDisplay;
+            final String mid = notification.mid;
+            final String cid = notification.cid;
+            final String type = notification.type;
+            final String folderId = notification.folderId;
+            final String title = notification.title;
+            final String body = notification.body;
 
-                if (FirebasePlugin.inBackground()) {
-                    notificationPool.execute(new Runnable() {
-                        public void run() {
-                            NotificationManager.displayMailNotification(
-                                activityOrServiceContext,
-                                appContext,
-                                subject,
-                                body,
-                                fromDisplay,
-                                mid,
-                                type,
-                                folderId,
-                                "",
-                                fromAddress,
-                                cid);
-                        }
-                    });
-                } else {
-                    // pass a notification to JS app in foreground
-                    // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
-                    if (FirebasePlugin.hasNotificationsReceivedCallback()) {
-                        Log.i(TAG, "onNotificationReceived callback provided");
-
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putString("mid", mid);
-                        dataBundle.putString("cid", cid);
-                        dataBundle.putString("ntype", type);
-                        dataBundle.putString("fromAddress", fromAddress);
-                        dataBundle.putString("subject", subject);
-                        dataBundle.putString("fromDisplay", fromDisplay);
-                        dataBundle.putString("folderId", folderId);
-                        dataBundle.putString("body", body);
-
-                        FirebasePlugin.sendNotificationReceived(dataBundle);
-                    } else {
-                        Log.i(TAG, "no onNotificationReceived callback provided");
+            if (FirebasePlugin.inBackground()) {
+                notificationPool.execute(new Runnable() {
+                    public void run() {
+                        NotificationManager.displayMailNotification(
+                            activityOrServiceContext,
+                            appContext,
+                            subject,
+                            body,
+                            fromDisplay,
+                            mid,
+                            type,
+                            folderId,
+                            "",
+                            fromAddress,
+                            cid);
                     }
+                });
+            } else {
+                // pass a notification to JS app in foreground
+                // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                    Log.i(TAG, "onNotificationReceived callback provided");
+
+                    Bundle dataBundle = new Bundle();
+                    dataBundle.putString("mid", mid);
+                    dataBundle.putString("cid", cid);
+                    dataBundle.putString("ntype", type);
+                    dataBundle.putString("fromAddress", fromAddress);
+                    dataBundle.putString("subject", subject);
+                    dataBundle.putString("fromDisplay", fromDisplay);
+                    dataBundle.putString("folderId", folderId);
+                    dataBundle.putString("body", body);
+
+                    FirebasePlugin.sendNotificationReceived(dataBundle);
+                } else {
+                    Log.i(TAG, "no onNotificationReceived callback provided");
                 }
             }
         } catch (Exception e) {

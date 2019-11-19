@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
 public class NotificationManager {
 
     private static final String TAG = "NotificationDisplay";
@@ -32,49 +34,61 @@ public class NotificationManager {
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
 
+    private static final int MAIL_SUMMARY_NOTIFICATION_ID = 123;
+    private static final String MAIL_NOTIFICATIONS_GROUP_ID = "mailNotificationsGroupId";
+
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
         String body, String fromDisplay, String msgId,  String type, String folderId, String sound, String fromAddress, String cId) {
 
         if (checkIfNotificationExist(appContext, msgId)) {
-          Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
-          return;
+            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+            return;
         }
-
 
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Integer notificationId = msgId.hashCode();
-        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId + ", type: " + type + ", notificationId: " + notificationId + ", cId: " + cId);
+        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId 
+            + ", type: " + type + ", notificationId: " + notificationId + ", cId: " + cId + ", sound: " + sound);
+        
         // defineChannelData
         String nsound = sound.equals("false") ? "mute" : "";
         String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
         String channelName = NotificationCreator.defineChannelName(activityOrServiceContext, nsound);
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
+        //prepare group's root notification
+        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, null, MAIL_SUMMARY_NOTIFICATION_ID, null, null, null);
+        NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
+        null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
+        summaryNotification.setGroup(MAIL_NOTIFICATIONS_GROUP_ID);
+        summaryNotification.setGroupSummary(true);
+        summaryNotification.setCategory(Notification.CATEGORY_EMAIL);
+        summaryNotification.setOnlyAlertOnce(true);
+        
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, summaryNotification);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, summaryNotification);
+
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentMail(activityOrServiceContext, msgId, notificationId, type, folderId, cId);
 
-        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(
-        new NotificationCompat.Builder(activityOrServiceContext, channelId)
-        .setContentTitle(fromDisplay)
-        .setContentText(body)
-        );
-
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.setBigContentTitle(fromDisplay);
-        bigTextStyle.bigText(body);
+        bigTextStyle.bigText(subject + "\n" + body);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
-        fromDisplay, body, bigTextStyle, pendingIntent, defaultSoundUri);
+        fromDisplay, subject, bigTextStyle, pendingIntent, defaultSoundUri);
+        notificationBuilder.setGroup(MAIL_NOTIFICATIONS_GROUP_ID);
+        notificationBuilder.setCategory(Notification.CATEGORY_EMAIL);
+        notificationBuilder.setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY);
 
         NotificationCreator.addReplyMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId, subject, fromAddress, fromDisplay);
         NotificationCreator.addMarkMailAsReadAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
         NotificationCreator.addDeleteMailAction(activityOrServiceContext, appContext, notificationId, notificationBuilder, msgId);
 
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
-        // NotificationCreator.setNotificationSound(activityOrServiceContext, notificationBuilder, nsound, sound);
-        // NotificationCreator.setNotificationLights(notificationBuilder, lights);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
@@ -85,10 +99,10 @@ public class NotificationManager {
         Log.i(TAG, "displayMailNotification: channelId: " + channelId + ", channelName: " + channelName + ", defaultSoundUri: " + defaultSoundUri);
         Log.i(TAG, "displayMailNotification: display notificationId: " + notificationId);
 
-        //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
+        notificationManager.notify(MAIL_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
         notificationManager.notify(notificationId, notification);
     }
 
@@ -325,6 +339,22 @@ public class NotificationManager {
         editor.putLong(notificationId, currentTime).apply();
     }
 
+    public static void hideMailSummaryNotificationIfNeed(Context context, android.app.NotificationManager notificationManager) {
+        Log.d(TAG, "hideMailSummaryNotificationIfNeed");
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
+            Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
+            if (statusBarNotifications.length == 1) {
+                StatusBarNotification statusBarNotification = statusBarNotifications[0];
+                if (statusBarNotification.getId() == MAIL_SUMMARY_NOTIFICATION_ID) {
+                    notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void hideMailNotificationsForMid(Context activityOrServiceContext, String mid) {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
@@ -337,6 +367,7 @@ public class NotificationManager {
                     notificationManager.cancel(sbn.getId());
                 }
             }
+            hideMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -354,6 +385,7 @@ public class NotificationManager {
                     notificationManager.cancel(sbn.getId());
                 }
             }
+            hideMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -371,6 +403,7 @@ public class NotificationManager {
                     notificationManager.cancel(sbn.getId());
                 }
             }
+            hideMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -388,6 +421,7 @@ public class NotificationManager {
                     notificationManager.cancel(sbn.getId());
                 }
             }
+            hideMailSummaryNotificationIfNeed(activityOrServiceContext, notificationManager);
         } catch (Exception e) {
             e.printStackTrace();
         }
