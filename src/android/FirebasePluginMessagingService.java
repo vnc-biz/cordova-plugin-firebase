@@ -1,107 +1,25 @@
 package org.apache.cordova.firebase;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.service.notification.StatusBarNotification;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.RemoteInput;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import io.sentry.Sentry;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
-    private static final String SENTRY_URL = "https://6d65e128f84b474c83c7004445176498@sentry2.vnc.biz/2";
-    private static final String TAG = "FirebasePlugin";
-    private static final String FILE_NAME = "notificationMapping.json";
-    private static final String NOTIFICATION_REPLY = "NotificationReply";
-    private static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
 
-    private static final int REQUEST_CODE_HELP = 101;
-    private static final String VNC_PEER_JID = "vncPeerJid";
-    private static final String NOTIFY_ID = "id";
+    private static final String TAG = "FirebasePluginMessagingService";
 
-    private static final String PREVIOUS_MESSAGES = "previousMessages";
-    private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
-    private static final String MESSAGE_TARGET = "messageTarget";
+    private PayloadProcessor payloadProcessor;
 
-    private static final String AUDIO_FORMAT = "Audio";
-    private static final String VOICE_FORMAT = "Voice Message";
-    private static final String PHOTO_FORMAT = "Photo";
-    private static final String LINK_FORMAT = "Link";
-    private final String EMODJI_FORMAT = "Emodji";
-
-    public static final String PREFS_STRING_SET_KEY = "previousNotifications";
-    public static final String PREFS_NOTIF_COUNTER = "notificationCounter";
-
-    public static final String CRASHLITICS_TAG = "FCM onMessageReceived";
-
-    private static String getStringResource(Context activityOrServiceContext, String name) {
-        return activityOrServiceContext.getString(activityOrServiceContext.getResources().getIdentifier(name, "string",
-                activityOrServiceContext.getPackageName()));
-    }
-
-    private static void captureMessage(String message) {
-        try {            
-            Sentry.init(SENTRY_URL);
-            Sentry.capture("Init Sentry");
-        } catch (Exception e) {
-            Log.d(TAG, "Init sentry exception" + e.getMessage());
-        }
-        try {
-            Log.d(TAG, message);
-            Sentry.capture(message);
-        } catch (Exception e) {
-            if (FirebasePlugin.isCrashlyticsEnabled()) {
-                Crashlytics.logException(e);
-            }
-        }
-    }
-
-    private static void logCrashlytics(String message) {
-        if (FirebasePlugin.isCrashlyticsEnabled()) {
-            try {
-                Crashlytics.logException(new Exception(message));
-            } catch (Exception e) {
-                captureMessage("[logCrashlytics] Exception" + e.getMessage());
-            }
-        }
-    }
 
     /**
      * Called when message is received.
@@ -111,524 +29,46 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        try {          
-            String receivedData = remoteMessage.getData().toString();
-            try {
-                captureMessage("received: " + receivedData.split("\"body\"")[0] + "in background="
-                        + String.valueOf(FirebasePlugin.inBackground()));
-            } catch (Exception e) {
-              
-            }
+        Log.i(TAG, "onMessageReceived" + remoteMessage);
 
-            // [START_EXCLUDE]
-            // There are two types of messages data messages and notification messages. Data
-            // messages are handled
-            // here in onMessageReceived whether the app is in the foreground or background.
-            // Data messages are the type
-            // traditionally used with GCM. Notification messages are only received here in
-            // onMessageReceived when the app
-            // is in the foreground. When the app is in the background an automatically
-            // generated notification is displayed.
-            // When the user taps on the notification they are returned to the app. Messages
-            // containing both notification
-            // and data payloads are treated as notification messages. The Firebase console
-            // always sends notification
-            // messages. For more see:
-            // https://firebase.google.com/docs/cloud-messaging/concept-options
-            // [END_EXCLUDE]
-
-            // Pass the message to the receiver manager so any registered receivers can
-            // decide to handle it
-            boolean wasHandled = FirebasePluginMessageReceiverManager.onMessageReceived(remoteMessage);
-            if (wasHandled) {
-                captureMessage("Message was handled by a registered receiver");
-                // Don't process the message in this method.
-                return;
-            }
-
-            Map<String, String> payload = remoteMessage.getData();
-            JSONArray data;
-            if (payload.get("vnc") == null) {
-                captureMessage("no payload vnc:" + remoteMessage.getData().toString());
-                return;
-            }
-            data = new JSONArray(payload.get("vnc"));
-
-            if (data == null || data.length() == 0) {
-                captureMessage("received empty data");
-                return;
-            } else {
-                Log.i(TAG, "received data: " + data);
-                // [{"jid":"bob@dev2.zimbra-vnc.de",
-                // "nto":"george@dev2.zimbra-vnc.de",
-                // "name":"Georgy Georg",
-                // "eType":"chat",
-                // "msgid":"3s30gl48am",
-                // "body":"1",
-                // "lang":"en",
-                // "nsound":"nomute",
-                // "aft":"",
-                // "nType":"local_notification",
-                // "mention":[]}]
-            }
-
-            for (int i = 0; i < data.length(); i++) {
-                Payload notification = new Gson().fromJson(data.get(i).toString(), Payload.class);
-                String msgid = notification.msgid;
-                String target = notification.jid;
-                String username = notification.name;
-                String groupName = notification.gt;
-                String message = notification.body;
-                String eventType = notification.eType;
-                String nsound = notification.nsound;
-
-                if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
-                    captureMessage("returning due to empty 'target' or 'username' values");
-                }
-                captureMessage("About to process: " + target + ": " + message);
-
-                if (FirebasePlugin.inBackground()) {
-                    captureMessage("Display: " + target + ": " + message);
-                    displayNotification(this, getApplicationContext(), "0", msgid, target, username, groupName, message,
-                            eventType, nsound, "", "");
-                } else {
-
-                    captureMessage("Pass to JS" + "("
-                                + FirebasePlugin.hasNotificationsReceivedCallback() + "): " + target + ": " + message);
-
-                    // pass a notification to JS app in foreground
-                    // so then a JS app will decide what to do and call a
-                    // 'scheduleLocalNotification'
-                    if (FirebasePlugin.hasNotificationsReceivedCallback()) {
-                        Log.i(TAG, "onNotificationReceived callback provided");
-
-                        // Log.i(TAG, "onNotificationReceived notification.mention: " +
-                        // notification.mention);
-
-                        Bundle dataBundle = new Bundle();
-                        dataBundle.putString("msgid", msgid);
-                        dataBundle.putString("target", target);
-                        dataBundle.putString("username", username);
-                        dataBundle.putString("groupName", groupName);
-                        dataBundle.putString("message", message);
-                        dataBundle.putString("eventType", eventType);
-                        dataBundle.putString("nsound", nsound);
-                        dataBundle.putString("mention", TextUtils.join(",", notification.mention));
-
-                        FirebasePlugin.sendNotificationReceived(dataBundle);
-                    } else {
-                        Log.i(TAG, "no onNotificationReceived callback provided");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.i("[onMessageReceived]", "Exception" + e.getMessage());
-            captureMessage("[onMessageReceived] Exception" + e.getMessage());
-            try {
-                if (FirebasePlugin.isCrashlyticsEnabled()) {
-                    Crashlytics.logException(e);
-                }
-            } catch (Exception ex) {
-            }
-            
+        String token = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
+        Log.i(TAG, "onMessageReceived token: " + token);
+        if (token == null) {
             return;
         }
-    }
 
-    public static void displayNotification(Context activityOrServiceContext, Context appContext, String id,
-            String msgid, String target, String name, String groupName, String message, String eventType, String nsound,
-            String sound, String lights) {
-        Log.i(TAG, "displayNotification: msgid: " + msgid);
-        Log.i(TAG, "displayNotification: Target: " + target);
-        Log.i(TAG, "displayNotification: username: " + name);
-        Log.i(TAG, "displayNotification: groupName: " + groupName);
-        Log.i(TAG, "displayNotification: message: " + message);
-        Log.i(TAG, "displayNotification: eventType: " + eventType);
-        Log.i(TAG, "displayNotification: nsound: " + nsound);
-        Log.i(TAG, "displayNotification: sound: " + sound);
-        Log.i(TAG, "displayNotification: lights: " + lights);
-        Log.i(TAG, "displayNotification: inBackground: " + FirebasePlugin.inBackground());
-        try {
-            captureMessage("displayNotification: msgid: " + msgid + " - Target=" + target + " - inBackground: "
-                    + String.valueOf(FirebasePlugin.inBackground()));
-            Integer notificationId = Integer.valueOf(id);
-            if (notificationId == 0) {
-                notificationId = target.hashCode();
-            }
+        // [START_EXCLUDE]
+        // There are two types of messages data messages and notification messages. Data messages are handled
+        // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
+        // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
+        // is in the foreground. When the app is in the background an automatically generated notification is displayed.
+        // When the user taps on the notification they are returned to the app. Messages containing both notification
+        // and data payloads are treated as notification messages. The Firebase console always sends notification
+        // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
+        // [END_EXCLUDE]
 
-            Log.i(TAG, "displayNotification: id: " + notificationId);
-
-            if (checkIfNotificationExist(appContext, msgid)) {
-                captureMessage("checkIfNotificationExist for msgid=" + msgid);
-                return;
-            }
-
-            String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
-            String channelName = getStringResource(activityOrServiceContext, "default_notification_channel_name");
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            if (nsound.equals("mute")) {
-                Log.d(TAG, "notification nsound - switching channel");
-                channelId = getStringResource(activityOrServiceContext, "silent_notification_channel_id");
-                channelName = getStringResource(activityOrServiceContext, "silent_notification_channel_name");
-                defaultSoundUri = null;
-            }
-
-            String typeOfLink = getTypeOfLink(message);
-            message = typeOfLink == null ? message : typeOfLink;
-
-            String title;
-            String text;
-            if (eventType.equals("chat")) {
-                title = name;
-                text = message;
-            } else {
-                title = groupName != null && groupName.length() > 0 ? groupName : target;
-                text = name;
-                if (message != null && message.trim().length() > 0) {
-                    text = text + " : " + message;
-                }
-            }
-
-            Log.d(TAG, "Notification title: " + title);
-
-            ////////////////////////////////////////////////////////////////////////////////////
-            // Find previous messages and update notification ID
-            ////////////////////////////////////////////////////////////////////////////////////
-            StatusBarNotification[] activeToasts = new StatusBarNotification[0];
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                activeToasts = ((NotificationManager) appContext.getSystemService(Context.NOTIFICATION_SERVICE))
-                        .getActiveNotifications();
-            }
-            List<String> msgs = new ArrayList<String>();
-            int count = 0;
-            for (StatusBarNotification sbn : activeToasts) {
-                count++;
-                Notification curNotif = sbn.getNotification();
-                Bundle bundle = curNotif.extras;
-                String currentTitle = bundle.getCharSequence(Notification.EXTRA_TITLE).toString();
-                String currentText = bundle.getCharSequence(Notification.EXTRA_TEXT).toString();
-                String currentTarget = bundle.getString(MESSAGE_TARGET);
-                List<String> previousMessages = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES);
-
-                Log.i("vnc", "NOTIFICATION " + count + " : = " + currentTitle + " : " + currentTarget + " : "
-                        + currentText + " : " + previousMessages + ". Message: " + message);
-
-                if (currentTarget != null && currentTarget.equals(target)) {
-                    notificationId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_UPDATING);
-                    msgs.addAll(previousMessages);
-                    break;
-                }
-            }
-            if (count == 0) {
-                Log.i("vnc", "no notifications in Status bar, when message: " + message);
-            }
-            msgs.add(text);
-
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext,
-                    channelId);
-
-            NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle("VNCTalk");
-            //
-            if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
-                messagingStyle.setConversationTitle(title);
-            }
-            //
-            for (String msg : msgs) {
-                if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
-                    // messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
-                    messagingStyle.addMessage(msg, System.currentTimeMillis(), " ");
-                } else {
-                    messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
-                }
-            }
-
-            Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
-            Bundle bundle = new Bundle();
-            bundle.putString(VNC_PEER_JID, target);
-            bundle.putString("vncEventType", "chat");
-            bundle.putInt(NOTIFY_ID, notificationId);
-            intent.putExtras(bundle);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            if (nsound.equals("mute")) {
-                Log.d(TAG, "notification nsound: " + title);
-                notificationBuilder.setDefaults(NotificationCompat.DEFAULT_VIBRATE).setContentTitle(title)
-                        .setContentText(text).setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setStyle(messagingStyle).setAutoCancel(true).setShowWhen(true).setContentIntent(pendingIntent)
-                        .setSound(null).setGroup(title).setPriority(NotificationCompat.PRIORITY_MAX);
-
-            } else {
-                notificationBuilder.setDefaults(NotificationCompat.DEFAULT_ALL).setContentTitle(title)
-                        .setContentText(text).setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setStyle(messagingStyle).setAutoCancel(true).setShowWhen(true).setContentIntent(pendingIntent)
-                        .setSound(defaultSoundUri).setGroup(title).setPriority(NotificationCompat.PRIORITY_MAX);
-            }
-
-            // Add actions
-            //
-            String notificationIdString = String.valueOf(notificationId);
-            String inlineReplyActionName = NOTIFICATION_REPLY + "@@" + notificationIdString + "@@" + target;
-            String markAsReadActionName = MARK_AS_READ_REPLY + "@@" + notificationIdString + "@@" + target;
-            //
-            PendingIntent replyPendingIntent;
-            PendingIntent markAsReadPendingIntent;
-            //
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Log.i("VNC", "Create notification actions (>=N), NOTIFY_ID: " + id);
-
-                replyPendingIntent = PendingIntent.getBroadcast(appContext, REQUEST_CODE_HELP,
-                        new Intent(activityOrServiceContext, NotificationReceiver.class)
-                                .setAction(inlineReplyActionName),
-                        0);
-
-                markAsReadPendingIntent = PendingIntent.getBroadcast(appContext, REQUEST_CODE_HELP,
-                        new Intent(activityOrServiceContext, NotificationReceiver.class)
-                                .setAction(markAsReadActionName),
-                        0);
-            } else {
-                Log.i("VNC", "Create notification actions, NOTIFY_ID: " + id);
-
-                replyPendingIntent = PendingIntent.getActivity(appContext, REQUEST_CODE_HELP,
-                        new Intent(activityOrServiceContext, ReplyActivity.class).setAction(inlineReplyActionName), 0);
-
-                markAsReadPendingIntent = PendingIntent.getActivity(appContext, REQUEST_CODE_HELP,
-                        new Intent(activityOrServiceContext, ReplyActivity.class).setAction(markAsReadActionName), 0);
-            }
-
-            NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
-                    android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
-                            .addRemoteInput(new RemoteInput.Builder("Reply").setLabel("Type your message").build())
-                            .setAllowGeneratedReplies(true).build();
-
-            NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
-                    android.R.drawable.ic_menu_revert, "Mark as read", markAsReadPendingIntent).build();
-
-            if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
-                if (target.startsWith("broadcast-") && target.indexOf("@conference") == -1) {
-                    // ignore 'reply' option for broadcast
-                } else {
-                    notificationBuilder.addAction(actionReply);
-                }
-                notificationBuilder.addAction(actionMarkAsRead);
-            }
-
-            int resID = activityOrServiceContext.getResources().getIdentifier("logo", "drawable",
-                    activityOrServiceContext.getPackageName());
-            if (resID != 0) {
-                notificationBuilder.setSmallIcon(resID);
-            } else {
-                notificationBuilder.setSmallIcon(activityOrServiceContext.getApplicationInfo().icon);
-            }
-
-            if (nsound.equals("mute")) {
-                Log.d(TAG, "not setting sound");
-            } else {
-                if (sound != null) {
-                    Log.d(TAG, "sound before path is: " + sound);
-                    Uri soundPath = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                            + activityOrServiceContext.getPackageName() + "/raw/" + sound);
-                    Log.d(TAG, "Parsed sound is: " + soundPath.toString());
-                    notificationBuilder.setSound(soundPath);
-                } else {
-                    Log.d(TAG, "Sound was null ");
-                }
-            }
-
-            if (lights != null) {
-                try {
-                    String[] lightsComponents = lights.replaceAll("\\s", "").split(",");
-                    if (lightsComponents.length == 3) {
-                        int lightArgb = Color.parseColor(lightsComponents[0]);
-                        int lightOnMs = Integer.parseInt(lightsComponents[1]);
-                        int lightOffMs = Integer.parseInt(lightsComponents[2]);
-
-                        notificationBuilder.setLights(lightArgb, lightOnMs, lightOffMs);
-                    }
-                } catch (Exception e) {
-                }
-            }
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                int accentID = activityOrServiceContext.getResources().getIdentifier("accent", "color",
-                        activityOrServiceContext.getPackageName());
-                notificationBuilder.setColor(activityOrServiceContext.getResources().getColor(accentID, null));
-            }
-
-            Notification notification = notificationBuilder.build();
-
-            notification.extras.putStringArrayList(PREVIOUS_MESSAGES, (ArrayList<String>) msgs);
-            notification.extras.putInt(NOTIFY_ID_FOR_UPDATING, notificationId);
-            notification.extras.putString(MESSAGE_TARGET, target);
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                int iconID = android.R.id.icon;
-                int notiID = activityOrServiceContext.getResources().getIdentifier("icon" + "", "mipmap",
-                        activityOrServiceContext.getPackageName());
-                if (notification.contentView != null) {
-                    notification.contentView.setImageViewResource(iconID, notiID);
-                }
-            }
-            NotificationManager notificationManager = (NotificationManager) activityOrServiceContext
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-
-            // Since android Oreo notification channel is needed.
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                if (nsound.equals("mute")) {
-                    Log.d(TAG, "pushing to silentchannel");
-                    NotificationChannel silentchannel = new NotificationChannel(channelId, channelName,
-                            NotificationManager.IMPORTANCE_HIGH);
-                    silentchannel.setSound(null, null);
-                    notificationManager.createNotificationChannel(silentchannel);
-                } else {
-                    NotificationChannel channel = new NotificationChannel(channelId, channelName,
-                            NotificationManager.IMPORTANCE_HIGH);
-                    notificationManager.createNotificationChannel(channel);
-                }
-            }
-            captureMessage("[displayNotification] notify notificationId=" + notificationId + " msgid=" + msgid);
-            notificationManager.notify(notificationId, notification);
-        } catch (Exception e) {
-            e.printStackTrace();
-            captureMessage("[displayNotification] Exception" + e.getMessage());
-            try {
-                if (FirebasePlugin.isCrashlyticsEnabled()) {
-                    Crashlytics.logException(e);
-                }
-            } catch (Exception ex) {
-            }
+        // Pass the message to the receiver manager so any registered receivers can decide to handle it
+        boolean wasHandled = FirebasePluginMessageReceiverManager.onMessageReceived(remoteMessage);
+        if (wasHandled) {
+            Log.i(TAG, "Message was handled by a registered receiver");
             return;
         }
-    }
 
-    private static String getTypeOfLink(String text) {
-        if (text == null || text.isEmpty()) {
-            return null;
-        }
-        text = text.trim();
-        if (!text.startsWith("http") && !text.startsWith("https")) {
-            return null;
+        Map<String, String> payload = remoteMessage.getData();
+        Log.i(TAG, "payload 'data' received" + payload);
+
+        if (payloadProcessor == null) {
+            payloadProcessor = new PayloadProcessor(this, getApplicationContext());
         }
 
-        List<String> photoFormat = Arrays.asList("jpg", "jpeg", "png", "gif", "bmp");
-        List<String> audioFormat = Arrays.asList("wav", "mp3", "wma", "webm", "ogg");
-
-        if (text.contains("audio_recording_")) {
-            return VOICE_FORMAT;
-        }
-
-        String extension = text.substring(text.lastIndexOf(".") + 1);
-
-        if (photoFormat.indexOf(extension) != -1) {
-            return PHOTO_FORMAT;
-        }
-
-        if (audioFormat.indexOf(extension) != -1) {
-            return AUDIO_FORMAT;
-        }
-
-        return LINK_FORMAT;
-    }
-
-    private String getPreference(Context context, String key) {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        return settings.getString(key, null);
-    }
-
-    public static void hideNotificationsForTarget(Context activityOrServiceContext, String target) {
-        try {
-            StatusBarNotification[] activeToasts = new StatusBarNotification[0];
-            NotificationManager notificationManager = (NotificationManager) activityOrServiceContext
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                activeToasts = notificationManager.getActiveNotifications();
+        if (payload.get("vnc") != null) {
+            payloadProcessor.processTalkPayload(payload);
+        } else if (payload.get("vnctask") != null) {
+            String mApiKey = SharedPrefsUtils.getString(getApplicationContext(), "redmine-api-key");
+            if (mApiKey == null) {
+                return;
             }
-            for (StatusBarNotification sbn : activeToasts) {
-                Notification curNotif = sbn.getNotification();
-                Bundle bundle = curNotif.extras;
-                String currentTarget = bundle.getString(MESSAGE_TARGET);
-                if (currentTarget != null && currentTarget.equals(target)) {
-                    notificationManager.cancel(sbn.getId());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            payloadProcessor.processTaskPayload(payload);
         }
-    }
-
-    private static boolean checkIfNotificationExist(Context appContext, String msgid) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        Set<String> previousNotifications = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
-        int counter = prefs.getInt(PREFS_NOTIF_COUNTER, 0);
-        String stringNotificationId = msgid;
-        long currentTime = System.currentTimeMillis();
-
-        if (previousNotifications != null && previousNotifications.size() > 0) {
-            // Checking notifications on time to expire
-            long hour = 1000 * 60 * 60;
-            if (counter > 100) {
-                Log.d(TAG, "Run checkIfNotificationExist on 100s message");
-
-                // reset counter
-                editor.putInt(PREFS_NOTIF_COUNTER, 0);
-
-                Log.d(TAG, "before clean set: " + previousNotifications.size());
-
-                Iterator<String> iter = previousNotifications.iterator();
-                while (iter.hasNext()) {
-                    String prevNotif = iter.next();
-                    long timeNotif = prefs.getLong(prevNotif, 0);
-                    if (timeNotif != 0 && currentTime - timeNotif > hour) {
-                        // remove timeStamp for given notificationId
-                        editor.remove(prevNotif).apply();
-                        // removed notificationId from Set
-                        iter.remove();
-                    }
-                }
-                // save cleaned notifications data to shared prefs
-                Log.d(TAG, "after clean set: " + previousNotifications.size());
-                editor.putStringSet(PREFS_STRING_SET_KEY, previousNotifications).apply();
-            } else {
-                Log.d(TAG, "Ignore checkIfNotificationExist, counter: " + counter);
-                editor.putInt(PREFS_NOTIF_COUNTER, ++counter).apply();
-            }
-
-            // Check if notificationId already exist in set
-            if (previousNotifications.contains(stringNotificationId)) {
-                Log.d(TAG, "Block notification display, already processed. Id: " + stringNotificationId);
-                return true;
-            } else {
-                // add to set, and create record in prefs with timestamp
-                writeNotificationToPrefs(stringNotificationId, currentTime, previousNotifications, editor);
-            }
-        } else {
-            // add to set, and create record in prefs with timestamp
-            writeNotificationToPrefs(stringNotificationId, currentTime, new HashSet<String>(), editor);
-        }
-        return false;
-    }
-
-    private static void writeNotificationToPrefs(String notificationId, long currentTime, Set<String> existedSet,
-            SharedPreferences.Editor editor) {
-        Log.d(TAG, "writeNotificationToPrefs, notificationId: " + notificationId + ". existedSet size: "
-                + existedSet.size());
-        existedSet.add(notificationId);
-        editor.putStringSet(PREFS_STRING_SET_KEY, existedSet).apply();
-        editor.putLong(notificationId, currentTime).apply();
-    }
-
-    class Payload {
-        public String msgid;
-        public String jid;
-        public String name;
-        public String eType;
-        public String body;
-        public String gt;
-        public String nType;
-        public String nsound;
-        public List<String> mention;
     }
 }
