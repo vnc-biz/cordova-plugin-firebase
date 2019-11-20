@@ -15,8 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.RemoteInput;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -106,8 +106,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (FirebasePlugin.isCrashlyticsEnabled()) {
                 Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "Message was handled by a registered receiver");
             }
+            throw new Exception("Message was handled by a registered receiver");
             // Don't process the message in this method.
-            return;
         }
 
         Map<String, String> payload = remoteMessage.getData();
@@ -116,7 +116,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (FirebasePlugin.isCrashlyticsEnabled()) {
                Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "no payload vnc");
             }
-            return;
+            throw new Exception("no payload vnc");
         }
         try {
             data = new JSONArray(payload.get("vnc"));
@@ -127,7 +127,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 if (FirebasePlugin.isCrashlyticsEnabled()) {
                   Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "received empty data");
                 }
-                return;
+                throw new Exception("received empty data");
             } else {
                 Log.i(TAG, "received data: " + data);
                 // [{"jid":"bob@dev2.zimbra-vnc.de",
@@ -159,6 +159,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
                       Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "returning due to empty 'target' or 'username' values");
                     }
+                    throw new Exception("returning due to empty 'target' or 'username' values");
                 }
 
                 if (FirebasePlugin.isCrashlyticsEnabled()) {
@@ -228,8 +229,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Log.i(TAG, "displayNotification: id: " + notificationId);
     
             if (checkIfNotificationExist(appContext, msgid)) {
-                Crashlytics.log(Log.DEBUG, CRASHLITICS_TAG, "checkIfNotificationExist for msgid=" + msgid);
-                return;
+                throw new Exception("checkIfNotificationExist for msgid=" + msgid);
             }
     
             String channelId = getStringResource(activityOrServiceContext, "default_notification_channel_id");
