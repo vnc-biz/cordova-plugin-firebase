@@ -212,7 +212,7 @@ public class NotificationCreator {
                 .setDefaults(nsound.equals("mute") ? NotificationCompat.DEFAULT_VIBRATE : NotificationCompat.DEFAULT_ALL)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setAutoCancel(true)
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)
