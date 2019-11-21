@@ -111,7 +111,7 @@ public class NotificationCreator {
     }
 
     static Uri defineCallSoundUri(Context context) {
-        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/incoming-call");
+        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/incoming_call");
         return soundUri;
     }
 

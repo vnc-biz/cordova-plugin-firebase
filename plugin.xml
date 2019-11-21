@@ -51,6 +51,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
