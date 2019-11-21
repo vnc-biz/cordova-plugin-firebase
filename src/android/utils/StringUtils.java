@@ -20,7 +20,7 @@ public class StringUtils {
     }
 
     public static Spannable getColorizedText(Context context, String stringResName, String colorName) {
-        Spannable spannable = new SpannableString(getStringResourcestringRes(context, stringResName));
+        Spannable spannable = new SpannableString(getStringResource(context, stringResName));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             spannable.setSpan(
                 new ForegroundColorSpan(context.getColor(context.getResources().getIdentifier(colorName, "color", context.getPackageName()))),

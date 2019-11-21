@@ -288,11 +288,11 @@ public class NotificationManager {
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String callEventType,
                                                         String callId, String name, String groupName, String callType) {
-        Log.i(TAG, "displayCallNotification: \n" 
-            + "callId: "    + callId      + "\n" +
-            + "username: "  + name        + "\n" +
-            + "groupName: " + groupName   + "\n" +
-            + "callType: "  + callType);
+        Log.i(TAG, "displayCallNotification: \n" +
+            "callId: "    + callId      + "\n" +
+            "username: "  + name        + "\n" +
+            "groupName: " + groupName   + "\n" +
+            "callType: "  + callType);
 
         if (cancelExistCall(appContext, callId, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);
@@ -307,19 +307,19 @@ public class NotificationManager {
         Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext);
 
         // defineTitleAndText()
-        String title = NotificationCreator.defineNotificationTitle(callId, name, groupName);
-        String text = NotificationCreator.defineNotificationText(activityOrServiceContext, callType);
+        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+        String text = NotificationCreator.defineCallNotificationText(activityOrServiceContext, callType);
 
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
-                target, notificationId, "vncEventType", "call");
+                callId, notificationId, "vncEventType", "call");
 
         // createNotification
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createCallNotification(activityOrServiceContext, channelId,
                 title, text, pendingIntent, soundUri);
 
         // Add actions
-        NotificationCreator.addCallDiclineAction(activityOrServiceContext, appContext, notificationBuilder, callId);
+        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId);
         NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);

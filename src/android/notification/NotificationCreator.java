@@ -588,7 +588,7 @@ public class NotificationCreator {
                     .setAction(callDeclineActionName),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
-            Log.i(TAG, "addReplyAndMarkAsReadActions");
+            Log.i(TAG, "addCallDeclineAction");
  
             declinePendingIntent = PendingIntent.getActivity(
                 appContext,
@@ -612,7 +612,7 @@ public class NotificationCreator {
  
         PendingIntent declinePendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i(TAG, "addCallDeclineAction (>=N)");
+            Log.i(TAG, "addCallAcceptAction (>=N)");
  
            declinePendingIntent = PendingIntent.getBroadcast(
                 appContext,
@@ -621,7 +621,7 @@ public class NotificationCreator {
                     .setAction(callDeclineActionName),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
-            Log.i(TAG, "addReplyAndMarkAsReadActions");
+            Log.i(TAG, "addCallAcceptAction");
  
             declinePendingIntent = PendingIntent.getActivity(
                 appContext,
