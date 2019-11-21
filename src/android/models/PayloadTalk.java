@@ -1,5 +1,7 @@
 package org.apache.cordova.firebase.models;
 
+import android.text.TextUtils;
+
 import java.util.List;
 
 public class PayloadTalk {
@@ -7,6 +9,7 @@ public class PayloadTalk {
     public String jid;
     public String name;
     public String eType;
+    public String callSignal;
     public String body;
     public String gt;
     public String nType;
@@ -43,6 +46,18 @@ public class PayloadTalk {
 
     public void seteType(String eType) {
         this.eType = eType;
+    }
+
+    public String getCallSignal() {
+        return callSignal;
+    }
+
+    public void setcallSignal(String callSignal) {
+        this.callSignal = callSignal;
+    }
+
+    public boolean isCallNotification(){
+        return !TextUtils.isEmpty(callSignal) && callSignal.equals("1");
     }
 
     public String getBody() {

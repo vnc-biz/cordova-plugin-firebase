@@ -57,12 +57,17 @@ public class PayloadProcessor {
               }
 
               if (FirebasePlugin.inBackground()) {
-                  notificationPool.execute(new Runnable() {
-                      public void run() {
-                          NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
-                                  target, username, groupName, message, eventType, nsound, "", "");
-                      }
-                  });
+                notificationPool.execute(new Runnable() {
+                    public void run() {
+                        if (notification.isCallNotification()) {
+                            NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, eventType,
+                                target, username, groupName, message);
+                        } else {
+                            NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
+                                target, username, groupName, message, eventType, nsound, "", "");
+                        }
+                    }
+                });
               } else {
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'

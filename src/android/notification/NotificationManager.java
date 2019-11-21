@@ -286,6 +286,55 @@ public class NotificationManager {
         NotificationUtils.saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
+    synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String callEventType,
+                                                        String callId, String name, String groupName, String callType) {
+        Log.i(TAG, "displayCallNotification: \n" 
+            + "callId: "    + callId      + "\n" +
+            + "username: "  + name        + "\n" +
+            + "groupName: " + groupName   + "\n" +
+            + "callType: "  + callType);
+
+        if (cancelExistCall(appContext, callId, callEventType)) {
+            Log.i(TAG, "Cancel EXIST call " + callId);
+            return;
+        }
+
+        Integer notificationId = callId.hashCode();
+
+        // defineChannelData
+        String channelId = NotificationCreator.defineCallChannelId(activityOrServiceContext);
+        String channelName = NotificationCreator.defineCallChannelName(activityOrServiceContext);
+        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext);
+
+        // defineTitleAndText()
+        String title = NotificationCreator.defineNotificationTitle(callId, name, groupName);
+        String text = NotificationCreator.defineNotificationText(activityOrServiceContext, callType);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
+                target, notificationId, "vncEventType", "call");
+
+        // createNotification
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createCallNotification(activityOrServiceContext, channelId,
+                title, text, pendingIntent, soundUri);
+
+        // Add actions
+        NotificationCreator.addCallDiclineAction(activityOrServiceContext, appContext, notificationBuilder, callId);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId);
+        
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+        //
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+
+        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
+        notificationManager.notify(notificationId, notification);
+    }
+
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
         SharedPreferences.Editor editor = prefs.edit();
@@ -442,5 +491,21 @@ public class NotificationManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean cancelExistCall(Context context, String callId, String callEventType) {
+        if (!"leave".equals(callEventType)){ 
+            return false;
+        }
+
+        for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)){
+            Notification notification = sbNotification.getNotification();
+            if (callId.hashCode() == sbNotification.getId()){
+                NotificationUtils.getManager(context).cancel(sbNotification.getId());
+                return true;
+            }
+        }
+
+        return false;
     }
 }

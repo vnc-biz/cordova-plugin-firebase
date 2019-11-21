@@ -90,6 +90,25 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 
 		<config-file target="res/values/colors.xml" parent="/resources">
 			<color name="notification_accent">@color/notifications_color_accent</color>
+			<color name="decline_call_btn">#E02B00</color>
+			<color name="accept_call_btn">#4CB050</color>
+		</config-file>
+
+		<config-file target="res/values/strings.xml" parent="/resources">
+			<string name="call_notifications_channel_name">Calls</string>
+			<string name="incoming_call_format">Incoming %s call</string>
+			<string name="call_action_decline">Decline</string>
+			<string name="call_action_accept">Accept</string>
+		</config-file>
+		
+		<!-- German text for strings -->
+		<config-file target="res/values-de/strings.xml" parent="/resources">
+			<string name="call_notifications_channel_name">Calls</string>
+		</config-file>
+
+		<!-- French text for strings -->
+		<config-file target="res/values-fr/strings.xml" parent="/resources">
+			<string name="call_notifications_channel_name">Calls</string>
 		</config-file>
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
