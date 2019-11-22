@@ -51,6 +51,8 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/cordova-plugin-firebase-strings-de.xml" target="res/values-de/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
@@ -93,23 +95,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<color name="notification_accent">@color/notifications_color_accent</color>
 			<color name="decline_call_btn">#E02B00</color>
 			<color name="accept_call_btn">#4CB050</color>
-		</config-file>
-
-		<config-file target="res/values/strings.xml" parent="/resources">
-			<string name="call_notifications_channel_name">Calls</string>
-			<string name="incoming_call_format">Incoming %s call</string>
-			<string name="call_action_decline">Decline</string>
-			<string name="call_action_accept">Accept</string>
-		</config-file>
-		
-		<!-- German text for strings -->
-		<config-file target="res/values-de/strings.xml" parent="/resources">
-			<string name="call_notifications_channel_name">Calls</string>
-		</config-file>
-
-		<!-- French text for strings -->
-		<config-file target="res/values-fr/strings.xml" parent="/resources">
-			<string name="call_notifications_channel_name">Calls</string>
 		</config-file>
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
