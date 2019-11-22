@@ -280,6 +280,8 @@ public class NotificationCreator {
                 .setContentText(text)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setAutoCancel(true)
+                .setOngoing(true)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
@@ -574,8 +576,9 @@ public class NotificationCreator {
         notificationBuilder.addAction(actionDelete);
     }
 
-    public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
-        String callDeclineActionName = TALK_CALL_DECLINE + "@@" + callId;
+    public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                            String callId, String callType, String callInitiator) {
+        String callDeclineActionName = TALK_CALL_DECLINE + "@@" + callId + "@@" + callType + "@@" + callInitiator;
  
         PendingIntent declinePendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

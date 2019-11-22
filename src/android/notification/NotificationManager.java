@@ -30,6 +30,10 @@ public class NotificationManager {
     private static final String MESSAGE_TARGET = "messageTarget";
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
+    private static final String INVITE_CALL_EVENT = "invite";
+    private static final String LEAVE_CALL_EVENT = "leave";
+    private static final String JOIN_CALL_EVENT = "join";
+    private static final String REJECT_CALL_EVENT = "reject";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -299,6 +303,11 @@ public class NotificationManager {
             return;
         }
 
+        if(!INVITE_CALL_EVENT.equals(callEventType)) {
+            Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
+            return;
+        }
+
         Integer notificationId = callId.hashCode();
 
         // defineChannelData
@@ -319,7 +328,7 @@ public class NotificationManager {
                 title, text, pendingIntent, soundUri);
 
         // Add actions
-        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId);
+        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callId);
         NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
@@ -494,7 +503,7 @@ public class NotificationManager {
     }
 
     private static boolean cancelExistCall(Context context, String callId, String callEventType) {
-        if (!"leave".equals(callEventType)){ 
+        if (!LEAVE_CALL_EVENT.equals(callEventType)){ 
             return false;
         }
 

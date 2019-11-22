@@ -1,15 +1,18 @@
 package org.apache.cordova.firebase;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.RemoteInput;
+import androidx.core.app.RemoteInput;
 import android.util.Log;
 import java.util.Date;
 
 import org.apache.cordova.firebase.actions.InlineReplyAction;
 import org.apache.cordova.firebase.actions.MarkAsReadAction;
+import org.apache.cordova.firebase.actions.RejectCallAction;
 import org.apache.cordova.firebase.actions.SnoozeAction;
 import org.apache.cordova.firebase.actions.MailOptionsAction;
 import org.apache.cordova.firebase.actions.MailReplyAction;
@@ -17,6 +20,7 @@ import org.apache.cordova.firebase.actions.MailReplyAction;
 import org.apache.cordova.firebase.models.MailInfoItem;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
+import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 
 public class NotificationReceiver extends BroadcastReceiver {
     private static final String TAG = "Firebase.NotificationReceiver";
@@ -96,7 +100,46 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Thread thread = new Thread(new MailReplyAction(context, notificationId, msgId, subject, replyText, receiver));
             thread.start();
-         }
+        } else if (intent.getAction().contains(NotificationCreator.TALK_CALL_DECLINE)) {
+            String[] actionParts = intent.getAction().split("@@");
+            String callId = actionParts[1];
+            String callType = actionParts[2];
+            String callInitiator = actionParts[3];
+
+            Log.i(TAG, "NotificationReceiver onReceive Call REJECT, callId: " + callId);
+
+            Thread thread = new Thread(new RejectCallAction(context, callId, callType, callInitiator));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.TALK_CALL_ACCEPT)) {
+            String[] actionParts = intent.getAction().split("@@");
+            String callId = actionParts[1];
+
+            Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
+
+            Thread thread = new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    PackageManager pm = context.getPackageManager();
+        
+                    Intent launchIntent = pm.getLaunchIntentForPackage(context.getPackageName());
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("vncPeerJid", callId);
+                    bundle.putString("vncEventType", "chat");
+                    bundle.putInt("id", callId.hashCode());
+                    bundle.putBoolean("tap", true);
+            
+                    FirebasePlugin.sendNotification(bundle, context);
+            
+                    launchIntent.putExtras(bundle);
+                    context.startActivity(launchIntent);
+
+                    ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
+                }
+            });
+            thread.start();
+        }
     }
 
     private CharSequence getReplyMessage(Intent intent) {
