@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.core.app.RemoteInput;
 import android.util.Log;
@@ -116,29 +115,16 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
 
-            Thread thread = new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    PackageManager pm = context.getPackageManager();
-        
-                    Intent launchIntent = pm.getLaunchIntentForPackage(context.getPackageName());
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Intent launchIntent = new Intent(context.getApplicationContext(), OnNotificationOpenReceiver.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("vncPeerJid", callId);
+            bundle.putString("vncEventType", "call");
+            bundle.putInt("id", callId.hashCode());
+            launchIntent.putExtras(bundle);
 
-                    Bundle bundle = new Bundle();
-                    bundle.putString("vncPeerJid", callId);
-                    bundle.putString("vncEventType", "chat");
-                    bundle.putInt("id", callId.hashCode());
-                    bundle.putBoolean("tap", true);
-            
-                    FirebasePlugin.sendNotification(bundle, context);
-            
-                    launchIntent.putExtras(bundle);
-                    context.startActivity(launchIntent);
+            context.sendBroadcast(launchIntent);
 
-                    ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
-                }
-            });
-            thread.start();
+            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
         }
     }
 

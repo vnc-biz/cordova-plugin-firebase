@@ -284,7 +284,8 @@ public class NotificationCreator {
                 .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri)
-                .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setFullScreenIntent(pendingIntent, true);
 
         return notificationBuilder;
     }
