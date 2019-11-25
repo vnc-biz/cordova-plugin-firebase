@@ -72,7 +72,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/utils/SharedPrefsUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/StringUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/WidgetNotifier.java" target-dir="src/org/apache/cordova/firebase/utils" />
-		<source-file src="src/android/utils/RejectCallAction.java" target-dir="src/org/apache/cordova/firebase/utils" />
 
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />
@@ -91,6 +90,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/SnoozeAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
+		<source-file src="src/android/actions/RejectCallAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
 		<config-file target="res/values/colors.xml" parent="/resources">
 			<color name="notification_accent">@color/notifications_color_accent</color>

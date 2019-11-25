@@ -613,11 +613,11 @@ public class NotificationCreator {
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
         String callDeclineActionName = TALK_CALL_ACCEPT + "@@" + callId;
  
-        PendingIntent declinePendingIntent;
+        PendingIntent acceptPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Log.i(TAG, "addCallAcceptAction (>=N)");
  
-           declinePendingIntent = PendingIntent.getBroadcast(
+           acceptPendingIntent = PendingIntent.getBroadcast(
                 appContext,
                 callId.hashCode(),
                 new Intent(activityOrServiceContext, NotificationReceiver.class)
@@ -626,7 +626,7 @@ public class NotificationCreator {
         } else {
             Log.i(TAG, "addCallAcceptAction");
  
-            declinePendingIntent = PendingIntent.getActivity(
+            acceptPendingIntent = PendingIntent.getActivity(
                 appContext,
                 callId.hashCode(),
                 new Intent(activityOrServiceContext, ReplyActivity.class)
@@ -637,7 +637,7 @@ public class NotificationCreator {
         NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(
             android.R.drawable.ic_menu_call,
             StringUtils.getColorizedText(activityOrServiceContext, "call_action_accept", "accept_call_btn"),
-            declinePendingIntent)
+            acceptPendingIntent)
         .build();
  
         notificationBuilder.addAction(acceptAction);
