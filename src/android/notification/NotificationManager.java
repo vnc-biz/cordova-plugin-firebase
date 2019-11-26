@@ -335,7 +335,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_INSISTENT;
+        // notification.flags = Notification.FLAG_INSISTENT; //repeat notification sound
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
 
