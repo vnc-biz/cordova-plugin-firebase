@@ -103,22 +103,24 @@ public class NotificationReceiver extends BroadcastReceiver {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
             String callType = actionParts[2];
-            String callInitiator = actionParts[3];
+            String callReceiver = actionParts[3];
+            boolean isGroupCall = Boolean.parseBoolean(actionParts[4]);
 
             Log.i(TAG, "NotificationReceiver onReceive Call REJECT, callId: " + callId);
 
-            Thread thread = new Thread(new RejectCallAction(context, callId, callType, callInitiator));
+            Thread thread = new Thread(new RejectCallAction(context, callId, callType, callReceiver, isGroupCall));
             thread.start();
         } else if (intent.getAction().contains(NotificationCreator.TALK_CALL_ACCEPT)) {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
+            String callType = actionParts[2];
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
 
             Intent launchIntent = new Intent(context.getApplicationContext(), OnNotificationOpenReceiver.class);
             Bundle bundle = new Bundle();
             bundle.putString("vncPeerJid", callId);
-            bundle.putString("vncEventType", "call");
+            bundle.putString("vncEventType", callType);
             bundle.putInt("id", callId.hashCode());
             launchIntent.putExtras(bundle);
 

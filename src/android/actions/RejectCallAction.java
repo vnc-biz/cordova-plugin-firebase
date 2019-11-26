@@ -21,14 +21,16 @@ public class RejectCallAction extends BaseActionTalk {
 
     private String callId;
     private String callType;
-    private String callInitiator;
+    private String callReceiver;
+    private boolean isGroupCall;
 
-    public RejectCallAction(Context context, String callId, String callType, String callInitiator) {
+    public RejectCallAction(Context context, String callId, String callType, String callReceiver, boolean isGroupCall) {
         super(null, null, callId.hashCode(), context, "/xmpp-rest");
 
         this.callId = callId;
         this.callType = callType;
-        this.callInitiator = callInitiator;
+        this.callReceiver = callReceiver;
+        this.isGroupCall = isGroupCall;
     }
 
     @Override
@@ -56,10 +58,8 @@ public class RejectCallAction extends BaseActionTalk {
             JSONObject postData = new JSONObject();
             postData.put("messagetext", "REJECTED_CALL");
             postData.put("reject", callType);
-            postData.put("confid", callId);
-            postData.put("target", callInitiator);
-            // postData.put("target", "bob@dev2.zimbra-vnc.de");
-            // postData.put("confid", "bob@dev2.zimbra-vnc.de#jay.rawal@dev2.zimbra-vnc.de");
+            postData.put("confid", prepareConfId(isGroupCall));
+            postData.put("target", callId);
 
             Log.i(TAG, "postData : " + postData);
 
@@ -84,6 +84,16 @@ public class RejectCallAction extends BaseActionTalk {
         } finally {
             notificationManager.cancel(callId.hashCode());
         }
+    }
+
+    private String prepareConfId(boolean isGroupCall){
+        if (isGroupCall) return callId;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(callReceiver.replace("@", "#")).append(",");
+        sb.append(callId.replace("@", "#"));
+
+        return sb.toString();
     }
 
     private void saveRejectCallOnError(Context context, String callId) {

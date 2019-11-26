@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
 import android.os.Bundle;
@@ -291,7 +292,7 @@ public class NotificationManager {
     }
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String callEventType,
-                                                        String callId, String name, String groupName, String callType) {
+                                                        String callId, String name, String groupName, String callType, String callReceiver) {
         Log.i(TAG, "displayCallNotification: \n" +
             "callId: "    + callId      + "\n" +
             "username: "  + name        + "\n" +
@@ -309,6 +310,7 @@ public class NotificationManager {
         }
 
         Integer notificationId = callId.hashCode();
+        boolean isGroupCall = !TextUtils.isEmpty(groupName);
 
         // defineChannelData
         String channelId = NotificationCreator.defineCallChannelId(activityOrServiceContext);
@@ -321,21 +323,21 @@ public class NotificationManager {
 
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
-                callId, notificationId, "vncEventType", "call");
+                callId, notificationId, "vncEventType", "chat");
 
         // createNotification
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createCallNotification(activityOrServiceContext, channelId,
                 title, text, pendingIntent, soundUri);
 
         // Add actions
-        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callId);
-        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId);
+        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
-        // notification.flags = Notification.FLAG_INSISTENT; //repeat notification sound
+        // notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
 

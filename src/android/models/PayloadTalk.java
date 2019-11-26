@@ -7,6 +7,7 @@ import java.util.List;
 public class PayloadTalk {
     public String msgid;
     public String jid;
+    public String nto;
     public String name;
     public String eType;
     public String callSignal;
@@ -30,6 +31,14 @@ public class PayloadTalk {
 
     public void setJid(String jid) {
         this.jid = jid;
+    }
+
+    public String getNTo() {
+        return nto;
+    }
+
+    public void setNTo(String to) {
+        this.nto = to;
     }
 
     public String getName() {

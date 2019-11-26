@@ -25,6 +25,7 @@ import androidx.core.app.RemoteInput;
 import org.apache.cordova.firebase.NotificationReceiver;
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 import org.apache.cordova.firebase.ReplyActivity;
+import org.apache.cordova.firebase.IncomingCallActivity;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -583,8 +584,12 @@ public class NotificationCreator {
     }
 
     public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                            String callId, String callType, String callInitiator) {
-        String callDeclineActionName = TALK_CALL_DECLINE + "@@" + callId + "@@" + callType + "@@" + callInitiator;
+                                            String callId, String callType, String callReceiver, boolean isGroupCall) {
+        String callDeclineActionName = TALK_CALL_DECLINE 
+        + "@@" + callId 
+        + "@@" + callType 
+        + "@@" + callReceiver 
+        + "@@" + String.valueOf(isGroupCall);
  
         PendingIntent declinePendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -616,8 +621,11 @@ public class NotificationCreator {
         notificationBuilder.addAction(declineAction);
     }
 
-    public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
-        String callDeclineActionName = TALK_CALL_ACCEPT + "@@" + callId;
+    public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                            String callId, String callType) {
+        String callDeclineActionName = TALK_CALL_ACCEPT 
+        + "@@" + callId 
+        + "@@" + callType;
  
         PendingIntent acceptPendingIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
