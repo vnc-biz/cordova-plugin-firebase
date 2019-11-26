@@ -48,15 +48,31 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<activity android:name="org.apache.cordova.firebase.ReplyActivity"
 				android:launchMode="singleInstance"
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
+			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
+            	android:screenOrientation="sensorPortrait"
+            	android:theme="@style/AppTheme.NoActionBar"/>
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-de.xml" target="res/values-de/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/res/values/cordova-plugin-firebase-styles.xml" target="res/values/cordova-plugin-firebase-styles.xml" />
 		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
+		<source-file src="src/android/res/drawable/ic_call_end.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/ic_call_start.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/selector_call_end.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/selector_call_start.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/shape_oval_green.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/shape_oval_red.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/shape_oval_white_red.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/values/dravable" />
+		<source-file src="src/android/res/drawable-nodpi/call_background.png" target="res/values/dravable-nodpi" />
+		<source-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/values/dravable-nodpi" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/res/layout/activity_incoming_call.xml" target-dir="res/layout" />
+		<source-file src="src/android/IncomingCallActivity.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />

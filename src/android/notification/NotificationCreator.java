@@ -285,9 +285,14 @@ public class NotificationCreator {
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setFullScreenIntent(pendingIntent, true);
+                .setFullScreenIntent(createCallFullScreenIntent(activityOrServiceContext, 56), true);
 
         return notificationBuilder;
+    }
+
+    private static PendingIntent createCallFullScreenIntent(Context context, int notificationId){
+        Intent callActivityIntent = new Intent(context, IncomingCallActivity.class);
+        return PendingIntent.getActivity(context, notificationId, callActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
