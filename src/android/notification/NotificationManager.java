@@ -335,6 +335,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
+        notification.flags = Notification.FLAG_INSISTENT;
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
 
