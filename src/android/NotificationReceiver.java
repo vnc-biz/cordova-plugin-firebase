@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.RemoteInput;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import java.util.Date;
 
@@ -108,6 +109,8 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.i(TAG, "NotificationReceiver onReceive Call REJECT, callId: " + callId);
 
+            LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE));
+            
             Thread thread = new Thread(new RejectCallAction(context, callId, callType, callReceiver, isGroupCall));
             thread.start();
         } else if (intent.getAction().contains(NotificationCreator.TALK_CALL_ACCEPT)) {
@@ -127,6 +130,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             context.sendBroadcast(launchIntent);
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
+            LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT));
         }
     }
 

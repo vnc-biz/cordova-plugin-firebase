@@ -3,6 +3,7 @@ package org.apache.cordova.firebase.notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -10,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.os.Bundle;
 
@@ -301,6 +303,7 @@ public class NotificationManager {
 
         if (cancelExistCall(appContext, callId, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);
+            LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE));
             return;
         }
 

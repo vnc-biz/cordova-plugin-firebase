@@ -25,6 +25,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 				<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 				<uses-permission android:name="android.permission.WAKE_LOCK" />
 				<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+				<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService" />
@@ -68,16 +69,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/drawable/shape_oval_white_green.xml" />
 		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/drawable-nodpi/call_background.png" />
 		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/drawable-nodpi/vnc_icon_circle.png" />
-		<!-- <resource-file src="src/android/res/drawable-hdpi/ic_call_end.png" target="res/drawable-hdpi/ic_call_end.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-mdpi/ic_call_end.png" target="res/drawable-mdpi/ic_call_end.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xhdpi/ic_call_end.png" target="res/drawable-xhdpi/ic_call_end.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xxhdpi/ic_call_end.png" target="res/drawable-xxhdpi/ic_call_end.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xxxhdpi/ic_call_end.png" target="res/drawable-xxxhdpi/ic_call_end.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-hdpi/ic_call_start.png" target="res/drawable-hdpi/ic_call_start.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-mdpi/ic_call_start.png" target="res/drawable-mdpi/ic_call_start.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xhdpi/ic_call_start.png" target="res/drawable-xhdpi/ic_call_start.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xxhdpi/ic_call_start.png" target="res/drawable-xxhdpi/ic_call_start.png" /> -->
-		<!-- <resource-file src="src/android/res/drawable-xxxhdpi/ic_call_start.png" target="res/drawable-xxxhdpi/ic_call_start.png" /> -->
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />

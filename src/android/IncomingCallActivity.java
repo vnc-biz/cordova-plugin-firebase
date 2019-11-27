@@ -1,14 +1,18 @@
 package org.apache.cordova.firebase;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 public class IncomingCallActivity extends AppCompatActivity {
@@ -22,6 +26,9 @@ public class IncomingCallActivity extends AppCompatActivity {
 
     private static final String TALK_CALL_DECLINE = "TalkCallDecline";
     private static final String TALK_CALL_ACCEPT = "TalkCallAccept";
+
+    private BroadcastReceiver callStateReceiver;
+    private LocalBroadcastManager localBroadcastManager;
 
     private String callId;
     private String callType;
@@ -54,6 +61,37 @@ public class IncomingCallActivity extends AppCompatActivity {
 
         processIncomingData(getIntent());
         initUi();
+        initCallStateReceiver();
+    }
+
+    private void initCallStateReceiver() {
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        callStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null || TextUtils.isEmpty(intent.getAction())) return;
+
+                if (TALK_CALL_DECLINE.equals(intent.getAction()) || TALK_CALL_ACCEPT.equals(intent.getAction())) {
+                    finish();
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(TALK_CALL_DECLINE);
+        intentFilter.addAction(TALK_CALL_ACCEPT);
+        localBroadcastManager.registerReceiver(callStateReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        localBroadcastManager.unregisterReceiver(callStateReceiver);
     }
 
     private void processIncomingData(Intent intent) {
