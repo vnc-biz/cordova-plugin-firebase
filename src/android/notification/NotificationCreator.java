@@ -285,15 +285,9 @@ public class NotificationCreator {
                 .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setFullScreenIntent(createCallFullScreenIntent(activityOrServiceContext, 56), true);
+                .setPriority(NotificationCompat.PRIORITY_MAX);
 
         return notificationBuilder;
-    }
-
-    private static PendingIntent createCallFullScreenIntent(Context context, int notificationId){
-        Intent callActivityIntent = new Intent(context, IncomingCallActivity.class);
-        return PendingIntent.getActivity(context, notificationId, callActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
@@ -590,27 +584,13 @@ public class NotificationCreator {
         + "@@" + callType 
         + "@@" + callReceiver 
         + "@@" + String.valueOf(isGroupCall);
- 
-        PendingIntent declinePendingIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i(TAG, "addCallDeclineAction (>=N)");
- 
-           declinePendingIntent = PendingIntent.getBroadcast(
+
+        PendingIntent declinePendingIntent = PendingIntent.getBroadcast(
                 appContext,
                 callId.hashCode(),
                 new Intent(activityOrServiceContext, NotificationReceiver.class)
                     .setAction(callDeclineActionName),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            Log.i(TAG, "addCallDeclineAction");
- 
-            declinePendingIntent = PendingIntent.getActivity(
-                appContext,
-                callId.hashCode(),
-                new Intent(activityOrServiceContext, ReplyActivity.class)
-                    .setAction(callDeclineActionName),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        }
 
         NotificationCompat.Action declineAction = new NotificationCompat.Action.Builder(
             android.R.drawable.ic_menu_close_clear_cancel,
@@ -623,30 +603,16 @@ public class NotificationCreator {
 
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
                                             String callId, String callType) {
-        String callDeclineActionName = TALK_CALL_ACCEPT 
+        String callAcceptActionName = TALK_CALL_ACCEPT 
         + "@@" + callId 
         + "@@" + callType;
  
-        PendingIntent acceptPendingIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.i(TAG, "addCallAcceptAction (>=N)");
- 
-           acceptPendingIntent = PendingIntent.getBroadcast(
-                appContext,
-                callId.hashCode(),
-                new Intent(activityOrServiceContext, NotificationReceiver.class)
-                    .setAction(callDeclineActionName),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            Log.i(TAG, "addCallAcceptAction");
- 
-            acceptPendingIntent = PendingIntent.getActivity(
-                appContext,
-                callId.hashCode(),
-                new Intent(activityOrServiceContext, ReplyActivity.class)
-                    .setAction(callDeclineActionName),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        }
+        PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            callId.hashCode(),
+            new Intent(activityOrServiceContext, NotificationReceiver.class)
+                .setAction(callAcceptActionName),
+            PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(
             android.R.drawable.ic_menu_call,
@@ -655,5 +621,21 @@ public class NotificationCreator {
         .build();
  
         notificationBuilder.addAction(acceptAction);
+    }
+
+    public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                                String callId, String callType, String callReceiver, 
+                                                String callTitle, String callSubTitle, boolean isGroupCall) {
+
+
+        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callReceiver, 
+                                                                            callTitle, callSubTitle, isGroupCall);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+            appContext, 
+            callId.hashCode(),
+            callFullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
     }
 }

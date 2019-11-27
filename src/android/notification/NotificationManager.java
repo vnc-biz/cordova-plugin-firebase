@@ -332,12 +332,15 @@ public class NotificationManager {
         // Add actions
         NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
         NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType);
+
+        // Add full screen intent (to show on lock screen)
+        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callReceiver, title, text, isGroupCall);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
-        // notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
+        notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
 
