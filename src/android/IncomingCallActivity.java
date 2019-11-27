@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -62,6 +63,14 @@ public class IncomingCallActivity extends AppCompatActivity {
         processIncomingData(getIntent());
         initUi();
         initCallStateReceiver();
+
+        Log.d("IncomingCallActivity", "onCreate(), callId = " + callId);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d("IncomingCallActivity", "onNewIntent, extras = " + intent.getExtras());
     }
 
     private void initCallStateReceiver() {
@@ -72,7 +81,10 @@ public class IncomingCallActivity extends AppCompatActivity {
                 if (intent == null || TextUtils.isEmpty(intent.getAction())) return;
 
                 if (TALK_CALL_DECLINE.equals(intent.getAction()) || TALK_CALL_ACCEPT.equals(intent.getAction())) {
-                    finish();
+                    String callIdToProcess = intent.getStringExtra(EXTRA_CALL_ID);
+                    if (!TextUtils.isEmpty(callIdToProcess) && callIdToProcess.equals(callId)) {
+                        finish();
+                    }
                 }
             }
         };

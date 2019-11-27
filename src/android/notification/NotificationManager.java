@@ -303,7 +303,8 @@ public class NotificationManager {
 
         if (cancelExistCall(appContext, callId, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);
-            LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE));
+            LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
             return;
         }
 

@@ -109,7 +109,8 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             Log.i(TAG, "NotificationReceiver onReceive Call REJECT, callId: " + callId);
 
-            LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE));
+            LocalBroadcastManager.getInstance(context.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
             
             Thread thread = new Thread(new RejectCallAction(context, callId, callType, callReceiver, isGroupCall));
             thread.start();
@@ -130,7 +131,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             context.sendBroadcast(launchIntent);
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
-            LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT));
+            LocalBroadcastManager.getInstance(context.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra("extra_call_id", callId));
         }
     }
 
