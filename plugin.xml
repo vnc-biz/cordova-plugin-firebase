@@ -50,7 +50,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
 			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
             	android:screenOrientation="sensorPortrait"
-            	android:theme="@style/AppTheme.NoActionBar"/>
+            	android:theme="@style/NoActionBar"/>
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
@@ -58,16 +58,26 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/res/values/cordova-plugin-firebase-styles.xml" target="res/values/cordova-plugin-firebase-styles.xml" />
 		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
-		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/dravable/ic_call_end.xml" />
-		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/dravable/ic_call_start.xml" />
-		<resource-file src="src/android/res/drawable/selector_call_end.xml" target="res/dravable/selector_call_end.xml" />
-		<resource-file src="src/android/res/drawable/selector_call_start.xml" target="res/dravable/selector_call_start.xml" />
-		<resource-file src="src/android/res/drawable/shape_oval_green.xml" target="res/dravable/shape_oval_green.xml" />
-		<resource-file src="src/android/res/drawable/shape_oval_red.xml" target="res/dravable/shape_oval_red.xml" />
-		<resource-file src="src/android/res/drawable/shape_oval_white_red.xml" target="res/dravable/shape_oval_white_red.xml" />
-		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/dravable/shape_oval_white_green.xml" />
-		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/dravable-nodpi/call_background.png" />
-		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/dravable-nodpi/vnc_icon_circle.png" />
+		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/drawable/ic_call_end.xml" />
+		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/drawable/ic_call_start.xml" />
+		<resource-file src="src/android/res/drawable/selector_call_end.xml" target="res/drawable/selector_call_end.xml" />
+		<resource-file src="src/android/res/drawable/selector_call_start.xml" target="res/drawable/selector_call_start.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_green.xml" target="res/drawable/shape_oval_green.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_red.xml" target="res/drawable/shape_oval_red.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_white_red.xml" target="res/drawable/shape_oval_white_red.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/drawable/shape_oval_white_green.xml" />
+		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/drawable-nodpi/call_background.png" />
+		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/drawable-nodpi/vnc_icon_circle.png" />
+		<resource-file src="src/android/res/drawable-hdpi/ic_call_end.png" target="res/drawable-hdpi/ic_call_end.png" />
+		<resource-file src="src/android/res/drawable-mdpi/ic_call_end.png" target="res/drawable-mdpi/ic_call_end.png" />
+		<resource-file src="src/android/res/drawable-xhdpi/ic_call_end.png" target="res/drawable-xhdpi/ic_call_end.png" />
+		<resource-file src="src/android/res/drawable-xxhdpi/ic_call_end.png" target="res/drawable-xxhdpi/ic_call_end.png" />
+		<resource-file src="src/android/res/drawable-xxxhdpi/ic_call_end.png" target="res/drawable-xxxhdpi/ic_call_end.png" />
+		<resource-file src="src/android/res/drawable-hdpi/ic_call_start.png" target="res/drawable-hdpi/ic_call_start.png" />
+		<resource-file src="src/android/res/drawable-mdpi/ic_call_start.png" target="res/drawable-mdpi/ic_call_start.png" />
+		<resource-file src="src/android/res/drawable-xhdpi/ic_call_start.png" target="res/drawable-xhdpi/ic_call_start.png" />
+		<resource-file src="src/android/res/drawable-xxhdpi/ic_call_start.png" target="res/drawable-xxhdpi/ic_call_start.png" />
+		<resource-file src="src/android/res/drawable-xxxhdpi/ic_call_start.png" target="res/drawable-xxxhdpi/ic_call_start.png" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
