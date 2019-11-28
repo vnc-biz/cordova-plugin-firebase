@@ -80,8 +80,11 @@ public class IncomingCallActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent == null || TextUtils.isEmpty(intent.getAction())) return;
 
+                Log.d("IncomingCallActivity", "onReceive(), action  = " + intent.getAction());
+
                 if (TALK_CALL_DECLINE.equals(intent.getAction()) || TALK_CALL_ACCEPT.equals(intent.getAction())) {
                     String callIdToProcess = intent.getStringExtra(EXTRA_CALL_ID);
+                    Log.d("IncomingCallActivity", "onReceive(), callId = " + callIdToProcess);
                     if (!TextUtils.isEmpty(callIdToProcess) && callIdToProcess.equals(callId)) {
                         finish();
                     }
