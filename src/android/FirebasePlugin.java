@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.core.app.NotificationManagerCompat;
 import android.util.Base64;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -122,6 +123,8 @@ public class FirebasePlugin extends CordovaPlugin {
                 }
             }
         });
+        
+        this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
     }
 
     @Override

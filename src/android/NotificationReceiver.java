@@ -19,6 +19,8 @@ import org.apache.cordova.firebase.actions.MailReplyAction;
 
 import org.apache.cordova.firebase.models.MailInfoItem;
 
+import org.apache.cordova.firebase.utils.NotificationUtils;
+
 import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 
@@ -118,6 +120,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
             String callType = actionParts[2];
+            int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
 
@@ -125,12 +128,12 @@ public class NotificationReceiver extends BroadcastReceiver {
             Bundle bundle = new Bundle();
             bundle.putString("vncPeerJid", callId);
             bundle.putString("vncEventType", callType);
-            bundle.putInt("id", callId.hashCode());
+            bundle.putInt("id", callNotificationId);
             launchIntent.putExtras(bundle);
 
             context.sendBroadcast(launchIntent);
 
-            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callId.hashCode());
+            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callNotificationId);
             LocalBroadcastManager.getInstance(context.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra("extra_call_id", callId));
         }

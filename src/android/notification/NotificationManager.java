@@ -313,7 +313,7 @@ public class NotificationManager {
             return;
         }
 
-        Integer notificationId = callId.hashCode();
+        Integer notificationId = NotificationUtils.generateCallNotificationId(callId);
         boolean isGroupCall = !TextUtils.isEmpty(groupName);
 
         // defineChannelData
@@ -517,10 +517,12 @@ public class NotificationManager {
             return false;
         }
 
+        int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
+
         for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)){
             Notification notification = sbNotification.getNotification();
-            if (callId.hashCode() == sbNotification.getId()){
-                NotificationUtils.getManager(context).cancel(sbNotification.getId());
+            if (callNotificationId == sbNotification.getId()){
+                NotificationUtils.getManager(context).cancel(callNotificationId);
                 return true;
             }
         }

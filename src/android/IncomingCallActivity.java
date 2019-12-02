@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 
 public class IncomingCallActivity extends AppCompatActivity {
 
@@ -80,17 +83,39 @@ public class IncomingCallActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent == null || TextUtils.isEmpty(intent.getAction())) return;
 
-                Log.d("IncomingCallActivity", "onReceive(), action  = " + intent.getAction());
+                String action = intent.getAction();
+                Log.d("IncomingCallActivity", "onReceive(), action  = " + action);
+                if (!TALK_CALL_DECLINE.equals(action) && !TALK_CALL_ACCEPT.equals(action)) {
+                    return;
+                }
 
-                if (TALK_CALL_DECLINE.equals(intent.getAction()) || TALK_CALL_ACCEPT.equals(intent.getAction())) {
-                    String callIdToProcess = intent.getStringExtra(EXTRA_CALL_ID);
-                    Log.d("IncomingCallActivity", "onReceive(), callId = " + callIdToProcess);
-                    if (!TextUtils.isEmpty(callIdToProcess) && callIdToProcess.equals(callId)) {
+                String callIdToProcess = intent.getStringExtra(EXTRA_CALL_ID);
+                Log.d("IncomingCallActivity", "onReceive(), callId = " + callIdToProcess);
+                if (TextUtils.isEmpty(callIdToProcess) || !callIdToProcess.equals(callId)) {
+                    return;
+                }
+                
+                switch (action){
+                    case TALK_CALL_DECLINE:
                         finish();
-                    }
+
+                        break;
+                    case TALK_CALL_ACCEPT:
+                        finishDelayed();
+                        
+                        break;
                 }
             }
         };
+    }
+
+    private void finishDelayed() {
+        Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 1000, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -137,7 +162,6 @@ public class IncomingCallActivity extends AppCompatActivity {
         endCallIntent.setAction(callDeclineActionName);
 
         getApplicationContext().sendBroadcast(endCallIntent);
-        finish();
     }
 
     public void onStartCall(View view) {
@@ -149,6 +173,5 @@ public class IncomingCallActivity extends AppCompatActivity {
         endCallIntent.setAction(callAcceptActionName);
 
         getApplicationContext().sendBroadcast(endCallIntent);
-        finish();
     }
 }

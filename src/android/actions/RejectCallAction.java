@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import org.json.JSONObject;
 
@@ -82,7 +83,7 @@ public class RejectCallAction extends BaseActionTalk {
 
             saveRejectCallOnError(context, callId);
         } finally {
-            notificationManager.cancel(callId.hashCode());
+            notificationManager.cancel(NotificationUtils.generateCallNotificationId(callId));
         }
     }
 
