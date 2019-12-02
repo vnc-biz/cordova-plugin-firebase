@@ -58,6 +58,7 @@ public class NotificationCreator {
 
     public static final String TALK_CALL_DECLINE = "TalkCallDecline";
     public static final String TALK_CALL_ACCEPT = "TalkCallAccept";
+    public static final String TALK_DELETE_CALL_NOTIFICATION = "TalkDeleteCallNotification";
     //
     private static final int REQUEST_CODE_HELP = 101;
 
@@ -285,7 +286,8 @@ public class NotificationCreator {
                 .setCategory(NotificationCompat.CATEGORY_CALL)
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri)
-                .setPriority(NotificationCompat.PRIORITY_MAX);
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setTimeoutAfter(60000);
 
         return notificationBuilder;
     }
@@ -637,5 +639,19 @@ public class NotificationCreator {
             PendingIntent.FLAG_UPDATE_CURRENT);
         
         notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
+    }
+
+    public static void addDeleteCallNotificationIntent(Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
+        String deleteCallNotificationIntent = TALK_DELETE_CALL_NOTIFICATION 
+            + "@@" + callId;
+ 
+        PendingIntent deleteCallNotificationPendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            callId.hashCode(),
+            new Intent(appContext, NotificationReceiver.class)
+                .setAction(deleteCallNotificationIntent),
+            PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        notificationBuilder.setDeleteIntent(deleteCallNotificationPendingIntent);
     }
 }

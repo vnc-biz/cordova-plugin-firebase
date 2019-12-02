@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.apache.cordova.firebase.notification.NotificationCreator;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -27,9 +29,6 @@ public class IncomingCallActivity extends AppCompatActivity {
     private static final String EXTRA_CALL_TITLE = "extra_call_title";
     private static final String EXTRA_CALL_SUBTITLE = "extra_call_subtitle";
     private static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
-
-    private static final String TALK_CALL_DECLINE = "TalkCallDecline";
-    private static final String TALK_CALL_ACCEPT = "TalkCallAccept";
 
     private BroadcastReceiver callStateReceiver;
     private LocalBroadcastManager localBroadcastManager;
@@ -85,7 +84,10 @@ public class IncomingCallActivity extends AppCompatActivity {
 
                 String action = intent.getAction();
                 Log.d("IncomingCallActivity", "onReceive(), action  = " + action);
-                if (!TALK_CALL_DECLINE.equals(action) && !TALK_CALL_ACCEPT.equals(action)) {
+                if (!NotificationCreator.TALK_CALL_DECLINE.equals(action) 
+                    && !NotificationCreator.TALK_CALL_ACCEPT.equals(action) 
+                    && !NotificationCreator.TALK_DELETE_CALL_NOTIFICATION.equals(action)) 
+                {
                     return;
                 }
 
@@ -96,11 +98,12 @@ public class IncomingCallActivity extends AppCompatActivity {
                 }
                 
                 switch (action){
-                    case TALK_CALL_DECLINE:
-                        finish();
+                    case NotificationCreator.TALK_DELETE_CALL_NOTIFICATION:
+                    case NotificationCreator.TALK_CALL_DECLINE:
+                        finishAndRemoveTask();
 
                         break;
-                    case TALK_CALL_ACCEPT:
+                    case NotificationCreator.TALK_CALL_ACCEPT:
                         finishDelayed();
                         
                         break;
@@ -113,7 +116,7 @@ public class IncomingCallActivity extends AppCompatActivity {
         Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
             @Override
             public void run() {
-                finish();
+                finishAndRemoveTask();
             }
         }, 1000, TimeUnit.MILLISECONDS);
     }
@@ -123,8 +126,9 @@ public class IncomingCallActivity extends AppCompatActivity {
         super.onStart();
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(TALK_CALL_DECLINE);
-        intentFilter.addAction(TALK_CALL_ACCEPT);
+        intentFilter.addAction(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION);
+        intentFilter.addAction(NotificationCreator.TALK_CALL_DECLINE);
+        intentFilter.addAction(NotificationCreator.TALK_CALL_ACCEPT);
         localBroadcastManager.registerReceiver(callStateReceiver, intentFilter);
     }
 
@@ -152,7 +156,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     }
 
     public void onEndCall(View view) {
-        String callDeclineActionName = TALK_CALL_DECLINE
+        String callDeclineActionName = NotificationCreator.TALK_CALL_DECLINE
                 + "@@" + callId
                 + "@@" + callType
                 + "@@" + callReceiver
@@ -165,13 +169,13 @@ public class IncomingCallActivity extends AppCompatActivity {
     }
 
     public void onStartCall(View view) {
-        String callAcceptActionName = TALK_CALL_ACCEPT
+        String callAcceptActionName = NotificationCreator.TALK_CALL_ACCEPT
                 + "@@" + callId
                 + "@@" + callType;
 
-        Intent endCallIntent = new Intent(this, NotificationReceiver.class);
-        endCallIntent.setAction(callAcceptActionName);
+        Intent startCallIntent = new Intent(this, NotificationReceiver.class);
+        startCallIntent.setAction(callAcceptActionName);
 
-        getApplicationContext().sendBroadcast(endCallIntent);
+        getApplicationContext().sendBroadcast(startCallIntent);
     }
 }

@@ -339,6 +339,9 @@ public class NotificationManager {
 
         // Add full screen intent (to show on lock screen)
         NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callReceiver, title, text, isGroupCall);
+
+        // Add action when delete call notification
+        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
