@@ -17,6 +17,11 @@ public class NotificationUtils {
     private static final String FILE_NAME = "notificationMapping.json";
     private static final String CALL_PREFIX = "call_";
 
+    public static final String EXTRA_CALL_ID = "extra_call_id";
+    public static final String EXTRA_CALL_TYPE = "extra_call_type";
+    public static final String EXTRA_CALL_RECEIVER = "extra_call_receiver";
+    public static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
+
     public static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, Integer nId) {
         File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
 

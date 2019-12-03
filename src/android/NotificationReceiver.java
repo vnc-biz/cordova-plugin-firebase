@@ -1,5 +1,6 @@
 package org.apache.cordova.firebase;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,7 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.RemoteInput;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 import android.util.Log;
+
 import java.util.Date;
 
 import org.apache.cordova.firebase.actions.InlineReplyAction;
@@ -22,6 +26,7 @@ import org.apache.cordova.firebase.models.MailInfoItem;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
+
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -112,7 +117,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             Log.i(TAG, "NotificationReceiver onReceive Call REJECT, callId: " + callId);
 
             LocalBroadcastManager.getInstance(context.getApplicationContext())
-                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
             
             Thread thread = new Thread(new RejectCallAction(context, callId, callType, callReceiver, isGroupCall));
             thread.start();
@@ -131,11 +136,13 @@ public class NotificationReceiver extends BroadcastReceiver {
             bundle.putInt("id", callNotificationId);
             launchIntent.putExtras(bundle);
 
+            dismissAnotherCalls(context, callId);
+
             context.sendBroadcast(launchIntent);
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callNotificationId);
             LocalBroadcastManager.getInstance(context.getApplicationContext())
-                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra("extra_call_id", callId));
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
         } else if (intent.getAction().contains(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION)) {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
@@ -143,7 +150,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             Log.i(TAG, "NotificationReceiver onReceive Delete Call Notification, callId: " + callId);
 
             LocalBroadcastManager.getInstance(context.getApplicationContext())
-                .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra("extra_call_id", callId));
+                .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
         }
     }
 
@@ -153,5 +160,30 @@ public class NotificationReceiver extends BroadcastReceiver {
             return remoteInput.getCharSequence("Reply");
         }
         return null;
+    }
+
+    private void dismissAnotherCalls(Context context, String acceptedCallId){
+        StatusBarNotification[] activeNotifications = NotificationUtils.getStatusBarNotifications(context);
+
+        try {
+            for (StatusBarNotification sbn : activeNotifications) {
+                Notification notification = sbn.getNotification();
+                Bundle bundle = notification.extras;
+                String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
+
+                if (TextUtils.isEmpty(callId) || acceptedCallId.equals(callId)){
+                    continue;
+                }
+    
+                String callType = bundle.getString(NotificationUtils.EXTRA_CALL_TYPE);
+                String callReceiver = bundle.getString(NotificationUtils.EXTRA_CALL_RECEIVER);
+                boolean isGroupCall = bundle.getBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL);
+                
+                Thread thread = new Thread(new RejectCallAction(context, callId, callType, callReceiver, isGroupCall));
+                thread.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

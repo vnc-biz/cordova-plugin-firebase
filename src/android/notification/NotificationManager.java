@@ -33,10 +33,11 @@ public class NotificationManager {
     private static final String MESSAGE_TARGET = "messageTarget";
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
-    private static final String INVITE_CALL_EVENT = "invite";
-    private static final String LEAVE_CALL_EVENT = "leave";
-    private static final String JOIN_CALL_EVENT = "join";
-    private static final String REJECT_CALL_EVENT = "reject";
+
+    private static final String CALL_EVENT_INVITE = "invite";
+    private static final String CALL_EVENT_LEAVE = "leave";
+    private static final String CALL_EVENT_JOIN = "join";
+    private static final String CALL_EVENT_REJECT = "reject";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -308,7 +309,7 @@ public class NotificationManager {
             return;
         }
 
-        if(!INVITE_CALL_EVENT.equals(callEventType)) {
+        if(!CALL_EVENT_INVITE.equals(callEventType)) {
             Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
             return;
         }
@@ -348,10 +349,14 @@ public class NotificationManager {
 
         Notification notification = notificationBuilder.build();
         notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_ID, callId);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
+        notification.extras.putBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL, isGroupCall);
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
 
-        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(appContext);
 
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
         notificationManager.notify(notificationId, notification);
@@ -516,7 +521,7 @@ public class NotificationManager {
     }
 
     private static boolean cancelExistCall(Context context, String callId, String callEventType) {
-        if (!LEAVE_CALL_EVENT.equals(callEventType)){ 
+        if (!CALL_EVENT_LEAVE.equals(callEventType)){ 
             return false;
         }
 
