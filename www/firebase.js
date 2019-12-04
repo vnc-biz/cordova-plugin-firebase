@@ -208,6 +208,10 @@ exports.scheduleLocalMailNotification = function (params, success, error) {
     exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
 };
 
+exports.scheduleCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "scheduleCallNotification", [params]);
+};
+
 exports.clearMailNotification = function (mid, success, error) {
   exec(success, error, "FirebasePlugin", "clearMailNotification", [mid]);
 };
