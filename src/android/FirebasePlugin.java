@@ -277,6 +277,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("scheduleLocalMailNotification")) {
             this.scheduleLocalMailNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("scheduleCallNotification")) {
+            this.scheduleCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
         }
         return false;
     }
@@ -1468,6 +1471,41 @@ public class FirebasePlugin extends CordovaPlugin {
                     Log.d(TAG, "folderId=" + folderId);
                     Log.d(TAG, "cid=" + cid);
                     NotificationManager.displayMailNotification(activityContext, appContext, subject, body, fromDisplay, mid, type, folderId, "", fromAddress, cid);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.isCrashlyticsEnabled()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void scheduleCallNotification(CallbackContext callbackContext, JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String target = params.getString("target");
+                    String receiver = params.getString("receiver");
+                    String username = params.getString("username");
+                    String groupName = params.getString("groupName");
+                    String message = params.getString("message");
+                    String eventType = params.getString("eventType");
+
+                    Log.d(TAG, "scheduleCallNotification: \n" +
+                    "target= " + target + "\n" + 
+                    "receiver= " + receiver + "\n" + 
+                    "username= " + username + "\n" + 
+                    "groupName= " + groupName + "\n" + 
+                    "message= " + message + "\n" + 
+                    "eventType= " + eventType);
+
+                    NotificationManager.displayTalkCallNotification(activityContext, appContext, eventType,
+                                target, username, groupName, message, receiver);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
