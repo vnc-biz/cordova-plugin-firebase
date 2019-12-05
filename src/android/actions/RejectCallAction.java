@@ -2,6 +2,7 @@ package org.apache.cordova.firebase.actions;
 
 import android.content.Context;
 import android.util.Log;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -103,7 +104,7 @@ public class RejectCallAction extends BaseActionTalk {
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "rejectCallFailedRequests");
         ArrayList<RejectCallErrorEntity> list = new ArrayList();
-        if (data != null) {
+        if (!TextUtils.isEmpty(data)) {
             Type type = new TypeToken<ArrayList<RejectCallErrorEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);
