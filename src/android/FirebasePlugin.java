@@ -1488,7 +1488,8 @@ public class FirebasePlugin extends CordovaPlugin {
                 try {
                     Context activityContext = cordova.getActivity();
                     Context appContext = activityContext.getApplicationContext();
-
+                    
+                    String msgid = params.getString("msgid");
                     String target = params.getString("target");
                     String receiver = params.getString("receiver");
                     String username = params.getString("username");
@@ -1497,6 +1498,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String eventType = params.getString("eventType");
 
                     Log.d(TAG, "scheduleCallNotification: \n" +
+                    "msgid= " + msgid + "\n" + 
                     "target= " + target + "\n" + 
                     "receiver= " + receiver + "\n" + 
                     "username= " + username + "\n" + 
@@ -1504,7 +1506,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     "message= " + message + "\n" + 
                     "eventType= " + eventType);
 
-                    NotificationManager.displayTalkCallNotification(activityContext, appContext, eventType,
+                    NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
                                 target, username, groupName, message, receiver);
                     callbackContext.success();
                 } catch (Exception e) {

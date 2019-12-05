@@ -294,13 +294,19 @@ public class NotificationManager {
         NotificationUtils.saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
-    synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String callEventType,
-                                                        String callId, String name, String groupName, String callType, String callReceiver) {
+    synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
+                                                String callEventType, String callId, String name, String groupName, String callType, String callReceiver) {
         Log.i(TAG, "displayCallNotification: \n" +
+            "msgId: "     + msgId       + "\n" +    
             "callId: "    + callId      + "\n" +
             "username: "  + name        + "\n" +
             "groupName: " + groupName   + "\n" +
             "callType: "  + callType);
+
+        if (checkIfNotificationExist(appContext, msgId)) {
+            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+            return;
+        }
 
         if (cancelExistCall(appContext, callId, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);

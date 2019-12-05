@@ -61,8 +61,8 @@ public class PayloadProcessor {
                 notificationPool.execute(new Runnable() {
                     public void run() {
                         if (notification.isCallNotification()) {
-                            NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, eventType,
-                                target, username, groupName, message, receiver);
+                            NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
+                                eventType, target, username, groupName, message, receiver);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
                                 target, username, groupName, message, eventType, nsound, "", "");
