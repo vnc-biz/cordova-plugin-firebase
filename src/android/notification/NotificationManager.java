@@ -3,12 +3,15 @@ package org.apache.cordova.firebase.notification;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
+import android.text.TextUtils;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.os.Bundle;
 
@@ -30,6 +33,11 @@ public class NotificationManager {
     private static final String MESSAGE_TARGET = "messageTarget";
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
+
+    private static final String CALL_EVENT_INVITE = "invite";
+    private static final String CALL_EVENT_LEAVE = "leave";
+    private static final String CALL_EVENT_JOIN = "join";
+    private static final String CALL_EVENT_REJECT = "reject";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -286,6 +294,80 @@ public class NotificationManager {
         NotificationUtils.saveNotificationsIdInFile(activityOrServiceContext, target, notificationId);
     }
 
+    synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
+                                                String callEventType, String callId, String name, String groupName, String callType, String callReceiver) {
+        Log.i(TAG, "displayCallNotification: \n" +
+            "msgId: "     + msgId       + "\n" +    
+            "callId: "    + callId      + "\n" +
+            "username: "  + name        + "\n" +
+            "groupName: " + groupName   + "\n" +
+            "callType: "  + callType);
+
+        if (checkIfNotificationExist(appContext, msgId)) {
+            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+            return;
+        }
+
+        if (cancelExistCall(appContext, callId, callEventType)) {
+            Log.i(TAG, "Cancel EXIST call " + callId);
+            LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
+            return;
+        }
+
+        if(!CALL_EVENT_INVITE.equals(callEventType)) {
+            Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
+            return;
+        }
+
+        Integer notificationId = NotificationUtils.generateCallNotificationId(callId);
+        boolean isGroupCall = !TextUtils.isEmpty(groupName);
+
+        // defineChannelData
+        String channelId = NotificationCreator.defineCallChannelId(activityOrServiceContext);
+        String channelName = NotificationCreator.defineCallChannelName(activityOrServiceContext);
+        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext);
+
+        // defineTitleAndText()
+        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+        String text = NotificationCreator.defineCallNotificationText(activityOrServiceContext, callType);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
+                callId, notificationId, "vncEventType", "chat");
+
+        // createNotification
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createCallNotification(activityOrServiceContext, channelId,
+                title, text, pendingIntent, soundUri);
+
+        // Add actions
+        NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType);
+
+        // Add full screen intent (to show on lock screen)
+        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callReceiver, title, text, isGroupCall);
+
+        // Add action when delete call notification
+        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId);
+        
+        NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
+        NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+        notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_ID, callId);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
+        notification.extras.putBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL, isGroupCall);
+        //
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(appContext);
+
+        NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
+        notificationManager.notify(notificationId, notification);
+    }
+
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
         SharedPreferences.Editor editor = prefs.edit();
@@ -442,5 +524,23 @@ public class NotificationManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean cancelExistCall(Context context, String callId, String callEventType) {
+        if (!CALL_EVENT_LEAVE.equals(callEventType)){ 
+            return false;
+        }
+
+        int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
+
+        for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)){
+            Notification notification = sbNotification.getNotification();
+            if (callNotificationId == sbNotification.getId()){
+                NotificationUtils.getManager(context).cancel(callNotificationId);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

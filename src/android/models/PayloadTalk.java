@@ -1,12 +1,16 @@
 package org.apache.cordova.firebase.models;
 
+import android.text.TextUtils;
+
 import java.util.List;
 
 public class PayloadTalk {
     public String msgid;
     public String jid;
+    public String nto;
     public String name;
     public String eType;
+    public String callSignal;
     public String body;
     public String gt;
     public String nType;
@@ -29,6 +33,14 @@ public class PayloadTalk {
         this.jid = jid;
     }
 
+    public String getNTo() {
+        return nto;
+    }
+
+    public void setNTo(String to) {
+        this.nto = to;
+    }
+
     public String getName() {
         return name;
     }
@@ -43,6 +55,18 @@ public class PayloadTalk {
 
     public void seteType(String eType) {
         this.eType = eType;
+    }
+
+    public String getCallSignal() {
+        return callSignal;
+    }
+
+    public void setcallSignal(String callSignal) {
+        this.callSignal = callSignal;
+    }
+
+    public boolean isCallNotification(){
+        return !TextUtils.isEmpty(callSignal) && callSignal.equals("1");
     }
 
     public String getBody() {

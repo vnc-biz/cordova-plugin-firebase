@@ -45,6 +45,7 @@ public class PayloadProcessor {
               PayloadTalk notification = new Gson().fromJson(data.get(i).toString(), PayloadTalk.class);
               final String msgid = notification.msgid;
               final String target = notification.jid;
+              final String receiver = notification.nto;
               final String username = notification.name;
               final String groupName = notification.gt;
               final String message = notification.body;
@@ -57,12 +58,17 @@ public class PayloadProcessor {
               }
 
               if (FirebasePlugin.inBackground()) {
-                  notificationPool.execute(new Runnable() {
-                      public void run() {
-                          NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
-                                  target, username, groupName, message, eventType, nsound, "", "");
-                      }
-                  });
+                notificationPool.execute(new Runnable() {
+                    public void run() {
+                        if (notification.isCallNotification()) {
+                            NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
+                                eventType, target, username, groupName, message, receiver);
+                        } else {
+                            NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
+                                target, username, groupName, message, eventType, nsound, "", "");
+                        }
+                    }
+                });
               } else {
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
