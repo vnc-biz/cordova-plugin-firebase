@@ -71,7 +71,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/drawable/shape_oval_white_green.xml" />
 		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/drawable-nodpi/call_background.png" />
 		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/drawable-nodpi/vnc_icon_circle.png" />
-		<!-- <source-file src="src/android/colors.xml" target-dir="res/values" /> -->
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/res/layout/activity_incoming_call.xml" target-dir="res/layout" />
@@ -110,12 +109,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/MailOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/RejectCallAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
-
-		<config-file target="res/values/colors.xml" parent="/resources">
-			<color name="notification_accent">@color/notifications_color_accent</color>
-			<color name="decline_call_btn">#E02B00</color>
-			<color name="accept_call_btn">#4CB050</color>
-		</config-file>
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />
