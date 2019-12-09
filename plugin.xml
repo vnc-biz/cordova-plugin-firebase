@@ -53,6 +53,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
 				android:noHistory="true"
 				android:screenOrientation="sensorPortrait"
+				android:launchMode="singleTask"
             	android:theme="@style/NoActionBar"/>
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
