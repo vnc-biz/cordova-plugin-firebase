@@ -123,8 +123,6 @@ public class FirebasePlugin extends CordovaPlugin {
                 }
             }
         });
-
-        this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
     }
 
     @Override
@@ -279,6 +277,9 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("scheduleCallNotification")) {
             this.scheduleCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
+        }  else if (action.equals("enableLockScreenVisibility")) {
+            this.enableLockScreenVisibility(callbackContext, args.getBoolean(0));
             return true;
         }
         return false;
@@ -1517,5 +1518,23 @@ public class FirebasePlugin extends CordovaPlugin {
                 }
             }
         });
+    }
+
+    public void enableLockScreenVisibility(CallbackContext callbackContext, boolean enable) {
+        try {
+            if (enable) {
+                this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            } else {
+                this.cordova.getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            }
+
+            callbackContext.success();
+        } catch (Exception e) {
+            if (FirebasePlugin.isCrashlyticsEnabled()) {
+                Crashlytics.log(e.getMessage());
+            }
+        
+            callbackContext.error(e.getMessage());
+        }
     }
 }
