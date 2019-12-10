@@ -43,6 +43,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     public static Intent createStartIntent(Context context, String callId, String callType,
                                            String callReceiver, String title, String subTitle, boolean isGroupCall){
         Intent intent = new Intent(context, IncomingCallActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_CALL_ID, callId);
         intent.putExtra(EXTRA_CALL_TYPE, callType);
         intent.putExtra(EXTRA_CALL_RECEIVER, callReceiver);
