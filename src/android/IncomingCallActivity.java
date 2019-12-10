@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
+import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.lang.ref.WeakReference;
@@ -167,7 +168,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     }
 
     private void loadAvatar(String callId) {
-        new LoadAvatarTask(callId, (ImageView) findViewById(getResources().getIdentifier("avatar_img", "id", getPackageName()))).execute();
+        new LoadAvatarTask(callId, getAvatarServiceUrl(), (ImageView) findViewById(getResources().getIdentifier("avatar_img", "id", getPackageName()))).execute();
     }
 
     public void onEndCall(View view) {
@@ -194,13 +195,24 @@ public class IncomingCallActivity extends AppCompatActivity {
         getApplicationContext().sendBroadcast(startCallIntent);
     }
 
+    private String getAvatarServiceUrl() {
+        String avatarServiceUrl = SharedPrefsUtils.getString(this, "avatarServiceUrl");
+        if (TextUtils.isEmpty(avatarServiceUrl)){
+            avatarServiceUrl = "https://avatar.vnc.biz";
+        }
+
+        return avatarServiceUrl;
+    }
+
     private static class LoadAvatarTask extends AsyncTask<Void, Integer, Bitmap> {
 
         private final String callId;
+        private final String avatarServiceUrl;
         private final WeakReference<ImageView> imageView;
 
-        private LoadAvatarTask(String callId, ImageView imageView) {
+        private LoadAvatarTask(String callId, String avatarServiceUrl, ImageView imageView) {
             this.callId = callId;
+            this.avatarServiceUrl = avatarServiceUrl;
             this.imageView = new WeakReference<>(imageView);
         }
 
@@ -212,7 +224,7 @@ public class IncomingCallActivity extends AppCompatActivity {
             Bitmap result = null;
 
             try {
-                URL avatarUrl = new URL("https://avatar.vnc.biz/" + callIdInMD5 + ".jpg");
+                URL avatarUrl = new URL(avatarServiceUrl + "/" + callIdInMD5 + ".jpg");
 
                 result = BitmapFactory.decodeStream(avatarUrl.openStream());
             } catch (Exception e) {
