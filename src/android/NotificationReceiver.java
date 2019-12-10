@@ -134,6 +134,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             bundle.putString("vncPeerJid", callId);
             bundle.putString("vncEventType", callType);
             bundle.putInt("id", callNotificationId);
+            bundle.putString(NotificationUtils.EXTRA_CALL_ACTION, NotificationCreator.TALK_CALL_ACCEPT);
             launchIntent.putExtras(bundle);
 
             dismissAnotherCalls(context, callId);
