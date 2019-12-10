@@ -31,13 +31,14 @@
         android:layout_below="@+id/logo_img"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
+        android:ellipsize="end"
         android:gravity="center_horizontal"
+        android:lines="1"
         android:padding="8dp"
         android:textColor="@android:color/white"
         android:textSize="28sp"
         android:textStyle="bold"
         tools:text="User Name" />
-
 
     <TextView
         android:id="@+id/call_type_txt"
