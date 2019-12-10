@@ -354,7 +354,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_INSISTENT; // repeat notification sound
+        notification.flags = notification.flags | Notification.FLAG_INSISTENT; // repeat notification sound
         notification.extras.putString(NotificationUtils.EXTRA_CALL_ID, callId);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);

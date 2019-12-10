@@ -52,6 +52,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
 			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
 				android:noHistory="true"
+				android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
 				android:screenOrientation="sensorPortrait"
             	android:theme="@style/NoActionBar"/>
 		</config-file>
@@ -116,6 +117,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework src="com.google.firebase:firebase-messaging:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
+		<framework src="androidx.cardview:cardview:+" />
 
 	</platform>
 

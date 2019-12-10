@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.NotificationManagerCompat;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.WindowManager;
@@ -40,7 +41,9 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
+import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.notification.NotificationManager;
+import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,7 +127,12 @@ public class FirebasePlugin extends CordovaPlugin {
             }
         });
 
-        this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        if (extras != null && extras.containsKey(NotificationUtils.EXTRA_CALL_ACTION)){
+            String callAction = extras.getString(NotificationUtils.EXTRA_CALL_ACTION);
+            if (!TextUtils.isEmpty(callAction) && NotificationCreator.TALK_CALL_ACCEPT.equals(callAction)){
+                this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            }
+        }
     }
 
     @Override
@@ -279,6 +287,9 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("scheduleCallNotification")) {
             this.scheduleCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
+        }  else if (action.equals("enableLockScreenVisibility")) {
+            this.enableLockScreenVisibility(callbackContext, args.getBoolean(0));
             return true;
         }
         return false;
@@ -1517,5 +1528,23 @@ public class FirebasePlugin extends CordovaPlugin {
                 }
             }
         });
+    }
+
+    public void enableLockScreenVisibility(CallbackContext callbackContext, boolean enable) {
+        try {
+            if (enable) {
+                this.cordova.getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            } else {
+                this.cordova.getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            }
+
+            callbackContext.success();
+        } catch (Exception e) {
+            if (FirebasePlugin.isCrashlyticsEnabled()) {
+                Crashlytics.log(e.getMessage());
+            }
+        
+            callbackContext.error(e.getMessage());
+        }
     }
 }
