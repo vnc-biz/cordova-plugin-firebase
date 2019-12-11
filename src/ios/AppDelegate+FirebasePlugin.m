@@ -3,6 +3,7 @@
 #import "Firebase.h"
 #import <objc/runtime.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseActionsManager.h"
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
@@ -64,10 +65,12 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRefreshNotification:)
                                                  name:kFIRInstanceIDTokenRefreshNotification object:nil];
 
+    [FirebaseActionsManager registerTalkNotificationCategoriesAndActionsForCallRequest];
+
     self.applicationInBackground = @(YES);
 
     return YES;
-      }
+}
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     [self connectToFcm];
@@ -165,12 +168,15 @@
     [mutableUserInfo setValue:self.applicationInBackground forKey:@"tap"];
 
     // Print full message.
-    NSLog(@"%@", mutableUserInfo);
+    NSLog(@"[userNotificationCenter][willPresentNotification] mutableUserInfo %@", mutableUserInfo);
 
-    completionHandler(UNNotificationPresentationOptionNone);
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
+
+    // Always call the completion handler when done.
+    completionHandler(UNNotificationPresentationOptionNone);
 }
 
+//  Handling the actions in your actionable notifications
 - (void) userNotificationCenter:(UNUserNotificationCenter *)center
  didReceiveNotificationResponse:(UNNotificationResponse *)response
           withCompletionHandler:(void (^)(void))completionHandler
@@ -184,13 +190,19 @@
 
     NSDictionary *mutableUserInfo = [response.notification.request.content.userInfo mutableCopy];
 
+    NSString *categoryIdentifier = response.notification.request.content.categoryIdentifier;
+    if ([FirebaseActionsManager isVideoAudioCategory:categoryIdentifier]){
+        [FirebaseActionsManager handleCallRequestActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
+    }
+
     [mutableUserInfo setValue:@YES forKey:@"tap"];
 
     // Print full message.
-    NSLog(@"Response %@", mutableUserInfo);
+    NSLog(@"[userNotificationCenter][didReceiveNotificationResponse] mutableUserInfo %@", mutableUserInfo);
 
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 
+    // Always call the completion handler when done.
     completionHandler();
 }
 
