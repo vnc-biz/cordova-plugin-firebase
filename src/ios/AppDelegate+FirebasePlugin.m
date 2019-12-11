@@ -3,6 +3,7 @@
 #import "Firebase.h"
 #import <objc/runtime.h>
 #import <Foundation/Foundation.h>
+#import "FirebaseActionsManager.h"
 
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
@@ -64,41 +65,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRefreshNotification:)
                                                  name:kFIRInstanceIDTokenRefreshNotification object:nil];
 
-    self registerNotificationCategoriesAndActions];
+    [FirebaseActionsManager registerTalkNotificationCategoriesAndActionsForCallRequest];
 
     self.applicationInBackground = @(YES);
 
     return YES;
-}
-
-- (void) registerNotificationCategoriesAndActions {
-    // https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW26
-
-    UNNotificationAction *acceptAction = [UNNotificationAction
-          actionWithIdentifier:@"ACCEPT_CALL_ACTION"
-          title:@"Accept"
-          options:UNNotificationActionOptionForeground];
-
-    UNNotificationAction *rejectAction = [UNNotificationAction
-          actionWithIdentifier:@"REJECT_CALL_ACTION"
-          title:@"Reject"
-          options:UNNotificationActionOptionDestructive];
-
-    UNNotificationCategory *videoCallCategory = [UNNotificationCategory
-         categoryWithIdentifier:@"VIDEO"
-         actions:@[acceptAction, rejectAction]
-         intentIdentifiers:@[]
-         options:UNNotificationCategoryOptionCustomDismissAction];
-
-    UNNotificationCategory *audioCallCategory = [UNNotificationCategory
-         categoryWithIdentifier:@"AUDIO"
-         actions:@[acceptAction, rejectAction]
-         intentIdentifiers:@[]
-         options:UNNotificationCategoryOptionCustomDismissAction];
-
-    // Register the notification categories.
-    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    [center setNotificationCategories:[NSSet setWithObjects:videoCallCategory, audioCallCategory, nil]];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -219,21 +190,9 @@
 
     NSDictionary *mutableUserInfo = [response.notification.request.content.userInfo mutableCopy];
 
-    // handle Call actions
-    // https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SchedulingandHandlingLocalNotifications.html#//apple_ref/doc/uid/TP40008194-CH5-SW2
-    //
     NSString *categoryIdentifier = response.notification.request.content.categoryIdentifier;
-    if ([categoryIdentifier isEqualToString:@"VIDEO"] || [categoryIdentifier isEqualToString:@"AUDIO"]){
-        NSString *eType = mutableUserInfo.eType;
-        if ([eType isEqualToString:@"invite"]) {
-            if ([response.actionIdentifier isEqualToString:@"ACCEPT"]) {
-
-            } else if ([response.actionIdentifier isEqualToString:@"REJECT"]) {
-
-            }
-        }
-    } else {
-
+    if ([FirebaseActionsManager isVideoAudioCategory:categoryIdentifier]){
+        [FirebaseActionsManager handleCallRequestActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
     }
 
     [mutableUserInfo setValue:@YES forKey:@"tap"];
