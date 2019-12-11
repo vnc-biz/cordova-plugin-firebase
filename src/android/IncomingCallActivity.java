@@ -4,11 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -16,7 +20,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
+import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.StringUtils;
 
+import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +52,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     public static Intent createStartIntent(Context context, String callId, String callType,
                                            String callReceiver, String title, String subTitle, boolean isGroupCall){
         Intent intent = new Intent(context, IncomingCallActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_CALL_ID, callId);
         intent.putExtra(EXTRA_CALL_TYPE, callType);
         intent.putExtra(EXTRA_CALL_RECEIVER, callReceiver);
@@ -84,9 +94,9 @@ public class IncomingCallActivity extends AppCompatActivity {
 
                 String action = intent.getAction();
                 Log.d("IncomingCallActivity", "onReceive(), action  = " + action);
-                if (!NotificationCreator.TALK_CALL_DECLINE.equals(action) 
-                    && !NotificationCreator.TALK_CALL_ACCEPT.equals(action) 
-                    && !NotificationCreator.TALK_DELETE_CALL_NOTIFICATION.equals(action)) 
+                if (!NotificationCreator.TALK_CALL_DECLINE.equals(action)
+                        && !NotificationCreator.TALK_CALL_ACCEPT.equals(action)
+                        && !NotificationCreator.TALK_DELETE_CALL_NOTIFICATION.equals(action))
                 {
                     return;
                 }
@@ -96,7 +106,7 @@ public class IncomingCallActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(callIdToProcess) || !callIdToProcess.equals(callId)) {
                     return;
                 }
-                
+
                 switch (action){
                     case NotificationCreator.TALK_DELETE_CALL_NOTIFICATION:
                     case NotificationCreator.TALK_CALL_DECLINE:
@@ -105,7 +115,7 @@ public class IncomingCallActivity extends AppCompatActivity {
                         break;
                     case NotificationCreator.TALK_CALL_ACCEPT:
                         finishDelayed();
-                        
+
                         break;
                 }
             }
@@ -153,6 +163,12 @@ public class IncomingCallActivity extends AppCompatActivity {
 
         TextView callSubTitleTxt = findViewById(getResources().getIdentifier("call_type_txt", "id", getPackageName()));
         callSubTitleTxt.setText(callSubTitle);
+
+        loadAvatar(callId);
+    }
+
+    private void loadAvatar(String callId) {
+        new LoadAvatarTask(callId, getAvatarServiceUrl(), (ImageView) findViewById(getResources().getIdentifier("avatar_img", "id", getPackageName()))).execute();
     }
 
     public void onEndCall(View view) {
@@ -177,5 +193,52 @@ public class IncomingCallActivity extends AppCompatActivity {
         startCallIntent.setAction(callAcceptActionName);
 
         getApplicationContext().sendBroadcast(startCallIntent);
+    }
+
+    private String getAvatarServiceUrl() {
+        String avatarServiceUrl = SharedPrefsUtils.getString(this, "avatarServiceUrl");
+        if (TextUtils.isEmpty(avatarServiceUrl)){
+            avatarServiceUrl = "https://avatar.vnc.biz";
+        }
+
+        return avatarServiceUrl;
+    }
+
+    private static class LoadAvatarTask extends AsyncTask<Void, Integer, Bitmap> {
+
+        private final String callId;
+        private final String avatarServiceUrl;
+        private final WeakReference<ImageView> imageView;
+
+        private LoadAvatarTask(String callId, String avatarServiceUrl, ImageView imageView) {
+            this.callId = callId;
+            this.avatarServiceUrl = avatarServiceUrl;
+            this.imageView = new WeakReference<>(imageView);
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            String callIdInMD5 = StringUtils.getMD5forString(callId);
+            if (TextUtils.isEmpty(callIdInMD5)) return null;
+
+            Bitmap result = null;
+
+            try {
+                URL avatarUrl = new URL(avatarServiceUrl + "/" + callIdInMD5 + ".jpg");
+
+                result = BitmapFactory.decodeStream(avatarUrl.openStream());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (bitmap == null || imageView.get() == null) return;
+
+            imageView.get().setImageBitmap(bitmap);
+        }
     }
 }

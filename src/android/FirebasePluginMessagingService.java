@@ -12,7 +12,6 @@ import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
 import java.util.Map;
 import java.util.Set;
-import io.sentry.Sentry;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
