@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -70,6 +71,7 @@ public class IncomingCallActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        hideActionBar();
         setContentView(getResources().getIdentifier("activity_incoming_call", "layout", getPackageName()));
 
         processIncomingData(getIntent());
@@ -77,6 +79,15 @@ public class IncomingCallActivity extends AppCompatActivity {
         initCallStateReceiver();
 
         Log.d("IncomingCallActivity", "onCreate(), callId = " + callId);
+    }
+
+    private void hideActionBar() {
+        try {
+            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+            getSupportActionBar().hide();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
