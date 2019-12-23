@@ -23,6 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
+import org.apache.cordova.firebase.utils.ImagesUtils;
 
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -89,6 +90,7 @@ public class IncomingCallActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -249,7 +251,11 @@ public class IncomingCallActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap == null || imageView.get() == null) return;
 
-            imageView.get().setImageBitmap(bitmap);
+            try {
+                imageView.get().setImageDrawable(ImagesUtils.getCircleDrawable(imageView.get().getContext(), bitmap));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <ImageView
@@ -14,30 +13,23 @@
         android:src="@drawable/call_background"
         tools:ignore="ContentDescription" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/avatar_container"
+    <ImageView
+        android:id="@+id/avatar_img"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="80dp"
-        app:cardCornerRadius="50dp">
-
-        <ImageView
-            android:id="@+id/avatar_img"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/vnc_icon_circle"
-            tools:ignore="ContentDescription" />
-    </androidx.cardview.widget.CardView>
+        android:scaleType="centerCrop"
+        android:src="@drawable/vnc_icon_circle"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/user_name_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/avatar_container"
+        android:layout_below="@+id/avatar_img"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
         android:ellipsize="end"
