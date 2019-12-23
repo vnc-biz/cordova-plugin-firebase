@@ -50,10 +50,11 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<activity android:name="org.apache.cordova.firebase.ReplyActivity"
 				android:launchMode="singleInstance"
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
-			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
-				android:noHistory="true"
-				android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
-				android:screenOrientation="sensorPortrait" />
+            <activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
+			    android:noHistory="true"
+                android:screenOrientation="sensorPortrait"
+                android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
+                android:theme="@style/Theme.AppCompat.NoActionBar" />
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
