@@ -1,5 +1,6 @@
 package org.apache.cordova.firebase;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-public class IncomingCallActivity extends AppCompatActivity {
+public class IncomingCallActivity extends Activity {
 
     private static final String EXTRA_CALL_ID = "extra_call_id";
     private static final String EXTRA_CALL_TYPE = "extra_call_type";
