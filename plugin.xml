@@ -117,7 +117,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework src="com.google.firebase:firebase-messaging:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
-		<framework src="androidx.cardview:cardview:+" />
 
 	</platform>
 
