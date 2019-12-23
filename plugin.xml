@@ -60,7 +60,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-de.xml" target="res/values-de/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
-		<!-- <resource-file src="src/android/res/values/cordova-plugin-firebase-styles.xml" target="res/values/cordova-plugin-firebase-styles.xml" /> -->
 		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
 		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/drawable/ic_call_end.xml" />
 		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/drawable/ic_call_start.xml" />
