@@ -21,9 +21,12 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			</feature>
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/*">
+				<permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature"/>
 				<uses-permission android:name="android.permission.INTERNET" />
 				<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 				<uses-permission android:name="android.permission.WAKE_LOCK" />
+				<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+				<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService" />
@@ -47,12 +50,32 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<activity android:name="org.apache.cordova.firebase.ReplyActivity"
 				android:launchMode="singleInstance"
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
+			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
+				android:noHistory="true"
+				android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
+				android:screenOrientation="sensorPortrait"
+            	android:theme="@style/NoActionBar"/>
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
-		<source-file src="src/android/colors.xml" target-dir="res/values" />
+		<resource-file src="src/android/cordova-plugin-firebase-strings-de.xml" target="res/values-de/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
+		<resource-file src="src/android/res/values/cordova-plugin-firebase-styles.xml" target="res/values/cordova-plugin-firebase-styles.xml" />
+		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
+		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/drawable/ic_call_end.xml" />
+		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/drawable/ic_call_start.xml" />
+		<resource-file src="src/android/res/drawable/selector_call_end.xml" target="res/drawable/selector_call_end.xml" />
+		<resource-file src="src/android/res/drawable/selector_call_start.xml" target="res/drawable/selector_call_start.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_green.xml" target="res/drawable/shape_oval_green.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_red.xml" target="res/drawable/shape_oval_red.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_white_red.xml" target="res/drawable/shape_oval_white_red.xml" />
+		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/drawable/shape_oval_white_green.xml" />
+		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/drawable-nodpi/call_background.png" />
+		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/drawable-nodpi/vnc_icon_circle.png" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
+		<source-file src="src/android/res/layout/activity_incoming_call.xml" target-dir="res/layout" />
+		<source-file src="src/android/IncomingCallActivity.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/OnNotificationOpenReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/NotificationReceiver.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
@@ -86,10 +109,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/SnoozeAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
-
-		<config-file target="res/values/colors.xml" parent="/resources">
-			<color name="notification_accent">@color/notifications_color_accent</color>
-		</config-file>
+		<source-file src="src/android/actions/RejectCallAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />
@@ -97,6 +117,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework src="com.google.firebase:firebase-messaging:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
+		<framework src="androidx.cardview:cardview:+" />
 
 	</platform>
 
@@ -132,6 +153,8 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/ios/AppDelegate+FirebasePlugin.m" />
 		<header-file src="src/ios/FirebasePlugin.h" />
 		<source-file src="src/ios/FirebasePlugin.m" />
+		<header-file src="src/ios/FirebaseActionsManager.h" />
+		<source-file src="src/ios/FirebaseActionsManager.m" />
 
 		<header-file src="src/ios/Firebase/Firebase.h" />
 

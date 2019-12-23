@@ -188,12 +188,28 @@ exports.clear = function (id, success, error) {
     exec(success, error, "FirebasePlugin", "clear", [id]);
 };
 
+exports.clearNotifications = function (ids, success, error) {
+  exec(success, error, "FirebasePlugin", "clear", ids);
+};
+
 exports.scheduleLocalNotification = function (params, success, error) {
-    exec(success, error, "FirebasePlugin", "scheduleLocalNotification", [params]);
+  exec(success, error, "FirebasePlugin", "scheduleLocalNotification", [params]);
+};
+
+exports.getActiveIdsByTarget = function (target, success, error) {
+  exec(success, error, "FirebasePlugin", "getActiveIdsByTarget", [target]);
+};
+
+exports.clearNotificationsByTarget = function (target, success, error) {
+  exec(success, error, "FirebasePlugin", "clearNotificationsByTarget", [target]);
 };
 
 exports.scheduleLocalMailNotification = function (params, success, error) {
     exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
+};
+
+exports.scheduleCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "scheduleCallNotification", [params]);
 };
 
 exports.clearMailNotification = function (mid, success, error) {
@@ -210,4 +226,8 @@ exports.clearAllMailNotificationsForConv = function (cid, success, error) {
 
 exports.clearMailNotificationsExceptCids = function (cids, success, error) {
   exec(success, error, "FirebasePlugin", "clearMailNotificationsExceptCids", [cids]);
+};
+
+exports.enableLockScreenVisibility = function (enable, success, error) {
+  exec(success, error, "FirebasePlugin", "enableLockScreenVisibility", [enable]);
 };

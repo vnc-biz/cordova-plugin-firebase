@@ -3,12 +3,15 @@ package org.apache.cordova.firebase;
 import android.content.Context;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
 import java.util.Map;
+import java.util.Set;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -20,7 +23,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     /**
      * Called when message is received.
      *
-     * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
+     * @param remoteMessage Object representing the message received from Firebase
+     *                      Cloud Messaging.
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {

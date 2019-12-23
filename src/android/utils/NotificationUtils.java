@@ -3,7 +3,7 @@ package org.apache.cordova.firebase.utils;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +15,13 @@ import java.util.ArrayList;
 public class NotificationUtils {
 
     private static final String FILE_NAME = "notificationMapping.json";
+    private static final String CALL_PREFIX = "call_";
+
+    public static final String EXTRA_CALL_ID = "extra_call_id";
+    public static final String EXTRA_CALL_TYPE = "extra_call_type";
+    public static final String EXTRA_CALL_RECEIVER = "extra_call_receiver";
+    public static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
+    public static final String EXTRA_CALL_ACTION = "extra_call_action";
 
     public static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, Integer nId) {
         File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);
@@ -126,4 +133,9 @@ public class NotificationUtils {
         return (new NotificationCompat.Builder(context));
     }
 
+    public static int generateCallNotificationId(String callId){
+        String resultString = CALL_PREFIX + callId;
+
+        return resultString.hashCode();
+    }
 }

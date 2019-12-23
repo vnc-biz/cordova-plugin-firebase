@@ -8,18 +8,24 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
+
+import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.Person;
+import androidx.core.app.RemoteInput;
 
 import org.apache.cordova.firebase.NotificationReceiver;
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 import org.apache.cordova.firebase.ReplyActivity;
+import org.apache.cordova.firebase.IncomingCallActivity;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -49,6 +55,10 @@ public class NotificationCreator {
     public static final String MAIL_MARK_AS_READ = "MailMarkAsRead";
     public static final String MAIL_NOTIFICATION_REPLY = "NotificationMailReply";
     public static final String MAIL_DELETE = "MailDelete";
+
+    public static final String TALK_CALL_DECLINE = "TalkCallDecline";
+    public static final String TALK_CALL_ACCEPT = "TalkCallAccept";
+    public static final String TALK_DELETE_CALL_NOTIFICATION = "TalkDeleteCallNotification";
     //
     private static final int REQUEST_CODE_HELP = 101;
 
@@ -91,6 +101,42 @@ public class NotificationCreator {
         return defaultSoundUri;
     }
 
+    static String defineCallChannelId(Context activityOrServiceContext) {
+        String channelId = "call_channel_id";
+
+        return channelId;
+    }
+
+    static String defineCallChannelName(Context activityOrServiceContext) {
+        String channelName = StringUtils.getStringResource(activityOrServiceContext, "call_notifications_channel_name");
+        return channelName;
+    }
+
+    static Uri defineCallSoundUri(Context context) {
+        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/incoming_call");
+        return soundUri;
+    }
+
+    static String defineCallNotificationTitle(String jid, String name, String groupName) {
+        String title;
+        if (TextUtils.isEmpty(groupName)) {
+            title = name;
+        } else {
+            title = groupName;
+        }
+
+        if (TextUtils.isEmpty(title)) {
+            title = jid;
+        }
+
+        return title;
+    }
+
+    static String defineCallNotificationText(Context context, String callType) {
+        String incomingCallFormat = StringUtils.getStringResource(context, "incoming_call_format");
+        return String.format(incomingCallFormat, callType);
+    }
+
     static String defineNotificationTitle(String eventType, String target,
                                           String name, String groupName) {
         String title;
@@ -118,7 +164,6 @@ public class NotificationCreator {
         }
         return text;
     }
-
     static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, List<String> msgs) {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
@@ -148,7 +193,7 @@ public class NotificationCreator {
     }
 
     static NotificationCompat.MessagingStyle defineMessagingStyle(String title, List<String> msgs) {
-        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(null);
+        NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(title);
         //
         if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
             messagingStyle.setConversationTitle(title);
@@ -156,7 +201,7 @@ public class NotificationCreator {
         //
         for (String msg : msgs) {
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
-                messagingStyle.addMessage(msg, System.currentTimeMillis(), null);
+                messagingStyle.addMessage(msg, System.currentTimeMillis(), new Person.Builder().setName(title).build());
             } else {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), title);
             }
@@ -211,7 +256,7 @@ public class NotificationCreator {
                 .setDefaults(nsound.equals("mute") ? NotificationCompat.DEFAULT_VIBRATE : NotificationCompat.DEFAULT_ALL)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setAutoCancel(true)
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)
@@ -227,6 +272,24 @@ public class NotificationCreator {
 
         return notificationBuilder;
 
+    }
+
+    static NotificationCompat.Builder createCallNotification(Context activityOrServiceContext, String channelId, String title, String text, PendingIntent pendingIntent, Uri defaultSoundUri) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
+        notificationBuilder
+                .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(true)
+                .setOngoing(true)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setContentIntent(pendingIntent)
+                .setSound(defaultSoundUri)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setTimeoutAfter(60000);
+
+        return notificationBuilder;
     }
 
     public static void setNotificationSmallIcon(Context activityOrServiceContext, NotificationCompat.Builder notificationBuilder) {
@@ -299,6 +362,17 @@ public class NotificationCreator {
             }
             notificationManager.createNotificationChannel(channel);
             //
+        }
+    }
+
+    static void createCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
+            channel.setSound(sound, new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                        .build());
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
@@ -505,4 +579,79 @@ public class NotificationCreator {
         notificationBuilder.addAction(actionDelete);
     }
 
+    public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                            String callId, String callType, String callReceiver, boolean isGroupCall) {
+        String callDeclineActionName = TALK_CALL_DECLINE 
+        + "@@" + callId 
+        + "@@" + callType 
+        + "@@" + callReceiver 
+        + "@@" + String.valueOf(isGroupCall);
+
+        PendingIntent declinePendingIntent = PendingIntent.getBroadcast(
+                appContext,
+                callId.hashCode(),
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                    .setAction(callDeclineActionName),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Action declineAction = new NotificationCompat.Action.Builder(
+            android.R.drawable.ic_menu_close_clear_cancel,
+            StringUtils.getColorizedText(activityOrServiceContext, "call_action_decline", "decline_call_btn"),
+            declinePendingIntent)
+        .build();
+ 
+        notificationBuilder.addAction(declineAction);
+    }
+
+    public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                            String callId, String callType) {
+        String callAcceptActionName = TALK_CALL_ACCEPT 
+        + "@@" + callId 
+        + "@@" + callType;
+ 
+        PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            callId.hashCode(),
+            new Intent(activityOrServiceContext, NotificationReceiver.class)
+                .setAction(callAcceptActionName),
+            PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(
+            android.R.drawable.ic_menu_call,
+            StringUtils.getColorizedText(activityOrServiceContext, "call_action_accept", "accept_call_btn"),
+            acceptPendingIntent)
+        .build();
+ 
+        notificationBuilder.addAction(acceptAction);
+    }
+
+    public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder, 
+                                                String callId, String callType, String callReceiver, 
+                                                String callTitle, String callSubTitle, boolean isGroupCall) {
+
+
+        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callReceiver, 
+                                                                            callTitle, callSubTitle, isGroupCall);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+            appContext, 
+            callId.hashCode(),
+            callFullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
+    }
+
+    public static void addDeleteCallNotificationIntent(Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
+        String deleteCallNotificationIntent = TALK_DELETE_CALL_NOTIFICATION 
+            + "@@" + callId;
+ 
+        PendingIntent deleteCallNotificationPendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            callId.hashCode(),
+            new Intent(appContext, NotificationReceiver.class)
+                .setAction(deleteCallNotificationIntent),
+            PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        notificationBuilder.setDeleteIntent(deleteCallNotificationPendingIntent);
+    }
 }
