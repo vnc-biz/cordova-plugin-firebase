@@ -54,7 +54,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			    android:noHistory="true"
                 android:screenOrientation="sensorPortrait"
                 android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
-                android:theme="@style/Theme.AppCompat.NoActionBar" />
+                android:theme="@android:style/Theme.Holo.NoActionBar" />
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
