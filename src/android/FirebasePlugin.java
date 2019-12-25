@@ -1502,6 +1502,7 @@ public class FirebasePlugin extends CordovaPlugin {
 
                     String msgid = params.getString("msgid");
                     String target = params.getString("target");
+                    String initiator = params.getString("vncInitiatorJid");
                     String receiver = params.getString("receiver");
                     String username = params.getString("username");
                     String groupName = params.getString("groupName");
@@ -1518,7 +1519,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     "eventType= " + eventType);
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
-                                target, username, groupName, message, receiver);
+                                target, username, groupName, message, initiator, receiver);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {

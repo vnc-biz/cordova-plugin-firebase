@@ -8,6 +8,7 @@ public class PayloadTalk {
     public String msgid;
     public String jid;
     public String nto;
+    public String nfrom;
     public String name;
     public String eType;
     public String callSignal;
@@ -39,6 +40,14 @@ public class PayloadTalk {
 
     public void setNTo(String to) {
         this.nto = to;
+    }
+
+    public String getNFrom() {
+        return nfrom;
+    }
+
+    public void setNFrom(String from) {
+        this.nfrom = from;
     }
 
     public String getName() {

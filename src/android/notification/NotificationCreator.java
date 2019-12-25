@@ -36,11 +36,12 @@ public class NotificationCreator {
 
     private static final String TAG = "Firebase.NotificationCreator";
 
-    private static final String VNC_PEER_JID = "vncPeerJid";
+    public static final String VNC_PEER_JID = "vncPeerJid";
+    public static final String VNC_INITIATOR_JID = "vncInitiatorJid";
     private static final String VNC_TASK_TASKID = "vncTaskTaskId";
     private static final String VNC_TASK_TASKUPDATEDON = "vncTaskTaskUpdatedOn";
     private static final String OPEN_IN_BROWSER = "open_in_browser";
-    private static final String NOTIFY_ID = "id";
+    public static final String NOTIFY_ID = "id";
 
     private static final String VNC_MAIL_MSG_ID = "vncMailMsgId";
 
@@ -210,10 +211,11 @@ public class NotificationCreator {
     }
 
     static PendingIntent createNotifPendingIntentTalk(Context activityOrServiceContext, String target,
-                                                  Integer notificationId, String vncEventType, String vncEventValue) {
+                                                  Integer notificationId, String vncEventType, String vncEventValue, String vncInitiatorJid) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_PEER_JID, target);
+        bundle.putString(VNC_INITIATOR_JID, vncInitiatorJid);
         bundle.putString(vncEventType, vncEventValue);
         bundle.putInt(NOTIFY_ID, notificationId);
         intent.putExtras(bundle);
@@ -604,10 +606,11 @@ public class NotificationCreator {
     }
 
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                            String callId, String callType) {
+                                            String callId, String callType, String callInitiator) {
         String callAcceptActionName = TALK_CALL_ACCEPT 
         + "@@" + callId 
-        + "@@" + callType;
+        + "@@" + callType
+        + "@@" + callInitiator;
  
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
             appContext,
@@ -626,11 +629,11 @@ public class NotificationCreator {
     }
 
     public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                                String callId, String callType, String callReceiver, 
+                                                String callId, String callType, String callInitiator, String callReceiver,
                                                 String callTitle, String callSubTitle, boolean isGroupCall) {
 
 
-        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callReceiver, 
+        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callInitiator, callReceiver, 
                                                                             callTitle, callSubTitle, isGroupCall);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
             appContext, 

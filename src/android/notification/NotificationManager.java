@@ -7,13 +7,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
+import android.util.Log;
+
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import android.util.Log;
-import android.os.Bundle;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
@@ -256,7 +257,7 @@ public class NotificationManager {
 
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
-                target, notificationId, "vncEventType", "chat");
+                target, notificationId, "vncEventType", "chat", null);
 
         // createNotification
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(activityOrServiceContext, channelId, nsound,
@@ -295,20 +296,23 @@ public class NotificationManager {
     }
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
-                                                String callEventType, String callId, String name, String groupName, String callType, String callReceiver) {
+                                                String callEventType, String callId, String name, String groupName, String callType, 
+                                                String callInitiator, String callReceiver) {
         Log.i(TAG, "displayCallNotification: \n" +
-            "msgId: "     + msgId       + "\n" +    
-            "callId: "    + callId      + "\n" +
-            "username: "  + name        + "\n" +
-            "groupName: " + groupName   + "\n" +
-            "callType: "  + callType);
+            "msgId: "         + msgId         + "\n" +    
+            "callId: "        + callId        + "\n" +
+            "username: "      + name          + "\n" +
+            "groupName: "     + groupName     + "\n" +
+            "callInitiator: " + callInitiator + "\n" +
+            "callReceiver: "  + callReceiver  + "\n" +
+            "callType: "      + callType);
 
         if (checkIfNotificationExist(appContext, msgId)) {
             Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
             return;
         }
 
-        if (cancelExistCall(appContext, callId, callEventType)) {
+        if (cancelExistCall(appContext, callId, callInitiator, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);
             LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
@@ -334,7 +338,7 @@ public class NotificationManager {
 
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(activityOrServiceContext,
-                callId, notificationId, "vncEventType", "chat");
+                callId, notificationId, "vncEventType", "chat", callInitiator);
 
         // createNotification
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createCallNotification(activityOrServiceContext, channelId,
@@ -342,10 +346,10 @@ public class NotificationManager {
 
         // Add actions
         NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
-        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator);
 
         // Add full screen intent (to show on lock screen)
-        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callReceiver, title, text, isGroupCall);
+        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall);
 
         // Add action when delete call notification
         NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId);
@@ -357,6 +361,7 @@ public class NotificationManager {
         notification.flags = notification.flags | Notification.FLAG_INSISTENT; // repeat notification sound
         notification.extras.putString(NotificationUtils.EXTRA_CALL_ID, callId);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_INITIATOR, callInitiator);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
         notification.extras.putBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL, isGroupCall);
         //
@@ -526,16 +531,26 @@ public class NotificationManager {
         }
     }
 
-    private static boolean cancelExistCall(Context context, String callId, String callEventType) {
+    private static boolean cancelExistCall(Context context, String pushCallId, String pushCallInitiator, String callEventType) {
         if (!CALL_EVENT_LEAVE.equals(callEventType)){ 
             return false;
         }
 
-        int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
-
         for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)){
             Notification notification = sbNotification.getNotification();
-            if (callNotificationId == sbNotification.getId()){
+            
+            Bundle bundle = notification.extras;
+            String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
+
+            if (TextUtils.isEmpty(callId) || !callId.equals(pushCallId)){
+                continue;
+            }
+
+            String callInitiator = bundle.getString(NotificationUtils.EXTRA_CALL_INITIATOR);
+
+            if (pushCallInitiator.equals(callInitiator)){
+                int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
+
                 NotificationUtils.getManager(context).cancel(callNotificationId);
                 return true;
             }

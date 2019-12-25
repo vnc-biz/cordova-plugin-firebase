@@ -125,15 +125,17 @@ public class NotificationReceiver extends BroadcastReceiver {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
             String callType = actionParts[2];
+            String callInitiator = actionParts[3];
             int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
 
             Intent launchIntent = new Intent(context.getApplicationContext(), OnNotificationOpenReceiver.class);
             Bundle bundle = new Bundle();
-            bundle.putString("vncPeerJid", callId);
+            bundle.putString(NotificationCreator.VNC_PEER_JID, callId);
+            bundle.putString(NotificationCreator.VNC_INITIATOR_JID, callInitiator);
             bundle.putString("vncEventType", callType);
-            bundle.putInt("id", callNotificationId);
+            bundle.putInt(NotificationCreator.NOTIFY_ID, callNotificationId);
             bundle.putString(NotificationUtils.EXTRA_CALL_ACTION, NotificationCreator.TALK_CALL_ACCEPT);
             launchIntent.putExtras(bundle);
 
