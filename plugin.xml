@@ -50,17 +50,16 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 			<activity android:name="org.apache.cordova.firebase.ReplyActivity"
 				android:launchMode="singleInstance"
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
-			<activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
-				android:noHistory="true"
-				android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
-				android:screenOrientation="sensorPortrait"
-            	android:theme="@style/NoActionBar"/>
+            <activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
+			    android:noHistory="true"
+                android:screenOrientation="sensorPortrait"
+                android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"
+                android:theme="@android:style/Theme.Holo.NoActionBar" />
 		</config-file>
 		<resource-file src="src/android/google-services.json" target="."/>
 		<resource-file src="src/android/cordova-plugin-firebase-strings.xml" target="res/values/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-de.xml" target="res/values-de/cordova-plugin-firebase-strings.xml" />
 		<resource-file src="src/android/cordova-plugin-firebase-strings-fr.xml" target="res/values-fr/cordova-plugin-firebase-strings.xml" />
-		<resource-file src="src/android/res/values/cordova-plugin-firebase-styles.xml" target="res/values/cordova-plugin-firebase-styles.xml" />
 		<resource-file src="src/android/incoming_call.mp3" target="res/raw/incoming_call.mp3" />
 		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/drawable/ic_call_end.xml" />
 		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/drawable/ic_call_start.xml" />
@@ -91,6 +90,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/utils/SharedPrefsUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/StringUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/WidgetNotifier.java" target-dir="src/org/apache/cordova/firebase/utils" />
+		<source-file src="src/android/utils/ImagesUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />
@@ -117,7 +117,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework src="com.google.firebase:firebase-messaging:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
-		<framework src="androidx.cardview:cardview:+" />
 
 	</platform>
 

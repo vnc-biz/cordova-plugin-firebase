@@ -1,5 +1,6 @@
 package org.apache.cordova.firebase;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,21 +17,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
+import org.apache.cordova.firebase.utils.ImagesUtils;
 
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-public class IncomingCallActivity extends AppCompatActivity {
+public class IncomingCallActivity extends Activity {
 
     private static final String EXTRA_CALL_ID = "extra_call_id";
     private static final String EXTRA_CALL_TYPE = "extra_call_type";
@@ -238,7 +238,11 @@ public class IncomingCallActivity extends AppCompatActivity {
         protected void onPostExecute(Bitmap bitmap) {
             if (bitmap == null || imageView.get() == null) return;
 
-            imageView.get().setImageBitmap(bitmap);
+            try {
+                imageView.get().setImageDrawable(ImagesUtils.getCircleDrawable(imageView.get().getContext(), bitmap));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
