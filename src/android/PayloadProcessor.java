@@ -45,12 +45,14 @@ public class PayloadProcessor {
               PayloadTalk notification = new Gson().fromJson(data.get(i).toString(), PayloadTalk.class);
               final String msgid = notification.msgid;
               final String target = notification.jid;
+              final String initistor = notification.nfrom;
               final String receiver = notification.nto;
               final String username = notification.name;
               final String groupName = notification.gt;
               final String message = notification.body;
               final String eventType = notification.eType;
               final String nsound = notification.nsound;
+              final String callSignal = notification.callSignal;
 
               if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
                   Log.d(TAG, "returning due to empty 'target' or 'username' values");
@@ -62,7 +64,7 @@ public class PayloadProcessor {
                     public void run() {
                         if (notification.isCallNotification()) {
                             NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
-                                eventType, target, username, groupName, message, receiver);
+                                eventType, target, username, groupName, message, initistor, receiver);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
                                 target, username, groupName, message, eventType, nsound, "", "");
@@ -78,12 +80,15 @@ public class PayloadProcessor {
                       Bundle dataBundle = new Bundle();
                       dataBundle.putString("msgid", msgid);
                       dataBundle.putString("target", target);
+                      dataBundle.putString("nfrom", initistor);
+                      dataBundle.putString("nto", receiver);
                       dataBundle.putString("username", username);
                       dataBundle.putString("groupName", groupName);
                       dataBundle.putString("message", message);
                       dataBundle.putString("eventType", eventType);
                       dataBundle.putString("nsound", nsound);
                       dataBundle.putString("mention", TextUtils.join(",", notification.mention));
+                      dataBundle.putString("callSignal", callSignal);
 
                       FirebasePlugin.sendNotificationReceived(dataBundle);
                   } else {

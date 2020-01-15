@@ -34,6 +34,7 @@ public class IncomingCallActivity extends Activity {
 
     private static final String EXTRA_CALL_ID = "extra_call_id";
     private static final String EXTRA_CALL_TYPE = "extra_call_type";
+    private static final String EXTRA_CALL_INITIATOR = "extra_call_initiator";
     private static final String EXTRA_CALL_RECEIVER = "extra_call_receiver";
     private static final String EXTRA_CALL_TITLE = "extra_call_title";
     private static final String EXTRA_CALL_SUBTITLE = "extra_call_subtitle";
@@ -44,17 +45,19 @@ public class IncomingCallActivity extends Activity {
 
     private String callId;
     private String callType;
+    private String callInitiator;
     private String callReceiver;
     private String callTitle;
     private String callSubTitle;
     private boolean isGroupCall;
 
-    public static Intent createStartIntent(Context context, String callId, String callType,
+    public static Intent createStartIntent(Context context, String callId, String callType, String callInitiator,
                                            String callReceiver, String title, String subTitle, boolean isGroupCall){
         Intent intent = new Intent(context, IncomingCallActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_CALL_ID, callId);
         intent.putExtra(EXTRA_CALL_TYPE, callType);
+        intent.putExtra(EXTRA_CALL_INITIATOR, callInitiator);
         intent.putExtra(EXTRA_CALL_RECEIVER, callReceiver);
         intent.putExtra(EXTRA_CALL_TITLE, title);
         intent.putExtra(EXTRA_CALL_SUBTITLE, subTitle);
@@ -151,6 +154,7 @@ public class IncomingCallActivity extends Activity {
     private void processIncomingData(Intent intent) {
         callId = intent.getStringExtra(EXTRA_CALL_ID);
         callType = intent.getStringExtra(EXTRA_CALL_TYPE);
+        callInitiator = intent.getStringExtra(EXTRA_CALL_INITIATOR);
         callReceiver = intent.getStringExtra(EXTRA_CALL_RECEIVER);
         callTitle = intent.getStringExtra(EXTRA_CALL_TITLE);
         callSubTitle = intent.getStringExtra(EXTRA_CALL_SUBTITLE);
@@ -187,7 +191,8 @@ public class IncomingCallActivity extends Activity {
     public void onStartCall(View view) {
         String callAcceptActionName = NotificationCreator.TALK_CALL_ACCEPT
                 + "@@" + callId
-                + "@@" + callType;
+                + "@@" + callType
+                + "@@" + callInitiator;
 
         Intent startCallIntent = new Intent(this, NotificationReceiver.class);
         startCallIntent.setAction(callAcceptActionName);
