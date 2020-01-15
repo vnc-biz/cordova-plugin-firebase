@@ -78,6 +78,7 @@ public class IncomingCallActivity extends Activity {
         processIncomingData(getIntent());
         initUi();
         initCallStateReceiver();
+        registerCallStateReceiver();
 
         Log.d("IncomingCallActivity", "onCreate(), callId = " + callId);
     }
@@ -134,10 +135,7 @@ public class IncomingCallActivity extends Activity {
         }, 1000, TimeUnit.MILLISECONDS);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
+    private void registerCallStateReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION);
         intentFilter.addAction(NotificationCreator.TALK_CALL_DECLINE);
@@ -145,10 +143,15 @@ public class IncomingCallActivity extends Activity {
         localBroadcastManager.registerReceiver(callStateReceiver, intentFilter);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+    private void unRegisterCallStateReceiver() {
         localBroadcastManager.unregisterReceiver(callStateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unRegisterCallStateReceiver();
     }
 
     private void processIncomingData(Intent intent) {
