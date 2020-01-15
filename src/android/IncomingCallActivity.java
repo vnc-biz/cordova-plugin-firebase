@@ -115,14 +115,12 @@ public class IncomingCallActivity extends Activity {
                 switch (action){
                     case NotificationCreator.TALK_DELETE_CALL_NOTIFICATION:
                     case NotificationCreator.TALK_CALL_DECLINE:
-                        Log.d("IncomingCallActivity", "finishAndRemoveTask");
+                        Log.d("IncomingCallActivity", "finishAndRemoveTask()");
                         finishAndRemoveTask();
 
                         break;
                     case NotificationCreator.TALK_CALL_ACCEPT:
-                        Log.d("IncomingCallActivity", "start finishDelayed");
-//                        finishDelayed();
-                        finishAndRemoveTask();
+                        finishDelayed();
 
                         break;
                 }
@@ -131,10 +129,11 @@ public class IncomingCallActivity extends Activity {
     }
 
     private void finishDelayed() {
+        Log.d("IncomingCallActivity", "finishDelayed()");
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d("IncomingCallActivity", "run finishDelayed");
+                Log.d("IncomingCallActivity", "run finishAndRemoveTask()");
                 finishAndRemoveTask();
             }
         }, 1000);
