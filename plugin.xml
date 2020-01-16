@@ -51,6 +51,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 				android:launchMode="singleInstance"
 				android:theme="@android:style/Theme.Holo.Light.Dialog"></activity>
             <activity android:name="org.apache.cordova.firebase.IncomingCallActivity"
+				android:excludeFromRecents="true"
 			    android:noHistory="true"
                 android:screenOrientation="sensorPortrait"
                 android:taskAffinity="org.apache.cordova.firebase.INCOMING_CALL_AFFINITY"

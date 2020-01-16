@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -26,8 +28,6 @@ import org.apache.cordova.firebase.utils.ImagesUtils;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 
 public class IncomingCallActivity extends Activity {
@@ -78,6 +78,7 @@ public class IncomingCallActivity extends Activity {
         processIncomingData(getIntent());
         initUi();
         initCallStateReceiver();
+        registerCallStateReceiver();
 
         Log.d("IncomingCallActivity", "onCreate(), callId = " + callId);
     }
@@ -107,12 +108,14 @@ public class IncomingCallActivity extends Activity {
                 String callIdToProcess = intent.getStringExtra(EXTRA_CALL_ID);
                 Log.d("IncomingCallActivity", "onReceive(), callId = " + callIdToProcess);
                 if (TextUtils.isEmpty(callIdToProcess) || !callIdToProcess.equals(callId)) {
+                    Log.d("IncomingCallActivity", "ignore action for call " + callIdToProcess);
                     return;
                 }
 
                 switch (action){
                     case NotificationCreator.TALK_DELETE_CALL_NOTIFICATION:
                     case NotificationCreator.TALK_CALL_DECLINE:
+                        Log.d("IncomingCallActivity", "finishAndRemoveTask()");
                         finishAndRemoveTask();
 
                         break;
@@ -126,18 +129,17 @@ public class IncomingCallActivity extends Activity {
     }
 
     private void finishDelayed() {
-        Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+        Log.d("IncomingCallActivity", "finishDelayed()");
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
+                Log.d("IncomingCallActivity", "run finishAndRemoveTask()");
                 finishAndRemoveTask();
             }
-        }, 1000, TimeUnit.MILLISECONDS);
+        }, 1000);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
+    private void registerCallStateReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION);
         intentFilter.addAction(NotificationCreator.TALK_CALL_DECLINE);
@@ -145,10 +147,16 @@ public class IncomingCallActivity extends Activity {
         localBroadcastManager.registerReceiver(callStateReceiver, intentFilter);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
+    private void unRegisterCallStateReceiver() {
         localBroadcastManager.unregisterReceiver(callStateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d("IncomingCallActivity", "onDestroy");
+        unRegisterCallStateReceiver();
     }
 
     private void processIncomingData(Intent intent) {
