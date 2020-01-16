@@ -49,7 +49,7 @@ public abstract class BaseActionTask extends BaseAction {
 
         urlConnection.setRequestProperty("Content-Type", "application/json");
         urlConnection.setRequestProperty("Accept", "application/json");
-        urlConnection.setRequestProperty("X-Redmine-API-Key", mApiKey);
+        urlConnection.setRequestProperty("Authorization", mApiKey);
 
         Log.i(TAG, "setRequestHeaders");
     }
