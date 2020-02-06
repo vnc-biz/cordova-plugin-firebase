@@ -62,7 +62,7 @@ public class InlineReplyAction extends BaseActionTalk {
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "replyMessages");
         ArrayList<InlineReplyEntity> list = new ArrayList();
-        if (data != null) {
+        if (data != null && !data.isEmpty()) {
             Type type = new TypeToken<ArrayList<InlineReplyEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);

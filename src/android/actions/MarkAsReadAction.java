@@ -77,7 +77,7 @@ public class MarkAsReadAction extends BaseActionTalk {
         Gson gson = new Gson();
         String data = SharedPrefsUtils.getString(context, "markAsReadFailedRequests");
         ArrayList<MarkAsReadEntity> list = new ArrayList();
-        if (data != null) {
+        if (data != null && !data.isEmpty()) {
             Type type = new TypeToken<ArrayList<MarkAsReadEntity>>() {
             }.getType();
             list = gson.fromJson(data, type);
