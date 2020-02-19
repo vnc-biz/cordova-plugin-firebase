@@ -30,7 +30,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.i(TAG, "onMessageReceived " + remoteMessage);
-        SentryUtils.fireMessage("On push notification received");
+        SentryUtils.getInstance().fireMessage("On push notification received");
 
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled

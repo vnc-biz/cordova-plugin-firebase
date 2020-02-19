@@ -285,7 +285,7 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
-        SentryUtils.fireEvent("FCM_SHOW", msgid);
+        SentryUtils.getInstance().fireEvent("FCM_SHOW", msgid);
         //
         notificationManager.notify(notificationId, notification);
 
@@ -372,7 +372,7 @@ public class NotificationManager {
 
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
 
-        SentryUtils.fireEvent("FCM_SHOW", msgId);
+        SentryUtils.getInstance().fireEvent("FCM_SHOW", msgId);
 
         notificationManager.notify(notificationId, notification);
     }
