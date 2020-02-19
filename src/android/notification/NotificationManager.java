@@ -17,14 +17,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
+import org.apache.cordova.firebase.utils.SentryUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import io.sentry.Sentry;
 
 public class NotificationManager {
 
@@ -286,7 +285,7 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
-        Sentry.capture(msgid);
+        SentryUtils.fireEvent("FCM_SHOW", msgid);
         //
         notificationManager.notify(notificationId, notification);
 
@@ -373,7 +372,7 @@ public class NotificationManager {
 
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
 
-        Sentry.capture(msgId);
+        SentryUtils.fireEvent("FCM_SHOW", msgId);
 
         notificationManager.notify(notificationId, notification);
     }

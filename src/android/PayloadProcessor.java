@@ -17,8 +17,7 @@ import android.text.TextUtils;
 import android.os.Bundle;
 
 import org.apache.cordova.firebase.notification.NotificationManager;
-
-import io.sentry.Sentry;
+import org.apache.cordova.firebase.utils.SentryUtils;
 
 public class PayloadProcessor {
   private static final String TAG = "FirebasePayloadProcessor";
@@ -44,7 +43,7 @@ public class PayloadProcessor {
 
           for (int i = 0; i < data.length(); i++) {
               PayloadTalk notification = new Gson().fromJson(data.get(i).toString(), PayloadTalk.class);
-              Sentry.capture(notification.msgid);
+              SentryUtils.fireEvent("FCM_RECEIVE", notification.msgid);
               final String msgid = notification.msgid;
               final String target = notification.jid;
               final String initistor = notification.nfrom;

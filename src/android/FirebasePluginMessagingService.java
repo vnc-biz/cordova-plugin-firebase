@@ -5,11 +5,11 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-import io.sentry.Sentry;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.SentryUtils;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,12 +30,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.i(TAG, "onMessageReceived " + remoteMessage);
-        try {
-            Sentry.init(FirebasePlugin.SENTRY_URL);
-            Sentry.capture("Received FCM push notification");
-        } catch (Exception e) {
-            Log.d(TAG, "Init sentry exception" + e.getMessage());
-        }
+        SentryUtils.fireMessage("On push notification received");
 
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
