@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import io.sentry.Sentry;
 
 public class NotificationManager {
 
@@ -285,6 +286,7 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
+        Sentry.capture(msgid);
         //
         notificationManager.notify(notificationId, notification);
 
@@ -370,6 +372,9 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(appContext);
 
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
+
+        Sentry.capture(msgId);
+
         notificationManager.notify(notificationId, notification);
     }
 
