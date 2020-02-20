@@ -2,6 +2,8 @@ package org.apache.cordova.firebase.utils;
 
 import android.util.Log;
 
+import java.util.Date;
+
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
 
@@ -26,7 +28,7 @@ public class SentryUtils {
         try {
             checkInit();
 
-            client.sendMessage(String.format("%s: %s", name, value));
+            client.sendMessage(String.format("%s: %s (%s)", name, value, new Date().getTime()/1000));
         } catch (Exception e) {
             Log.w(TAG, "Fire Sentry event error: " + e.getMessage());
         }
@@ -36,7 +38,7 @@ public class SentryUtils {
         try {
             checkInit();
 
-            client.sendMessage(message);
+            client.sendMessage(String.format("%s (%s)", message, new Date().getTime()/1000));
         } catch (Exception e) {
             Log.w(TAG, "Fire Sentry message error: " + e.getMessage());
         }
