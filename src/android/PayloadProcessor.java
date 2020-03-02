@@ -9,6 +9,7 @@ import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.models.PayloadMail;
 import org.apache.cordova.firebase.utils.WidgetNotifier;
+import org.apache.cordova.firebase.utils.FcmLoggerUtils;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.content.Context;
@@ -53,6 +54,8 @@ public class PayloadProcessor {
               final String eventType = notification.eType;
               final String nsound = notification.nsound;
               final String callSignal = notification.callSignal;
+
+              FcmLoggerUtils.logFcmReceived(appContext, msgid);
 
               if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
                   Log.d(TAG, "returning due to empty 'target' or 'username' values");
