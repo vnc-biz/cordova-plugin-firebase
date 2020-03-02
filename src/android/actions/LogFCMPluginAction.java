@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public abstract class LogFCMPluginAction extends BaseAction {
+public class LogFCMPluginAction extends BaseAction {
     private static final String TAG = "Firebase.LogFCMPluginAction";
 
     private static final String TOKEN_CONSTANT = "auth-token";
@@ -30,8 +30,8 @@ public abstract class LogFCMPluginAction extends BaseAction {
 
     protected String msgId;
 
-    LogFCMPluginAction(Context context, String msgId) {
-        super(null, context, "receivedfcm");
+    public LogFCMPluginAction(Context context, String msgId) {
+        super(0, context, "/receivedfcm");
 
         this.msgId = msgId;
 
