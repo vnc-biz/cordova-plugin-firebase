@@ -94,13 +94,8 @@
 }
 
 + (void)markCallRequestAsProccessed:(NSString *)mid {
-    NSMutableArray *processedCallsIds = (NSMutableArray *)[[NSUserDefaults standardUserDefaults] stringArrayForKey:@"processedCallsIds"];
-    if (processedCallsIds == nil ){
-        processedCallsIds = [NSMutableArray new];
-    } else {
-        processedCallsIds = [NSMutableArray arrayWithArray:processedCallsIds];
-    }
-    [processedCallsIds addObject:mid];
+    NSString *processedCallsIds = [[NSUserDefaults standardUserDefaults] stringForKey:@"processedCallsIds"];
+    processedCallsIds = [NSString stringWithFormat:@"%@,%@", processedCallsIds, mid];
 
     [[NSUserDefaults standardUserDefaults] setObject:processedCallsIds forKey:@"processedCallsIds"];
     [[NSUserDefaults standardUserDefaults] synchronize];
