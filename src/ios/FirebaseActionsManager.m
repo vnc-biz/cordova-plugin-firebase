@@ -73,6 +73,8 @@
         if ([actionIdentifier isEqualToString:@"ACCEPT_CALL_ACTION"]) {
 
         } else if ([actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"]) {
+            [self markCallRequestAsProccessed:mutableUserInfo[@"msgid"]];
+
             BOOL isGroupCall = [mutableUserInfo[@"jid"] rangeOfString:@"@conference"].location != NSNotFound;
             NSString *callType = [mutableUserInfo[@"aps"][@"category"] lowercaseString];
             NSString *callId = mutableUserInfo[@"jid"];
@@ -89,6 +91,21 @@
 + (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {
     NSString *eType = mutableUserInfo[@"eType"];
     return [eType isEqualToString:@"invite"] && [actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"];
+}
+
++ (void)markCallRequestAsProccessed:(NSString *)mid {
+    NSMutableArray *processedCallsIds = (NSMutableArray *)[[NSUserDefaults standardUserDefaults] stringArrayForKey:@"processedCallsIds"];
+    if (processedCallsIds == nil ){
+        processedCallsIds = [NSMutableArray new];
+    } else {
+        processedCallsIds = [NSMutableArray arrayWithArray:processedCallsIds];
+    }
+    [processedCallsIds addObject:mid];
+
+    [[NSUserDefaults standardUserDefaults] setObject:processedCallsIds forKey:@"processedCallsIds"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+    NSLog(@"[FirebaseActionsManager][markCallRequestAsProccessed] mid: %@, processedCallsIds %@", mid, processedCallsIds);
 }
 
 ///
