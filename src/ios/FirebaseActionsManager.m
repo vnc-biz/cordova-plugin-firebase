@@ -86,6 +86,11 @@
     }
 }
 
++ (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {
+    NSString *eType = mutableUserInfo[@"eType"];
+    return [eType isEqualToString:@"invite"] && [actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"];
+}
+
 ///
 
 + (void)rejectCall:(NSString *)callType confid:(NSString *)confid target:(NSString *)target {
