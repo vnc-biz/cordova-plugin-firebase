@@ -168,7 +168,7 @@
     [mutableUserInfo setValue:self.applicationInBackground forKey:@"tap"];
 
     // Print full message.
-    NSLog(@"[userNotificationCenter][willPresentNotification] mutableUserInfo %@", mutableUserInfo);
+    NSLog(@"[FirebasePlugin][userNotificationCenter][willPresentNotification] mutableUserInfo %@", mutableUserInfo);
 
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 
@@ -190,17 +190,23 @@
 
     NSDictionary *mutableUserInfo = [response.notification.request.content.userInfo mutableCopy];
 
+    BOOL isCallRejectAction = NO;
+
     NSString *categoryIdentifier = response.notification.request.content.categoryIdentifier;
     if ([FirebaseActionsManager isVideoAudioCategory:categoryIdentifier]){
         [FirebaseActionsManager handleCallRequestActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
+
+        isCallRejectAction = [FirebaseActionsManager isCallRejectActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
     }
 
-    [mutableUserInfo setValue:@YES forKey:@"tap"];
+    // if this is a reject action -> do not pass a 'onNotificationOpen' event to JS
+    if (!isCallRejectAction) {
+        [mutableUserInfo setValue:@YES forKey:@"tap"];
+        [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
+    }
 
     // Print full message.
-    NSLog(@"[userNotificationCenter][didReceiveNotificationResponse] mutableUserInfo %@", mutableUserInfo);
-
-    [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
+    NSLog(@"[FirebasePlugin][userNotificationCenter][didReceiveNotificationResponse] mutableUserInfo %@, isCallRejectAction: %d", mutableUserInfo, isCallRejectAction);
 
     // Always call the completion handler when done.
     completionHandler();
