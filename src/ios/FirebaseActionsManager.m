@@ -122,6 +122,13 @@
 }
 
 + (void)postRequestWithSubUrl:(NSString *)suburl params:(NSDictionary *)params {
+    UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
+    bgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] beginBackgroundTaskWithExpirationHandler expired");
+        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+    }];
+
+
     NSString *baseUrl = [[NSUserDefaults standardUserDefaults] stringForKey:@"apiUrl"];
     NSString *token = [[NSUserDefaults standardUserDefaults] stringForKey:@"auth-token"];
 
@@ -145,8 +152,15 @@
         NSURLResponse * _Nullable response,
         NSError * _Nullable error) {
 
-          NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-          NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] response: %@, error %@", responseStr, error);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+
+            NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] response: %@, error %@, status code %ld", responseStr, error, (long)[httpResponse statusCode]);
+
+            // AFTER ALL THE UPDATES, close the task
+            if (bgTask != UIBackgroundTaskInvalid) {
+               [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+            }
     }] resume];
 }
 
