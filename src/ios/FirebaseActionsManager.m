@@ -70,7 +70,8 @@
 
     NSString *eType = mutableUserInfo[@"eType"];
     if ([eType isEqualToString:@"invite"]) {
-        if ([actionIdentifier isEqualToString:@"ACCEPT_CALL_ACTION"]) {
+        if ([actionIdentifier isEqualToString:@"ACCEPT_CALL_ACTION"] || [actionIdentifier isEqualToString: UNNotificationDefaultActionIdentifier]) {
+            [self markCallRequestAsProccessed:mutableUserInfo[@"msgid"]];
 
         } else if ([actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"]) {
             [self markCallRequestAsProccessed:mutableUserInfo[@"msgid"]];
