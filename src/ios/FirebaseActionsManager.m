@@ -70,9 +70,12 @@
 
     NSString *eType = mutableUserInfo[@"eType"];
     if ([eType isEqualToString:@"invite"]) {
-        if ([actionIdentifier isEqualToString:@"ACCEPT_CALL_ACTION"]) {
+        if ([actionIdentifier isEqualToString:@"ACCEPT_CALL_ACTION"] || [actionIdentifier isEqualToString: UNNotificationDefaultActionIdentifier]) {
+            [self markCallRequestAsProccessed:mutableUserInfo[@"msgid"]];
 
         } else if ([actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"]) {
+            [self markCallRequestAsProccessed:mutableUserInfo[@"msgid"]];
+
             BOOL isGroupCall = [mutableUserInfo[@"jid"] rangeOfString:@"@conference"].location != NSNotFound;
             NSString *callType = [mutableUserInfo[@"aps"][@"category"] lowercaseString];
             NSString *callId = mutableUserInfo[@"jid"];
@@ -89,6 +92,16 @@
 + (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {
     NSString *eType = mutableUserInfo[@"eType"];
     return [eType isEqualToString:@"invite"] && [actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"];
+}
+
++ (void)markCallRequestAsProccessed:(NSString *)mid {
+    NSString *processedCallsIds = [[NSUserDefaults standardUserDefaults] stringForKey:@"processedCallsIds"];
+    processedCallsIds = [NSString stringWithFormat:@"%@,%@", processedCallsIds, mid];
+
+    [[NSUserDefaults standardUserDefaults] setObject:processedCallsIds forKey:@"processedCallsIds"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+    NSLog(@"[FirebaseActionsManager][markCallRequestAsProccessed] mid: %@, processedCallsIds %@", mid, processedCallsIds);
 }
 
 ///
@@ -110,6 +123,13 @@
 }
 
 + (void)postRequestWithSubUrl:(NSString *)suburl params:(NSDictionary *)params {
+    UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
+    bgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] beginBackgroundTaskWithExpirationHandler expired");
+        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+    }];
+
+
     NSString *baseUrl = [[NSUserDefaults standardUserDefaults] stringForKey:@"apiUrl"];
     NSString *token = [[NSUserDefaults standardUserDefaults] stringForKey:@"auth-token"];
 
@@ -133,8 +153,15 @@
         NSURLResponse * _Nullable response,
         NSError * _Nullable error) {
 
-          NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-          NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] response: %@, error %@", responseStr, error);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+
+            NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] response: %@, error %@, status code %ld", responseStr, error, (long)[httpResponse statusCode]);
+
+            // AFTER ALL THE UPDATES, close the task
+            if (bgTask != UIBackgroundTaskInvalid) {
+               [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+            }
     }] resume];
 }
 
