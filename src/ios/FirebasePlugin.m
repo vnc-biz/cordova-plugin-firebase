@@ -196,37 +196,37 @@ static FirebasePlugin *firebasePlugin;
     return;
 }
 
-- (void)verifyPhoneNumber:(CDVInvokedUrlCommand *)command {
-    [self getVerificationID:command];
-}
-
-- (void)getVerificationID:(CDVInvokedUrlCommand *)command {
-    NSString* number = [command.arguments objectAtIndex:0];
-
-    [[FIRPhoneAuthProvider provider]
-    verifyPhoneNumber:number
-           UIDelegate:nil
-           completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
-
-    NSDictionary *message;
-
-    if (error) {
-        // Verification code not sent.
-        message = @{
-            @"code": [NSNumber numberWithInteger:error.code],
-            @"description": error.description == nil ? [NSNull null] : error.description
-        };
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:message];
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    } else {
-        // Successful.
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:verificationID];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }
-  }];
-}
+// - (void)verifyPhoneNumber:(CDVInvokedUrlCommand *)command {
+//     [self getVerificationID:command];
+// }
+//
+// - (void)getVerificationID:(CDVInvokedUrlCommand *)command {
+//     NSString* number = [command.arguments objectAtIndex:0];
+//
+//     [[FIRPhoneAuthProvider provider]
+//     verifyPhoneNumber:number
+//            UIDelegate:nil
+//            completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
+//
+//     NSDictionary *message;
+//
+//     if (error) {
+//         // Verification code not sent.
+//         message = @{
+//             @"code": [NSNumber numberWithInteger:error.code],
+//             @"description": error.description == nil ? [NSNull null] : error.description
+//         };
+//
+//         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:message];
+//
+//         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//     } else {
+//         // Successful.
+//         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:verificationID];
+//         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//     }
+//   }];
+// }
 
 - (void)setBadgeNumber:(CDVInvokedUrlCommand *)command {
     int number = [[command.arguments objectAtIndex:0] intValue];
