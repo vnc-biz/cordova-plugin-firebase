@@ -2,8 +2,8 @@
 #import <Cordova/CDV.h>
 #import "AppDelegate.h"
 #import "Firebase.h"
-#import <Fabric/Fabric.h>
-#import <Crashlytics/Crashlytics.h>
+// #import <Fabric/Fabric.h>
+// #import <Crashlytics/Crashlytics.h>
 @import FirebaseInstanceID;
 @import FirebaseMessaging;
 @import FirebaseAnalytics;
@@ -51,14 +51,14 @@ static FirebasePlugin *firebasePlugin;
 
 - (void)initCrashlytics:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult;
-    [Fabric with:@[[Crashlytics class]]];
-
-    if ([Crashlytics sharedInstance] == nil) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-    } else {
-        self.crashlyticsInit = YES;
+//    [Fabric with:@[[Crashlytics class]]];
+//
+//    if ([Crashlytics sharedInstance] == nil) {
+//        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+//    } else {
+//        self.crashlyticsInit = YES;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    }
+//    }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -352,7 +352,7 @@ static FirebasePlugin *firebasePlugin;
         CDVPluginResult *pluginResult;
         NSString* errorMessage = [command.arguments objectAtIndex:0];
         if(self.crashlyticsInit){
-          CLSNSLog(@"%@", errorMessage);
+          // CLSNSLog(@"%@", errorMessage);
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         } else {
           pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ERRORINITCRASHLYTICS];
