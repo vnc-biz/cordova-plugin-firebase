@@ -14,9 +14,9 @@ Firebase services work as intended."
     #endif // #ifndef FIREBASE_ANALYTICS_SUPPRESS_WARNING
   #endif
 
-  #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
-    #import <FirebaseAuth/FirebaseAuth.h>
-  #endif
+  // #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
+  //   #import <FirebaseAuth/FirebaseAuth.h>
+  // #endif
 
   #if __has_include(<FirebaseCrash/FirebaseCrash.h>)
     #import <FirebaseCrash/FirebaseCrash.h>
