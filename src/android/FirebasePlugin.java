@@ -291,6 +291,9 @@ public class FirebasePlugin extends CordovaPlugin {
         }  else if (action.equals("enableLockScreenVisibility")) {
             this.enableLockScreenVisibility(callbackContext, args.getBoolean(0));
             return true;
+        }  else if (action.equals("hideIncomingCallNotification")) {
+            this.hideIncomingCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
         }
         return false;
     }
@@ -1547,5 +1550,28 @@ public class FirebasePlugin extends CordovaPlugin {
         
             callbackContext.error(e.getMessage());
         }
+    }
+
+    public void hideIncomingCallNotification(CallbackContext callbackContext, JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String target = params.getString("target");
+
+                    Log.d(TAG, "hideIncomingCallNotification: target= " + target);
+
+                    NotificationManager.cancelCallNotification(appContext, target);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.isCrashlyticsEnabled()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
     }
 }

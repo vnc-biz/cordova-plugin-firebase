@@ -39,6 +39,8 @@ public class NotificationManager {
     private static final String CALL_EVENT_LEAVE = "leave";
     private static final String CALL_EVENT_JOIN = "join";
     private static final String CALL_EVENT_REJECT = "reject";
+    private static final String CALL_EVENT_JOINED_SELF = "joined-self";
+    private static final String CALL_EVENT_REJECTED_SELF = "rejected-self";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -307,6 +309,10 @@ public class NotificationManager {
             "callReceiver: "  + callReceiver  + "\n" +
             "callType: "      + callType);
 
+        if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
+            cancelCallNotification(appContext, callId);
+        }
+
         if (checkIfNotificationExist(appContext, msgId)) {
             Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
             return;
@@ -557,5 +563,11 @@ public class NotificationManager {
         }
 
         return false;
+    }
+
+    private static void cancelCallNotification(Context context, String pushCallId) {
+        int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
+
+        NotificationUtils.getManager(context).cancel(callNotificationId);
     }
 }
