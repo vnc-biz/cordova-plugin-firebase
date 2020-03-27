@@ -567,8 +567,18 @@ public class NotificationManager {
     }
 
     public static void cancelCallNotification(Context context, String pushCallId) {
-        int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
+        for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)) {
+            Notification notification = sbNotification.getNotification();
 
-        NotificationUtils.getManager(context).cancel(callNotificationId);
+            Bundle bundle = notification.extras;
+            String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
+
+            if (TextUtils.isEmpty(callId)) {
+                continue;
+            } else {
+                int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
+                NotificationUtils.getManager(context).cancel(callNotificationId);
+            }
+        }
     }
 }
