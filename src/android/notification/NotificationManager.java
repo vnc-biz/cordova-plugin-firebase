@@ -565,7 +565,7 @@ public class NotificationManager {
         return false;
     }
 
-    private static void cancelCallNotification(Context context, String pushCallId) {
+    public static void cancelCallNotification(Context context, String pushCallId) {
         int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
 
         NotificationUtils.getManager(context).cancel(callNotificationId);
