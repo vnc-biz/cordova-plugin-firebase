@@ -566,6 +566,7 @@ public class NotificationManager {
         return false;
     }
 
+    // TODO VT change to canceling call notifications for separated calls
     public static void cancelCallNotification(Context context, String pushCallId) {
         for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)) {
             Notification notification = sbNotification.getNotification();
