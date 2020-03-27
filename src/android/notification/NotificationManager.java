@@ -579,6 +579,9 @@ public class NotificationManager {
             } else {
                 int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
                 NotificationUtils.getManager(context).cancel(callNotificationId);
+
+                LocalBroadcastManager.getInstance(context.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
             }
         }
     }
