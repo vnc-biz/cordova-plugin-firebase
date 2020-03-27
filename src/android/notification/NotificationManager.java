@@ -311,6 +311,7 @@ public class NotificationManager {
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
             cancelCallNotification(appContext, callId);
+            return;
         }
 
         if (checkIfNotificationExist(appContext, msgId)) {
