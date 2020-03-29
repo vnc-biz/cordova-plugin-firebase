@@ -231,3 +231,7 @@ exports.clearMailNotificationsExceptCids = function (cids, success, error) {
 exports.enableLockScreenVisibility = function (enable, success, error) {
   exec(success, error, "FirebasePlugin", "enableLockScreenVisibility", [enable]);
 };
+
+exports.hideIncomingCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "hideIncomingCallNotification", [params]);
+};

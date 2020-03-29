@@ -39,6 +39,8 @@ public class NotificationManager {
     private static final String CALL_EVENT_LEAVE = "leave";
     private static final String CALL_EVENT_JOIN = "join";
     private static final String CALL_EVENT_REJECT = "reject";
+    private static final String CALL_EVENT_JOINED_SELF = "joined-self";
+    private static final String CALL_EVENT_REJECTED_SELF = "rejected-self";
 
     private static final String PREFS_NOTIF_COUNTER = "notificationCounter";
     private static final String PREFS_STRING_SET_KEY = "previousNotifications";
@@ -307,6 +309,11 @@ public class NotificationManager {
             "callReceiver: "  + callReceiver  + "\n" +
             "callType: "      + callType);
 
+        if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
+            cancelCallNotification(appContext, callId);
+            return;
+        }
+
         if (checkIfNotificationExist(appContext, msgId)) {
             Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
             return;
@@ -557,5 +564,25 @@ public class NotificationManager {
         }
 
         return false;
+    }
+
+    // TODO VT change to canceling call notifications for separated calls
+    public static void cancelCallNotification(Context context, String pushCallId) {
+        for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)) {
+            Notification notification = sbNotification.getNotification();
+
+            Bundle bundle = notification.extras;
+            String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
+
+            if (TextUtils.isEmpty(callId)) {
+                continue;
+            } else {
+                int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
+                NotificationUtils.getManager(context).cancel(callNotificationId);
+
+                LocalBroadcastManager.getInstance(context.getApplicationContext())
+                .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
+            }
+        }
     }
 }
