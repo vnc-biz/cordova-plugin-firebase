@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class FcmLoggerUtils {
     public static void logFcmReceived(Context context, String msgId){
-        String appId = getApplicationContext().getPackageName();
+        String appId = context.getApplicationContext().getPackageName();
         Log.i("FirebasePlugin.FcmLoggerUtils", "app ID: " + appId);
 
         if (!appId.equals("biz.vnc.vnctalk")) return;
