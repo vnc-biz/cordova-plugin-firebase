@@ -299,7 +299,7 @@ public class NotificationManager {
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
                                                 String callEventType, String callId, String name, String groupName, String callType, 
-                                                String callInitiator, String callReceiver) {
+                                                String callInitiator, String callReceiver, long timeStamp) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +    
             "callId: "        + callId        + "\n" +
@@ -307,6 +307,7 @@ public class NotificationManager {
             "groupName: "     + groupName     + "\n" +
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
+            "timeStamp: "     + timeStamp     + "\n" +
             "callType: "      + callType);
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
@@ -329,6 +330,14 @@ public class NotificationManager {
         if(!CALL_EVENT_INVITE.equals(callEventType)) {
             Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
             return;
+        }
+
+        if (timeStamp > 0){
+            long currentTime = System.currentTimeMillis()/1000;
+            if(timeStamp + 30 > currentTime){
+                showMissedCallNotification(appContext, msgId, callId, name, groupName, callType);
+                return;
+            }
         }
 
         Integer notificationId = NotificationUtils.generateCallNotificationId(callId);
@@ -379,6 +388,38 @@ public class NotificationManager {
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
         notificationManager.notify(notificationId, notification);
     }
+
+    private static void showMissedCallNotification(Context context, String msgId, String callId, String name, String groupName, String callType){
+        Integer notificationId = callId.hashCode();
+
+        String channelId = NotificationCreator.defineCallChannelId(context);
+        String channelName = NotificationCreator.defineCallChannelName(context);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
+
+        String title = "Missed " + callType + " call";
+        String text = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
+                callId, notificationId, "vncEventType", "chat", null);
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, "",
+                title, text, null, pendingIntent, defaultSoundUri);
+
+        NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
+        NotificationCreator.setNotificationColor(context, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+
+        NotificationCreator.setNotificationImageRes(context, notification);
+
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, defaultSoundUri);
+
+        notificationManager.notify(notificationId, notification);
+
+        NotificationUtils.saveNotificationsIdInFile(context, callId, notificationId);
+    } 
 
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
