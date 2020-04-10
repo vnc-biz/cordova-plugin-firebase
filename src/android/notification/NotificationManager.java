@@ -414,7 +414,7 @@ public class NotificationManager {
 
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
 
-        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, defaultSoundUri);
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, "");
 
         notificationManager.notify(notificationId, notification);
 
