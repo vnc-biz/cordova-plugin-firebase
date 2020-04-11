@@ -93,6 +93,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/utils/WidgetNotifier.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/ImagesUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/FcmLoggerUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
+		<source-file src="src/android/utils/DateUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />

@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.apache.cordova.firebase.utils.DateUtils;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import java.util.ArrayList;
@@ -333,7 +334,7 @@ public class NotificationManager {
         }
 
         if (timeStamp > 0){
-            long currentTime = System.currentTimeMillis()/1000;
+            long currentTime = DateUtils.getCorrectedTime(appContext);
             if(timeStamp + 30 > currentTime){
                 showMissedCallNotification(appContext, msgId, callId, name, groupName, callType);
                 return;
