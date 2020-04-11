@@ -17,7 +17,7 @@ public class DateUtils {
                 Log.i(TAG, "Correct time, diff = " + timeDiff + ", correctedTime = " + currentTime);
             }
         } catch (Exception e){
-            Log.i(TAG, "Error during parse diff");
+            Log.i(TAG, "Error during parse diff: " + e.getMessage());
         }
 
         return currentTime;

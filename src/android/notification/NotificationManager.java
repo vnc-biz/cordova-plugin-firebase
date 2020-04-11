@@ -335,7 +335,7 @@ public class NotificationManager {
 
         if (timeStamp > 0){
             long currentTime = DateUtils.getCorrectedTime(appContext);
-            if(timeStamp + 30 > currentTime){
+            if(currentTime > timeStamp + 30){
                 showMissedCallNotification(appContext, msgId, callId, name, groupName, callType);
                 return;
             }
@@ -393,8 +393,8 @@ public class NotificationManager {
     private static void showMissedCallNotification(Context context, String msgId, String callId, String name, String groupName, String callType){
         Integer notificationId = callId.hashCode();
 
-        String channelId = NotificationCreator.defineCallChannelId(context);
-        String channelName = NotificationCreator.defineCallChannelName(context);
+        String channelId = NotificationCreator.defineChannelId(context, "");
+        String channelName = NotificationCreator.defineChannelName(context, "");
         Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
 
         String title = "Missed " + callType + " call";
