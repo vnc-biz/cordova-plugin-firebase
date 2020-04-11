@@ -21,6 +21,22 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
 
     /**
+     * Called if InstanceID token is updated. This may occur if the security of
+     * the previous token had been compromised. Note that this is called when the InstanceID token
+     * is initially generated so this is where you would retrieve the token.
+     */
+    @Override
+    public void onNewToken(String refreshedToken) {
+        try{
+            super.onNewToken(refreshedToken);
+            Log.d(TAG, "Refreshed token: " + refreshedToken);
+            FirebasePlugin.sendToken(refreshedToken);
+        }catch (Exception e){
+            Log.e(TAG, "onNewToken exception " + e);
+            // FirebasePlugin.handleExceptionWithoutContext(e);
+        }
+    }
+    /**
      * Called when message is received.
      *
      * @param remoteMessage Object representing the message received from Firebase
