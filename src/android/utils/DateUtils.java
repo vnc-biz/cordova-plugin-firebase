@@ -10,7 +10,7 @@ public class DateUtils {
         long currentTime = System.currentTimeMillis() / 1000;
 
         try {
-            long timeDiff = SharedPrefsUtils.getLong(context, "time-diff-interval");
+            int timeDiff = SharedPrefsUtils.getInt(context, "time-diff-interval");
 
             if (timeDiff != -1) {
                 currentTime = currentTime + timeDiff;
