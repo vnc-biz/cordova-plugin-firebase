@@ -1522,7 +1522,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     "eventType= " + eventType);
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
-                                target, username, groupName, message, initiator, receiver);
+                                target, username, groupName, message, initiator, receiver, 0);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
