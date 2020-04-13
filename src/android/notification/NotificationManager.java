@@ -335,7 +335,7 @@ public class NotificationManager {
 
         if (timeStamp > 0){
             long currentTime = DateUtils.getCorrectedTime(appContext);
-            if(currentTime > timeStamp + 30){
+            if(currentTime > timeStamp + 60){
                 showMissedCallNotification(appContext, msgId, callId, name, groupName, callType);
                 return;
             }
