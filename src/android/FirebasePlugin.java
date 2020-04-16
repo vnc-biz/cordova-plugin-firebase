@@ -409,7 +409,7 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     NotificationManager.hideNotificationsExceptTargets(context, Arrays.asList(targets.split(",")));
-                    callbackContext.success(target);
+                    callbackContext.success(targets);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
