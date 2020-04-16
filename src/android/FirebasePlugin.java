@@ -404,7 +404,7 @@ public class FirebasePlugin extends CordovaPlugin {
 
     public void clearTalkNotificationsExceptTargets(final CallbackContext callbackContext, final String targets) {
         final Context context = this.cordova.getActivity().getApplicationContext();
-        Log.d(TAG, "clearTalkNotificationsExceptTargets: " + target);
+        Log.d(TAG, "clearTalkNotificationsExceptTargets: " + targets);
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
