@@ -1591,9 +1591,9 @@ public class FirebasePlugin extends CordovaPlugin {
                     String callType = params.getString("callType");
 
                     Log.d(TAG, "displayMissedCallNotification: \n" + 
-                    "callId= " + callId + "\n"
-                    "name= " + name + "\n"
-                    "groupName= " + groupName + "\n"
+                    "callId= " + callId + "\n" +
+                    "name= " + name + "\n" +
+                    "groupName= " + groupName + "\n" +
                     "callType= " + callType);
 
                     NotificationManager.showMissedCallNotification(appContext, callId, name, groupName, callType);
