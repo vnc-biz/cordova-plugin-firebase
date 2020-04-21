@@ -651,6 +651,8 @@ public class NotificationCreator {
             + "@@" + groupName
             + "@@" + callType;
  
+        Log.i(TAG, "addDeleteCallNotificationIntent, deleteCallNotificationIntent: " + deleteCallNotificationIntent);
+
         PendingIntent deleteCallNotificationPendingIntent = PendingIntent.getBroadcast(
             appContext,
             callId.hashCode(),

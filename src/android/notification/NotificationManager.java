@@ -380,6 +380,8 @@ public class NotificationManager {
         notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_INITIATOR, callInitiator);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_NAME, name);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_GROUP_NAME, groupName);
         notification.extras.putBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL, isGroupCall);
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
@@ -391,13 +393,19 @@ public class NotificationManager {
     }
 
     public static void showMissedCallNotification(Context context, String callId, String name, String groupName, String callType){
+        Log.i(TAG, "showMissedCallNotification: \n" +
+            "callId: "        + callId        + "\n" +
+            "username: "      + name          + "\n" +
+            "groupName: "     + groupName     + "\n" +
+            "callType: "      + callType);
+
         Integer notificationId = ("missed-call-"+callId).hashCode();
 
         String channelId = NotificationCreator.defineChannelId(context, "");
         String channelName = NotificationCreator.defineChannelName(context, "");
         Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
 
-        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName.equals("null") ? null : groupName);
         String text = "Missed " + callType + " call";
 
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
@@ -596,11 +604,16 @@ public class NotificationManager {
             }
 
             String callInitiator = bundle.getString(NotificationUtils.EXTRA_CALL_INITIATOR);
+            String callType = bundle.getString(NotificationUtils.EXTRA_CALL_TYPE);
+            String name = bundle.getString(NotificationUtils.EXTRA_CALL_NAME);
+            String groupName = bundle.getString(NotificationUtils.EXTRA_CALL_GROUP_NAME);
 
             if (pushCallInitiator.equals(callInitiator)){
                 int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
 
                 NotificationUtils.getManager(context).cancel(callNotificationId);
+                NotificationManager.showMissedCallNotification(context, callId, name, groupName, callType);
+
                 return true;
             }
         }

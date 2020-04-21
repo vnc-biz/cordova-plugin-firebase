@@ -147,6 +147,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             LocalBroadcastManager.getInstance(context.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
         } else if (intent.getAction().contains(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION)) {
+            Log.i(TAG, "NotificationReceiver onReceive Delete Call Notification, intent.getAction() = " + intent.getAction());
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
             String name = actionParts[2];
