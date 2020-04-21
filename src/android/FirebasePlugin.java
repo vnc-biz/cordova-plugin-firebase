@@ -294,6 +294,9 @@ public class FirebasePlugin extends CordovaPlugin {
         }  else if (action.equals("hideIncomingCallNotification")) {
             this.hideIncomingCallNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("displayMissedCallNotification")) {
+            this.displayMissedCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
         }
         return false;
     }
@@ -1564,6 +1567,36 @@ public class FirebasePlugin extends CordovaPlugin {
                     Log.d(TAG, "hideIncomingCallNotification: target= " + target);
 
                     NotificationManager.cancelCallNotification(appContext, target);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.isCrashlyticsEnabled()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void displayMissedCallNotification(CallbackContext callbackContext, JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String callId = params.getString("target");
+                    String name = params.getString("name");
+                    String groupName = params.getString("groupName");
+                    String callType = params.getString("callType");
+
+                    Log.d(TAG, "displayMissedCallNotification: \n" + 
+                    "callId= " + callId + "\n"
+                    "name= " + name + "\n"
+                    "groupName= " + groupName + "\n"
+                    "callType= " + callType);
+
+                    NotificationManager.showMissedCallNotification(appContext, callId, name, groupName, callType);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {

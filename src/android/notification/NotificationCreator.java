@@ -644,9 +644,12 @@ public class NotificationCreator {
         notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
     }
 
-    public static void addDeleteCallNotificationIntent(Context appContext, NotificationCompat.Builder notificationBuilder, String callId) {
+    public static void addDeleteCallNotificationIntent(Context appContext, NotificationCompat.Builder notificationBuilder, String callId, String name, String groupName, String callType) {
         String deleteCallNotificationIntent = TALK_DELETE_CALL_NOTIFICATION 
-            + "@@" + callId;
+            + "@@" + callId
+            + "@@" + name
+            + "@@" + groupName
+            + "@@" + callType;
  
         PendingIntent deleteCallNotificationPendingIntent = PendingIntent.getBroadcast(
             appContext,

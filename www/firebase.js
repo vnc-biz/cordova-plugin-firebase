@@ -235,3 +235,7 @@ exports.enableLockScreenVisibility = function (enable, success, error) {
 exports.hideIncomingCallNotification = function (params, success, error) {
   exec(success, error, "FirebasePlugin", "hideIncomingCallNotification", [params]);
 };
+
+exports.displayMissedCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "displayMissedCallNotification", [params]);
+};

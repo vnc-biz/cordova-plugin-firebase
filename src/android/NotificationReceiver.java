@@ -1,7 +1,6 @@
 package org.apache.cordova.firebase;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +25,7 @@ import org.apache.cordova.firebase.models.MailInfoItem;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import org.apache.cordova.firebase.notification.NotificationCreator;
+import org.apache.cordova.firebase.notification.NotificationManager;
 
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 
@@ -143,17 +143,23 @@ public class NotificationReceiver extends BroadcastReceiver {
 
             context.sendBroadcast(launchIntent);
 
-            ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(callNotificationId);
+            NotificationUtils.getManager(context).cancel(callNotificationId);
             LocalBroadcastManager.getInstance(context.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
         } else if (intent.getAction().contains(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION)) {
             String[] actionParts = intent.getAction().split("@@");
             String callId = actionParts[1];
+            String name = actionParts[2];
+            String groupName = actionParts[3];
+            String callType = actionParts[4];
             
             Log.i(TAG, "NotificationReceiver onReceive Delete Call Notification, callId: " + callId);
+            Log.i(TAG, "NotificationReceiver onReceive Delete Call Notification, params: " + intent.getExtras());
 
             LocalBroadcastManager.getInstance(context.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
+
+            NotificationManager.showMissedCallNotification(context.getApplicationContext(), callId, name, groupName, callType);
         }
     }
 

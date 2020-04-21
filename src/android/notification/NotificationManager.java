@@ -333,13 +333,13 @@ public class NotificationManager {
             return;
         }
 
-        if (timeStamp > 0){
-            long currentTime = DateUtils.getCorrectedTime(appContext);
-            if(currentTime > timeStamp + 60){
-                showMissedCallNotification(appContext, msgId, callId, name, groupName, callType);
-                return;
-            }
-        }
+        // if (timeStamp > 0){
+        //     long currentTime = DateUtils.getCorrectedTime(appContext);
+        //     if(currentTime > timeStamp + 60){
+        //         showMissedCallNotification(appContext, callId, name, groupName, callType);
+        //         return;
+        //     }
+        // }
 
         Integer notificationId = NotificationUtils.generateCallNotificationId(callId);
         boolean isGroupCall = !TextUtils.isEmpty(groupName);
@@ -369,7 +369,7 @@ public class NotificationManager {
         NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall);
 
         // Add action when delete call notification
-        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId);
+        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId, name, groupName, callType);
         
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
@@ -390,15 +390,15 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
     }
 
-    private static void showMissedCallNotification(Context context, String msgId, String callId, String name, String groupName, String callType){
-        Integer notificationId = callId.hashCode();
+    public static void showMissedCallNotification(Context context, String callId, String name, String groupName, String callType){
+        Integer notificationId = ("missed-call-"+callId).hashCode();
 
         String channelId = NotificationCreator.defineChannelId(context, "");
         String channelName = NotificationCreator.defineChannelName(context, "");
         Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
 
-        String title = "Missed " + callType + " call";
-        String text = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
+        String text = "Missed " + callType + " call";
 
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
                 callId, notificationId, "vncEventType", "chat", null);
