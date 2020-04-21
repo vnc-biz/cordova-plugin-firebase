@@ -405,7 +405,10 @@ public class NotificationManager {
         String channelName = NotificationCreator.defineChannelName(context, "");
         Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
 
-        String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName.equals("null") ? null : groupName);
+        String title = NotificationCreator.defineCallNotificationTitle(
+            callId, 
+            name == null || name.equals("null") ? null : name, 
+            groupName == null || groupName.equals("null") ? null : groupName);
         String text = "Missed " + callType + " call";
 
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
@@ -418,6 +421,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(context, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
+        notification.extras.putString(MESSAGE_TARGET, callId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
 
