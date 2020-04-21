@@ -282,6 +282,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearNotificationsByTarget")) {
             this.clearNotificationsByTarget(callbackContext, args.getString(0));
             return true;
+        } else if (action.equals("clearTalkNotificationsExceptTargets")) {
+            this.clearTalkNotificationsExceptTargets(callbackContext, args.getString(0));
+            return true;
         } else if (action.equals("scheduleLocalMailNotification")) {
             this.scheduleLocalMailNotification(callbackContext, args.getJSONObject(0));
             return true;
@@ -395,6 +398,21 @@ public class FirebasePlugin extends CordovaPlugin {
                 try {
                     NotificationManager.hideNotificationsForTarget(context, target);
                     callbackContext.success(target);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearTalkNotificationsExceptTargets(final CallbackContext callbackContext, final String targets) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearTalkNotificationsExceptTargets: " + targets);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideNotificationsExceptTargets(context, Arrays.asList(targets.split(",")));
+                    callbackContext.success(targets);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
@@ -1550,7 +1568,7 @@ public class FirebasePlugin extends CordovaPlugin {
             if (FirebasePlugin.isCrashlyticsEnabled()) {
                 Crashlytics.log(e.getMessage());
             }
-        
+
             callbackContext.error(e.getMessage());
         }
     }

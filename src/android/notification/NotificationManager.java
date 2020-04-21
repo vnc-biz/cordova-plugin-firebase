@@ -62,9 +62,9 @@ public class NotificationManager {
         android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Integer notificationId = msgId.hashCode();
-        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId 
+        Log.i(TAG, "displayMailNotification: subject:" + subject + ", body: " + body + ", fromDisplay: " + fromDisplay + ", msgId: " + msgId
             + ", type: " + type + ", notificationId: " + notificationId + ", cId: " + cId + ", sound: " + sound);
-        
+
         // defineChannelData
         String nsound = sound.equals("false") ? "mute" : "";
         String channelId = NotificationCreator.defineChannelId(activityOrServiceContext, nsound);
@@ -79,7 +79,7 @@ public class NotificationManager {
         summaryNotification.setGroupSummary(true);
         summaryNotification.setCategory(Notification.CATEGORY_EMAIL);
         summaryNotification.setOnlyAlertOnce(true);
-        
+
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, summaryNotification);
         NotificationCreator.setNotificationColor(activityOrServiceContext, summaryNotification);
 
@@ -299,10 +299,10 @@ public class NotificationManager {
     }
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
-                                                String callEventType, String callId, String name, String groupName, String callType, 
+                                                String callEventType, String callId, String name, String groupName, String callType,
                                                 String callInitiator, String callReceiver, long timeStamp) {
         Log.i(TAG, "displayCallNotification: \n" +
-            "msgId: "         + msgId         + "\n" +    
+            "msgId: "         + msgId         + "\n" +
             "callId: "        + callId        + "\n" +
             "username: "      + name          + "\n" +
             "groupName: "     + groupName     + "\n" +
@@ -370,7 +370,7 @@ public class NotificationManager {
 
         // Add action when delete call notification
         NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId, name, groupName, callType);
-        
+
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
 
@@ -406,8 +406,8 @@ public class NotificationManager {
         Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
 
         String title = NotificationCreator.defineCallNotificationTitle(
-            callId, 
-            name == null || name.equals("null") ? null : name, 
+            callId,
+            name == null || name.equals("null") ? null : name,
             groupName == null || groupName.equals("null") ? null : groupName);
         String text = "Missed " + callType + " call";
 
@@ -432,7 +432,7 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
 
         NotificationUtils.saveNotificationsIdInFile(context, callId, notificationId);
-    } 
+    }
 
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
@@ -592,14 +592,31 @@ public class NotificationManager {
         }
     }
 
+    public static void hideNotificationsExceptTargets(Context activityOrServiceContext, List<String> targets) {
+        try {
+            StatusBarNotification[] activeToasts = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (StatusBarNotification sbn : activeToasts) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                if (currentTarget != null && !targets.contains(currentTarget)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static boolean cancelExistCall(Context context, String pushCallId, String pushCallInitiator, String callEventType) {
-        if (!CALL_EVENT_LEAVE.equals(callEventType)){ 
+        if (!CALL_EVENT_LEAVE.equals(callEventType)){
             return false;
         }
 
         for (StatusBarNotification sbNotification : NotificationUtils.getStatusBarNotifications(context)){
             Notification notification = sbNotification.getNotification();
-            
+
             Bundle bundle = notification.extras;
             String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
 
