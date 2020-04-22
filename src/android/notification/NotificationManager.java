@@ -384,7 +384,10 @@ public class NotificationManager {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
         SharedPreferences.Editor editor = prefs.edit();
 
-        Set<String> previousNotifications = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
+        Set<String> previousNotificationsInPrefs = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
+        // here we copy to a new set bacause of https://stackoverflow.com/a/35625262/574475
+        Set<String> previousNotifications = new HashSet<String>(previousNotificationsInPrefs);
+
         int counter = prefs.getInt(PREFS_NOTIF_COUNTER, 0);
         String stringNotificationId = msgid;
         long currentTime = System.currentTimeMillis();
@@ -392,10 +395,14 @@ public class NotificationManager {
         if (previousNotifications != null && previousNotifications.size() > 0) {
             //Checking notifications on time to expire
             long hour = 1000 * 60 * 60;
+
+            // Log.i(TAG, "checkIfNotificationExist, counter: " + counter);
+
             if (counter > 100) {
                 editor.putInt(PREFS_NOTIF_COUNTER, 0);
                 Set<String> curNotif = new HashSet<String>();
                 Iterator<String> iter = previousNotifications.iterator();
+                Log.i(TAG, "checkIfNotificationExist, cleanup prev ids");
                 while (iter.hasNext()) {
                     String prevNotif = iter.next();
                     long timeNotif = prefs.getLong(prevNotif, 0);
@@ -403,6 +410,7 @@ public class NotificationManager {
                         //remove timeStamp for given notificationId
                         editor.remove(prevNotif).apply();
                         //removed notificationId from Set
+
                         iter.remove();
                     } else {
                         curNotif.add(prevNotif);
