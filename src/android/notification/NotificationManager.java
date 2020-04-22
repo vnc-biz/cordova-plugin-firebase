@@ -386,7 +386,12 @@ public class NotificationManager {
 
         Set<String> previousNotificationsInPrefs = prefs.getStringSet(PREFS_STRING_SET_KEY, null);
         // here we copy to a new set bacause of https://stackoverflow.com/a/35625262/574475
-        Set<String> previousNotifications = new HashSet<String>(previousNotificationsInPrefs);
+        Set<String> previousNotifications;
+        if (previousNotificationsInPrefs != null) {
+            previousNotifications = new HashSet<String>(previousNotificationsInPrefs);
+        } else {
+            previousNotifications = new HashSet<String>();
+        }
 
         int counter = prefs.getInt(PREFS_NOTIF_COUNTER, 0);
         String stringNotificationId = msgid;
