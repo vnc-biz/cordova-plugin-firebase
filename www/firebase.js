@@ -208,6 +208,10 @@ exports.clearTalkNotificationsExceptTargets = function (targets, success, error)
   exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargets", [targets]);
 };
 
+exports.clearTalkNotificationsExceptTargetsAndMissedCalls = function (targets, success, error) {
+  exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargetsAndMissedCalls", [targets]);
+};
+
 exports.scheduleLocalMailNotification = function (params, success, error) {
     exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
 };

@@ -285,6 +285,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearTalkNotificationsExceptTargets")) {
             this.clearTalkNotificationsExceptTargets(callbackContext, args.getString(0));
             return true;
+        } else if (action.equals("clearTalkNotificationsExceptTargetsAndMissedCalls")) {
+            this.clearTalkNotificationsExceptTargetsAndMissedCalls(callbackContext, args.getString(0));
+            return true;
         } else if (action.equals("scheduleLocalMailNotification")) {
             this.scheduleLocalMailNotification(callbackContext, args.getJSONObject(0));
             return true;
@@ -412,6 +415,22 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     NotificationManager.hideNotificationsExceptTargets(context, Arrays.asList(targets.split(",")));
+                    callbackContext.success(targets);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearTalkNotificationsExceptTargetsAndMissedCalls(final CallbackContext callbackContext, final String targets) {
+        Log.d(TAG, "clearTalkNotificationsExceptTargetsAndMissedCalls: " + targets);
+        
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideNotificationsExceptTargetsAndMissedCalls(context, Arrays.asList(targets.split(",")));
                     callbackContext.success(targets);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());

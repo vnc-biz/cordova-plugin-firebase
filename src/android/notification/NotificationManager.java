@@ -34,6 +34,7 @@ public class NotificationManager {
     private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     private static final String MESSAGE_TARGET = "messageTarget";
     private static final String MESSAGE_ID = "messageId";
+    private static final String MISSED_CALL_ID = "messed_call_id";
     private static final String CONV_ID = "convId";
 
     private static final String CALL_EVENT_INVITE = "invite";
@@ -422,6 +423,7 @@ public class NotificationManager {
 
         Notification notification = notificationBuilder.build();
         notification.extras.putString(MESSAGE_TARGET, callId);
+        notification.extras.putString(MISSED_CALL_ID, callId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
 
@@ -614,6 +616,24 @@ public class NotificationManager {
                 Bundle bundle = curNotif.extras;
                 String currentTarget = bundle.getString(MESSAGE_TARGET);
                 if (currentTarget != null && !targets.contains(currentTarget)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideNotificationsExceptTargetsAndMissedCalls(Context activityOrServiceContext, List<String> targets) {
+        try {
+            StatusBarNotification[] activeToasts = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = NotificationUtils.getManager(activityOrServiceContext);
+            for (StatusBarNotification sbn : activeToasts) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                String currentMissedCallId = bundle.getString(MISSED_CALL_ID);
+                if (currentTarget != null && !targets.contains(currentTarget) && TextUtils.isEmpty(currentMissedCallId)) {
                     notificationManager.cancel(sbn.getId());
                 }
             }
