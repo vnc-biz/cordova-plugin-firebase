@@ -45,9 +45,10 @@ public class NotificationCreator {
 
     private static final String VNC_MAIL_MSG_ID = "vncMailMsgId";
 
-    private static final String PREVIOUS_MESSAGES = "previousMessages";
-    private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
-    private static final String MESSAGE_TARGET = "messageTarget";
+    public static final String PREVIOUS_MESSAGES = "previousMessages";
+    public static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
+    public static final String MESSAGE_TARGET = "messageTarget";
+    public static final String MISSED_CALL_ID = "messed_call_id";
 
     public static final String NOTIFICATION_REPLY = "NotificationReply";
     public static final String MARK_AS_READ_REPLY = "MarkAsReadReply";
@@ -169,6 +170,12 @@ public class NotificationCreator {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
+
+            String missedCallId = bundle.getString(MISSED_CALL_ID);
+            if (!TextUtils.isEmpty(missedCallId)){
+                continue;
+            }
+
             String currentTarget = bundle.getString(MESSAGE_TARGET);
             List<String> previousMessages = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES);
 
