@@ -17,6 +17,7 @@ public class PayloadTalk {
     public String nType;
     public String nsound;
     public List<String> mention;
+    public long t;
 
     public String getMsgid() {
         return msgid;
@@ -110,4 +111,11 @@ public class PayloadTalk {
         this.nsound = nsound;
     }
 
+    public long getTimeStamp() {
+        return t;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.t = timeStamp;
+    }
 }

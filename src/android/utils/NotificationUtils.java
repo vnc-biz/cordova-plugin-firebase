@@ -20,6 +20,8 @@ public class NotificationUtils {
     public static final String EXTRA_CALL_ID = "extra_call_id";
     public static final String EXTRA_CALL_TYPE = "extra_call_type";
     public static final String EXTRA_CALL_INITIATOR = "extra_call_initiator";
+    public static final String EXTRA_CALL_NAME = "extra_call_name";
+    public static final String EXTRA_CALL_GROUP_NAME = "extra_call_group_name";
     public static final String EXTRA_CALL_RECEIVER = "extra_call_receiver";
     public static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
     public static final String EXTRA_CALL_ACTION = "extra_call_action";

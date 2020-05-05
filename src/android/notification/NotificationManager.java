@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.apache.cordova.firebase.utils.DateUtils;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import java.util.ArrayList;
@@ -29,9 +30,6 @@ public class NotificationManager {
 
     private static final String TAG = "NotificationDisplay";
 
-    private static final String PREVIOUS_MESSAGES = "previousMessages";
-    private static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
-    private static final String MESSAGE_TARGET = "messageTarget";
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
 
@@ -248,7 +246,7 @@ public class NotificationManager {
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
         List<String> msgs = new ArrayList<String>();
         Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, msgs);
-        if (existingNotificationId > -1) {
+        if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
         }
 
@@ -278,9 +276,9 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         //saveDataInNotification
-        notification.extras.putStringArrayList(PREVIOUS_MESSAGES, (ArrayList<String>) msgs);
-        notification.extras.putInt(NOTIFY_ID_FOR_UPDATING, notificationId);
-        notification.extras.putString(MESSAGE_TARGET, target);
+        notification.extras.putStringArrayList(NotificationCreator.PREVIOUS_MESSAGES, (ArrayList<String>) msgs);
+        notification.extras.putInt(NotificationCreator.NOTIFY_ID_FOR_UPDATING, notificationId);
+        notification.extras.putString(NotificationCreator.MESSAGE_TARGET, target);
 
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
@@ -299,7 +297,7 @@ public class NotificationManager {
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
                                                 String callEventType, String callId, String name, String groupName, String callType,
-                                                String callInitiator, String callReceiver) {
+                                                String callInitiator, String callReceiver, long timeStamp) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +
             "callId: "        + callId        + "\n" +
@@ -307,6 +305,7 @@ public class NotificationManager {
             "groupName: "     + groupName     + "\n" +
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
+            "timeStamp: "     + timeStamp     + "\n" +
             "callType: "      + callType);
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
@@ -330,6 +329,14 @@ public class NotificationManager {
             Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
             return;
         }
+
+        // if (timeStamp > 0){
+        //     long currentTime = DateUtils.getCorrectedTime(appContext);
+        //     if(currentTime > timeStamp + 60){
+        //         showMissedCallNotification(appContext, callId, name, groupName, callType);
+        //         return;
+        //     }
+        // }
 
         Integer notificationId = NotificationUtils.generateCallNotificationId(callId);
         boolean isGroupCall = !TextUtils.isEmpty(groupName);
@@ -359,7 +366,7 @@ public class NotificationManager {
         NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall);
 
         // Add action when delete call notification
-        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId);
+        NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId, name, groupName, callType);
 
         NotificationCreator.setNotificationSmallIcon(activityOrServiceContext, notificationBuilder);
         NotificationCreator.setNotificationColor(activityOrServiceContext, notificationBuilder);
@@ -370,6 +377,8 @@ public class NotificationManager {
         notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_INITIATOR, callInitiator);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_NAME, name);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_GROUP_NAME, groupName);
         notification.extras.putBoolean(NotificationUtils.EXTRA_IS_GROUP_CALL, isGroupCall);
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
@@ -378,6 +387,49 @@ public class NotificationManager {
 
         NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
         notificationManager.notify(notificationId, notification);
+    }
+
+    public static void showMissedCallNotification(Context context, String callId, String name, String groupName, String callType){
+        Log.i(TAG, "showMissedCallNotification: \n" +
+            "callId: "        + callId        + "\n" +
+            "username: "      + name          + "\n" +
+            "groupName: "     + groupName     + "\n" +
+            "callType: "      + callType);
+
+        Integer notificationId = ("missed-call-"+callId).hashCode();
+
+        String channelId = NotificationCreator.defineChannelId(context, "");
+        String channelName = NotificationCreator.defineChannelName(context, "");
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri("");
+
+        String title = NotificationCreator.defineCallNotificationTitle(
+            callId,
+            name == null || name.equals("null") ? null : name,
+            groupName == null || groupName.equals("null") ? null : groupName);
+        String text = "Missed " + callType + " call";
+
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
+                callId, notificationId, "vncEventType", "chat", null);
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, "",
+                title, text, null, pendingIntent, defaultSoundUri);
+
+        NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
+        NotificationCreator.setNotificationColor(context, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+        notification.extras.putString(NotificationCreator.MESSAGE_TARGET, callId);
+        notification.extras.putString(NotificationCreator.MISSED_CALL_ID, callId);
+
+        NotificationCreator.setNotificationImageRes(context, notification);
+
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, "");
+
+        notificationManager.notify(notificationId, notification);
+
+        NotificationUtils.saveNotificationsIdInFile(context, callId, notificationId);
     }
 
     private static boolean checkIfNotificationExist(Context appContext, String msgid) {
@@ -541,7 +593,7 @@ public class NotificationManager {
             for (StatusBarNotification sbn : activeToasts) {
                 Notification curNotif = sbn.getNotification();
                 Bundle bundle = curNotif.extras;
-                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                String currentTarget = bundle.getString(NotificationCreator.MESSAGE_TARGET);
                 if (currentTarget != null && currentTarget.equals(target)) {
                     notificationManager.cancel(sbn.getId());
                 }
@@ -558,8 +610,26 @@ public class NotificationManager {
             for (StatusBarNotification sbn : activeToasts) {
                 Notification curNotif = sbn.getNotification();
                 Bundle bundle = curNotif.extras;
-                String currentTarget = bundle.getString(MESSAGE_TARGET);
+                String currentTarget = bundle.getString(NotificationCreator.MESSAGE_TARGET);
                 if (currentTarget != null && !targets.contains(currentTarget)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideNotificationsExceptTargetsAndMissedCalls(Context activityOrServiceContext, List<String> targets) {
+        try {
+            StatusBarNotification[] activeToasts = NotificationUtils.getStatusBarNotifications(activityOrServiceContext);
+            android.app.NotificationManager notificationManager = NotificationUtils.getManager(activityOrServiceContext);
+            for (StatusBarNotification sbn : activeToasts) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentTarget = bundle.getString(NotificationCreator.MESSAGE_TARGET);
+                String currentMissedCallId = bundle.getString(NotificationCreator.MISSED_CALL_ID);
+                if (currentTarget != null && !targets.contains(currentTarget) && TextUtils.isEmpty(currentMissedCallId)) {
                     notificationManager.cancel(sbn.getId());
                 }
             }
@@ -584,11 +654,16 @@ public class NotificationManager {
             }
 
             String callInitiator = bundle.getString(NotificationUtils.EXTRA_CALL_INITIATOR);
+            String callType = bundle.getString(NotificationUtils.EXTRA_CALL_TYPE);
+            String name = bundle.getString(NotificationUtils.EXTRA_CALL_NAME);
+            String groupName = bundle.getString(NotificationUtils.EXTRA_CALL_GROUP_NAME);
 
             if (pushCallInitiator.equals(callInitiator)){
                 int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
 
                 NotificationUtils.getManager(context).cancel(callNotificationId);
+                NotificationManager.showMissedCallNotification(context, callId, name, groupName, callType);
+
                 return true;
             }
         }

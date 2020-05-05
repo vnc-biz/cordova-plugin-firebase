@@ -285,6 +285,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("clearTalkNotificationsExceptTargets")) {
             this.clearTalkNotificationsExceptTargets(callbackContext, args.getString(0));
             return true;
+        } else if (action.equals("clearTalkNotificationsExceptTargetsAndMissedCalls")) {
+            this.clearTalkNotificationsExceptTargetsAndMissedCalls(callbackContext, args.getString(0));
+            return true;
         } else if (action.equals("scheduleLocalMailNotification")) {
             this.scheduleLocalMailNotification(callbackContext, args.getJSONObject(0));
             return true;
@@ -296,6 +299,9 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         }  else if (action.equals("hideIncomingCallNotification")) {
             this.hideIncomingCallNotification(callbackContext, args.getJSONObject(0));
+            return true;
+        } else if (action.equals("displayMissedCallNotification")) {
+            this.displayMissedCallNotification(callbackContext, args.getJSONObject(0));
             return true;
         }
         return false;
@@ -409,6 +415,22 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     NotificationManager.hideNotificationsExceptTargets(context, Arrays.asList(targets.split(",")));
+                    callbackContext.success(targets);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearTalkNotificationsExceptTargetsAndMissedCalls(final CallbackContext callbackContext, final String targets) {
+        Log.d(TAG, "clearTalkNotificationsExceptTargetsAndMissedCalls: " + targets);
+        
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideNotificationsExceptTargetsAndMissedCalls(context, Arrays.asList(targets.split(",")));
                     callbackContext.success(targets);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
@@ -1540,7 +1562,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     "eventType= " + eventType);
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
-                                target, username, groupName, message, initiator, receiver);
+                                target, username, groupName, message, initiator, receiver, 0);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
@@ -1582,6 +1604,36 @@ public class FirebasePlugin extends CordovaPlugin {
                     Log.d(TAG, "hideIncomingCallNotification: target= " + target);
 
                     NotificationManager.cancelCallNotification(appContext, target);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.isCrashlyticsEnabled()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void displayMissedCallNotification(CallbackContext callbackContext, JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String callId = params.getString("target");
+                    String name = params.getString("name");
+                    String groupName = params.getString("groupName");
+                    String callType = params.getString("callType");
+
+                    Log.d(TAG, "displayMissedCallNotification: \n" + 
+                    "callId= " + callId + "\n" +
+                    "name= " + name + "\n" +
+                    "groupName= " + groupName + "\n" +
+                    "callType= " + callType);
+
+                    NotificationManager.showMissedCallNotification(appContext, callId, name, groupName, callType);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {

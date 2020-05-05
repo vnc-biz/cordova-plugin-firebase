@@ -38,6 +38,8 @@ public class RejectCallAction extends BaseActionTalk {
     @Override
     public void run() {
         super.run();
+
+        notificationManager.cancel(NotificationUtils.generateCallNotificationId(callId));
     /*
         GROUP
         {
@@ -83,8 +85,6 @@ public class RejectCallAction extends BaseActionTalk {
             Log.i(TAG, e.getLocalizedMessage());
 
             saveRejectCallOnError(context, callId);
-        } finally {
-            notificationManager.cancel(NotificationUtils.generateCallNotificationId(callId));
         }
     }
 

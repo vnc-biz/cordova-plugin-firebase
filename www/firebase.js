@@ -208,6 +208,10 @@ exports.clearTalkNotificationsExceptTargets = function (targets, success, error)
   exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargets", [targets]);
 };
 
+exports.clearTalkNotificationsExceptTargetsAndMissedCalls = function (targets, success, error) {
+  exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargetsAndMissedCalls", [targets]);
+};
+
 exports.scheduleLocalMailNotification = function (params, success, error) {
     exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
 };
@@ -238,4 +242,8 @@ exports.enableLockScreenVisibility = function (enable, success, error) {
 
 exports.hideIncomingCallNotification = function (params, success, error) {
   exec(success, error, "FirebasePlugin", "hideIncomingCallNotification", [params]);
+};
+
+exports.displayMissedCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "displayMissedCallNotification", [params]);
 };
