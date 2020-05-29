@@ -150,6 +150,8 @@ public class NotificationManager {
                 title = "Task deleted";
             } else if (type.equals("assignment_removed")) {
                 title = "Task removed";
+            } else if (type.equals("due_tasks")) {
+                title = "Task due today";
             } else {
                 title = "Task notification";
             }
@@ -168,6 +170,8 @@ public class NotificationManager {
                 title = "Aufgabe(n) gelöscht";
             } else if (type.equals("assignment_removed")) {
                 title = "Aufgabe(n) entfernt";
+            } else if (type.equals("due_tasks")) {
+                title = "Heute fällige Aufgaben";
             } else {
                 title = "Aufgabenbenachrichtigung";
             }
