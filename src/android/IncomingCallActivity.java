@@ -40,6 +40,10 @@ public class IncomingCallActivity extends Activity {
     private static final String EXTRA_CALL_SUBTITLE = "extra_call_subtitle";
     private static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
 
+    private static final String HIN_APP_ID = "biz.vnc.vnctalk.hintalk";
+    private static final String EKBO_APP_ID = "biz.vnc.vnctalk.ekbodialog";
+    private static final String TALK_APP_ID = "biz.vnc.vnctalk";
+
     private BroadcastReceiver callStateReceiver;
     private LocalBroadcastManager localBroadcastManager;
 
@@ -176,7 +180,42 @@ public class IncomingCallActivity extends Activity {
         TextView callSubTitleTxt = findViewById(getResources().getIdentifier("call_type_txt", "id", getPackageName()));
         callSubTitleTxt.setText(callSubTitle);
 
+        setBackground();
+        setAvatarPlaceholder();
+
         loadAvatar(callId);
+    }
+
+    private void setBackground(){
+        ImageView backgroundImg = findViewById(getResources().getIdentifier("background_img", "id", getPackageName()));
+
+        String backgroundResourceName;
+        if (getPackageName().equals(HIN_APP_ID)){
+            backgroundResourceName = "call_background_hin";
+        } else if (getPackageName().equals(EKBO_APP_ID)){
+            backgroundResourceName = "call_background_ekbo";
+        } else {
+            backgroundResourceName = "call_background";
+        }
+
+        int backgroundId = getResources().getIdentifier(backgroundResourceName, "drawable", getPackageName());
+
+        backgroundImg.setImageResource(backgroundId);
+    }
+
+    private void setAvatarPlaceholder(){
+        ImageView avatarImg = findViewById(getResources().getIdentifier("avatar_img", "id", getPackageName()));
+
+        String avatarResourceName;
+        if (getPackageName().equals(HIN_APP_ID)){
+            avatarResourceName = "hin_icon_round";
+        } else {
+            avatarResourceName = "vnc_icon_circle";
+        }
+
+        int placeholderId = getResources().getIdentifier(avatarResourceName, "drawable", getPackageName());
+
+        avatarImg.setImageResource(placeholderId);
     }
 
     private void loadAvatar(String callId) {
@@ -222,11 +261,13 @@ public class IncomingCallActivity extends Activity {
         private final String callId;
         private final String avatarServiceUrl;
         private final WeakReference<ImageView> imageView;
+        private final String appId;
 
         private LoadAvatarTask(String callId, String avatarServiceUrl, ImageView imageView) {
             this.callId = callId;
             this.avatarServiceUrl = avatarServiceUrl;
             this.imageView = new WeakReference<>(imageView);
+            this.appId = imageView.getContext().getApplicationContext().getPackageName();
         }
 
         @Override
@@ -242,6 +283,9 @@ public class IncomingCallActivity extends Activity {
                 result = BitmapFactory.decodeStream(avatarUrl.openStream());
             } catch (Exception e) {
                 e.printStackTrace();
+                if (appId.equals("biz.vnc.vnctalk.hintalk")){
+
+                }
             }
 
             return result;
@@ -249,6 +293,11 @@ public class IncomingCallActivity extends Activity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+
+            if (){
+
+            }
+
             if (bitmap == null || imageView.get() == null) return;
 
             try {
