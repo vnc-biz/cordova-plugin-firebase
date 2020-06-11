@@ -261,13 +261,11 @@ public class IncomingCallActivity extends Activity {
         private final String callId;
         private final String avatarServiceUrl;
         private final WeakReference<ImageView> imageView;
-        private final String appId;
-
+        
         private LoadAvatarTask(String callId, String avatarServiceUrl, ImageView imageView) {
             this.callId = callId;
             this.avatarServiceUrl = avatarServiceUrl;
             this.imageView = new WeakReference<>(imageView);
-            this.appId = imageView.getContext().getApplicationContext().getPackageName();
         }
 
         @Override
@@ -283,9 +281,6 @@ public class IncomingCallActivity extends Activity {
                 result = BitmapFactory.decodeStream(avatarUrl.openStream());
             } catch (Exception e) {
                 e.printStackTrace();
-                if (appId.equals("biz.vnc.vnctalk.hintalk")){
-
-                }
             }
 
             return result;
@@ -293,11 +288,6 @@ public class IncomingCallActivity extends Activity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-
-            if (){
-
-            }
-
             if (bitmap == null || imageView.get() == null) return;
 
             try {
