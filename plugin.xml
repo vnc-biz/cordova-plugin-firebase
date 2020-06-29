@@ -67,10 +67,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/res/drawable/shape_oval_white_red.xml" target="res/drawable/shape_oval_white_red.xml" />
 		<resource-file src="src/android/res/drawable/shape_oval_white_green.xml" target="res/drawable/shape_oval_white_green.xml" />
 		<resource-file src="src/android/res/drawable-nodpi/call_background.png" target="res/drawable-nodpi/call_background.png" />
-		<resource-file src="src/android/res/drawable-nodpi/call_background_hin.jpg" target="res/drawable-nodpi/call_background_hin.jpg" />
-		<resource-file src="src/android/res/drawable-nodpi/call_background_ekbo.jpg" target="res/drawable-nodpi/call_background_ekbo.jpg" />
 		<resource-file src="src/android/res/drawable-nodpi/vnc_icon_circle.png" target="res/drawable-nodpi/vnc_icon_circle.png" />
-		<resource-file src="src/android/res/drawable-nodpi/hin_icon_round.png" target="res/drawable-nodpi/hin_icon_round.png" />
 		<source-file src="src/android/reply_activity.xml" target-dir="res/layout" />
 		<source-file src="src/android/ReplyActivity.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/res/layout/activity_incoming_call.xml" target-dir="res/layout" />

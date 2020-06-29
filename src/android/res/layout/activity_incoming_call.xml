@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        tools:src="@drawable/call_background"
+        android:src="@drawable/call_background"
         tools:ignore="ContentDescription" />
 
     <ImageView
@@ -22,7 +22,7 @@
         android:layout_centerVertical="true"
         android:layout_marginTop="80dp"
         android:scaleType="centerCrop"
-        tools:src="@drawable/vnc_icon_circle"
+        android:src="@drawable/vnc_icon_circle"
         tools:ignore="ContentDescription" />
 
     <TextView
