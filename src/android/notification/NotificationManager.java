@@ -152,6 +152,8 @@ public class NotificationManager {
                 title = "Task removed";
             } else if (type.equals("due_tasks")) {
                 title = "Task due today";
+            } else if (type.equals("watcher_added")) {
+                title = "Task watcher";
             } else {
                 title = "Task notification";
             }
@@ -172,6 +174,8 @@ public class NotificationManager {
                 title = "Aufgabe(n) entfernt";
             } else if (type.equals("due_tasks")) {
                 title = "Heute fällige Aufgaben";
+            } else if (type.equals("watcher_added")) {
+                title = "Aufgabe(n) Beobachter";
             } else {
                 title = "Aufgabenbenachrichtigung";
             }
