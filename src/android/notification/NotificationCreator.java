@@ -613,11 +613,13 @@ public class NotificationCreator {
     }
 
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                            String callId, String callType, String callInitiator) {
+                                            String callId, String callType, String callInitiator, String jitsiRoom, String jitsiURL) {
         String callAcceptActionName = TALK_CALL_ACCEPT 
         + "@@" + callId 
         + "@@" + callType
-        + "@@" + callInitiator;
+        + "@@" + callInitiator
+        + "@@" + jitsiRoom
+        + "@@" + jitsiURL;
  
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
             appContext,
@@ -637,11 +639,11 @@ public class NotificationCreator {
 
     public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder, 
                                                 String callId, String callType, String callInitiator, String callReceiver,
-                                                String callTitle, String callSubTitle, boolean isGroupCall) {
+                                                String callTitle, String callSubTitle, boolean isGroupCall, String jitsiRoom, String jitsiURL) {
 
 
         Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callInitiator, callReceiver, 
-                                                                            callTitle, callSubTitle, isGroupCall);
+                                                                            callTitle, callSubTitle, isGroupCall, jitsiRoom, jitsiURL);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
             appContext, 
             callId.hashCode(),

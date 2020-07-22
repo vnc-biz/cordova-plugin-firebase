@@ -1551,6 +1551,8 @@ public class FirebasePlugin extends CordovaPlugin {
                     String groupName = params.getString("groupName");
                     String message = params.getString("message");
                     String eventType = params.getString("eventType");
+                    String jitsiRoom = params.getString("jitsiRoom");
+                    String jitsiURL = params.getString("jitsiURL");
 
                     Log.d(TAG, "scheduleCallNotification: \n" +
                     "msgid= " + msgid + "\n" +
@@ -1559,10 +1561,12 @@ public class FirebasePlugin extends CordovaPlugin {
                     "username= " + username + "\n" +
                     "groupName= " + groupName + "\n" +
                     "message= " + message + "\n" +
+                    "jitsiRoom= " + jitsiRoom + "\n" +
+                    "jitsiURL= " + jitsiURL + "\n" +
                     "eventType= " + eventType);
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
-                                target, username, groupName, message, initiator, receiver, 0);
+                                target, username, groupName, message, initiator, receiver, 0l, jitsiRoom, jitsiURL);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
