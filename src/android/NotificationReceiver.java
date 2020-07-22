@@ -127,7 +127,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             String callType = actionParts[2];
             String callInitiator = actionParts[3];
             String jitsiRoom = actionParts[4];
-            String jitsiURL = actionParts[5];
+            String jitsiUrl = actionParts[5];
             int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
