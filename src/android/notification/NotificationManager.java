@@ -305,7 +305,7 @@ public class NotificationManager {
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
                                                 String callEventType, String callId, String name, String groupName, String callType,
-                                                String callInitiator, String callReceiver, long timeStamp) {
+                                                String callInitiator, String callReceiver, long timeStamp, String jitsiRoom, String jitsiURL) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +
             "callId: "        + callId        + "\n" +
@@ -314,6 +314,8 @@ public class NotificationManager {
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
             "timeStamp: "     + timeStamp     + "\n" +
+            "jitsiRoom: "     + jitsiRoom     + "\n" +
+            "jitsiURL: "      + jitsiURL      + "\n" +
             "callType: "      + callType);
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
@@ -368,10 +370,10 @@ public class NotificationManager {
 
         // Add actions
         NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
-        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator, jitsiRoom, jitsiURL);
 
         // Add full screen intent (to show on lock screen)
-        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall);
+        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall, jitsiRoom, jitsiURL);
 
         // Add action when delete call notification
         NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId, name, groupName, callType);

@@ -18,6 +18,8 @@ public class PayloadTalk {
     public String nsound;
     public List<String> mention;
     public long t;
+    public String jitsiURL;
+    public String jitsiRoom;
 
     public String getMsgid() {
         return msgid;
@@ -117,5 +119,21 @@ public class PayloadTalk {
 
     public void setTimeStamp(long timeStamp) {
         this.t = timeStamp;
+    }
+
+    public String getJitsiURL() {
+        return jitsiURL;
+    }
+
+    public void setJitsiURL(String jitsiURL) {
+        this.jitsiURL = jitsiURL;
+    }
+
+    public String getJitsiRoom() {
+        return jitsiRoom;
+    }
+
+    public void setJitsiRoom(String jitsiRoom) {
+        this.jitsiRoom = jitsiRoom;
     }
 }

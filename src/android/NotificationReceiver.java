@@ -126,6 +126,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             String callId = actionParts[1];
             String callType = actionParts[2];
             String callInitiator = actionParts[3];
+            String jitsiRoom = actionParts[4];
+            String jitsiUrl = actionParts[5];
             int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
@@ -137,6 +139,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             bundle.putString("vncEventType", callType);
             bundle.putInt(NotificationCreator.NOTIFY_ID, callNotificationId);
             bundle.putString(NotificationUtils.EXTRA_CALL_ACTION, NotificationCreator.TALK_CALL_ACCEPT);
+            bundle.putString(NotificationUtils.EXTRA_CALL_JITSI_ROOM, jitsiRoom);
+            bundle.putString(NotificationUtils.EXTRA_CALL_JITSI_URL, jitsiUrl);
             launchIntent.putExtras(bundle);
 
             dismissAnotherCalls(context, callId);

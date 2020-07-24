@@ -55,6 +55,8 @@ public class PayloadProcessor {
               final String nsound = notification.nsound;
               final String callSignal = notification.callSignal;
               final long timeStamp = notification.t;
+              final String jitsiRoom = notification.jitsiRoom;
+              final String jitsiUrl = notification.jitsiURL;
 
               FcmLoggerUtils.logFcmReceived(appContext, msgid);
 
@@ -68,7 +70,7 @@ public class PayloadProcessor {
                     public void run() {
                         if (notification.isCallNotification()) {
                             NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
-                                eventType, target, username, groupName, message, initistor, receiver, timeStamp);
+                                eventType, target, username, groupName, message, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
                                 target, username, groupName, message, eventType, nsound, "", "");
@@ -93,6 +95,8 @@ public class PayloadProcessor {
                       dataBundle.putString("nsound", nsound);
                       dataBundle.putString("mention", TextUtils.join(",", notification.mention));
                       dataBundle.putString("callSignal", callSignal);
+                      dataBundle.putString("jitsiRoom", jitsiRoom);
+                      dataBundle.putString("jitsiURL", jitsiUrl);
 
                       FirebasePlugin.sendNotificationReceived(dataBundle);
                   } else {
