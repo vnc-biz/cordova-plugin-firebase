@@ -115,6 +115,63 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
     }
 
+    synchronized public static void displayCalendarNotification(Context context, String msgId, String cId, String subject,
+        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String folderId) {
+
+        if (checkIfNotificationExist(context, msgId)) {
+            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+            return;
+        }
+
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+
+        Integer notificationId = msgId.hashCode();
+
+        Log.i(TAG, "displayCalendarNotification: \n" +
+            "notificationId: "  + notificationId    + "\n" +
+            "msgId: "           + msgId             + "\n" +
+            "subject: "         + subject           + "\n" +
+            "title: "           + title             + "\n" +
+            "body: "            + body              + "\n" +
+            "fromDisplay: "     + fromDisplay       + "\n" +
+            "fromAddress: "     + fromAddress       + "\n" +
+            "type: "            + type              + "\n" +
+            "nType: "           + nType             + "\n" +
+            "folderId: "        + folderId          + "\n" +
+            "cId: "             + cId);
+
+        // defineChannelData
+        String nsound = "";
+        String channelId = NotificationCreator.defineChannelId(context, nsound);
+        String channelName = NotificationCreator.defineChannelName(context, nsound);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, msgId, notificationId, type, folderId, cId);
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, nsound,
+        title, body, null, pendingIntent, defaultSoundUri);
+        notificationBuilder.setCategory(Notification.CATEGORY_EVENT);
+
+        NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
+        NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
+        NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+
+        NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
+        NotificationCreator.setNotificationColor(context, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+
+        notification.extras.putString(MESSAGE_ID, msgId);
+        notification.extras.putString(CONV_ID, cId);
+
+        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+        
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
+
+        notificationManager.notify(notificationId, notification);
+    }
+
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
                                                           String type, String sound, String open_in_browser, String language) {

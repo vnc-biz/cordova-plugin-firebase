@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.models.PayloadMail;
+import org.apache.cordova.firebase.models.PayloadCalendar;
 import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.apache.cordova.firebase.utils.FcmLoggerUtils;
 import java.util.concurrent.ExecutorService;
@@ -220,6 +221,73 @@ public class PayloadProcessor {
                     dataBundle.putString("subject", subject);
                     dataBundle.putString("fromDisplay", fromDisplay);
                     dataBundle.putString("folderId", folderId);
+                    dataBundle.putString("body", body);
+
+                    FirebasePlugin.sendNotificationReceived(dataBundle);
+                } else {
+                    Log.i(TAG, "no onNotificationReceived callback provided");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void processCalendarPayload(Map<String, String> payload) {
+        try {
+            JSONObject data = new JSONObject(payload.get("calfcm"));  
+
+            if (data == null || data.length() == 0) {
+                Log.w(TAG, "received empty data?");
+                return;
+            }
+
+            PayloadMail notification = new Gson().fromJson(data.toString(), PayloadCalendar.class);
+            final String fromAddress = notification.fromAddress;
+            final String subject = notification.subject;
+            final String fromDisplay = notification.fromDisplay;
+            final String mid = notification.mid;
+            final String cid = notification.cid;
+            final String type = notification.type;
+            final String ntype = notification.ntype;
+            final String folderId = notification.folderId;
+            final String title = notification.title;
+            final String body = notification.body;
+
+            if (FirebasePlugin.inBackground()) {
+                notificationPool.execute(new Runnable() {
+                    public void run() {
+                        NotificationManager.displayCalendarNotification(
+                            appContext,
+                            mid,
+                            cid,
+                            subject,
+                            title,
+                            body,
+                            fromDisplay,
+                            fromAddress,
+                            type,
+                            ntype,
+                            folderId);
+                    }
+                });
+            } else {
+                // pass a notification to JS app in foreground
+                // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                    Log.i(TAG, "onNotificationReceived callback provided");
+
+                    Bundle dataBundle = new Bundle();
+                    dataBundle.putString("mid", mid);
+                    dataBundle.putString("cid", cid);
+                    dataBundle.putString("ntype", ntype);
+                    dataBundle.putString("type", type);
+                    dataBundle.putString("fromAddress", fromAddress);
+                    dataBundle.putString("subject", subject);
+                    dataBundle.putString("fromDisplay", fromDisplay);
+                    dataBundle.putString("folderId", folderId);
+                    dataBundle.putString("title", title);
                     dataBundle.putString("body", body);
 
                     FirebasePlugin.sendNotificationReceived(dataBundle);
