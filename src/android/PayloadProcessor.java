@@ -243,7 +243,7 @@ public class PayloadProcessor {
                 return;
             }
 
-            PayloadMail notification = new Gson().fromJson(data.toString(), PayloadCalendar.class);
+            PayloadCalendar notification = new Gson().fromJson(data.toString(), PayloadCalendar.class);
             final String fromAddress = notification.fromAddress;
             final String subject = notification.subject;
             final String fromDisplay = notification.fromDisplay;

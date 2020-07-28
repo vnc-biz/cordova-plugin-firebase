@@ -24,7 +24,7 @@ public class CalendarOptionsAction extends BaseActionCalendar {
     private final String option;
     private final Integer msgId;
 
-    public MailOptionsAction(Context context, int notificationId, String option, Integer msgId) {
+    public CalendarOptionsAction(Context context, int notificationId, String option, Integer msgId) {
         super(notificationId, context, "/sendInviteReply");
 
         this.option = option;

@@ -165,7 +165,7 @@ public class NotificationManager {
         notification.extras.putString(MESSAGE_ID, msgId);
         notification.extras.putString(CONV_ID, cId);
 
-        NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
+        NotificationCreator.setNotificationImageRes(context, notification);
         
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 

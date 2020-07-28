@@ -16,7 +16,7 @@ public abstract class BaseActionCalendar extends BaseAction {
 
     protected String mToken;
 
-    BaseActionMail(int notificationId, Context context, String urlSupplement) {
+    BaseActionCalendar(int notificationId, Context context, String urlSupplement) {
         super(notificationId, context, urlSupplement);
 
         initToken();

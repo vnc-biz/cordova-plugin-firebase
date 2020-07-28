@@ -1,6 +1,6 @@
 package org.apache.cordova.firebase.models;
 
-public class PayloadTask {
+public class PayloadCalendar {
     public String ntype;
     public String fromAddress;
     public String subject;
