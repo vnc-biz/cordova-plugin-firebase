@@ -490,12 +490,15 @@ public class FirebasePlugin extends CordovaPlugin {
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
+                Log.d(TAG, "onTokenRefresh");
                 try {
                     String currentToken = FirebaseInstanceId.getInstance().getToken();
                     if (currentToken != null) {
+                        Log.d(TAG, "onTokenRefresh, current token = " + currentToken);
                         FirebasePlugin.sendToken(currentToken);
                     }
                 } catch (Exception e) {
+                    Log.w(TAG, "onTokenRefresh, error " + e.getMessage());
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
                       Crashlytics.logException(e);
                     }
@@ -592,6 +595,7 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     public static void sendToken(String token) {
+        Log.d("FirebasePlugin", "sendToken");
         if (FirebasePlugin.tokenRefreshCallbackContext == null) {
             return;
         }
@@ -600,6 +604,7 @@ public class FirebasePlugin extends CordovaPlugin {
         if (callbackContext != null && token != null) {
             PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, token);
             pluginresult.setKeepCallback(true);
+            Log.d("FirebasePlugin", "sendToken to app"); 
             callbackContext.sendPluginResult(pluginresult);
         }
     }
