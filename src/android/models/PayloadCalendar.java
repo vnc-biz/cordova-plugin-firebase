@@ -10,5 +10,6 @@ public class PayloadCalendar {
     public String type;
     public String folderId;
     public String title; // Notification title
-    public String body ; // Notification body
+    public String body; // Notification body
+    public String notificationType;
 }
