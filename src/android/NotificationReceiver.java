@@ -177,7 +177,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             Thread thread = new Thread(new CalendarOptionsAction(context, notificationId, "ACCEPT", msgId));
             thread.start();
         } else if (intent.getAction().contains(NotificationCreator.CALENDAR_REJECT_ACTION)) {
-            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, intent.getAction() = " + intent.getAction());
+            Log.i(TAG, "NotificationReceiver onReceive Decline Calendar action, intent.getAction() = " + intent.getAction());
             String[] actionParts = intent.getAction().split("@@");
             int notificationId = Integer.parseInt(actionParts[1]);
             Integer msgId = Integer.parseInt(actionParts[2]);
@@ -187,7 +187,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             Thread thread = new Thread(new CalendarOptionsAction(context, notificationId, "DECLINE", msgId));
             thread.start();
         } else if (intent.getAction().contains(NotificationCreator.CALENDAR_TENTATIVE_ACTION)) {
-            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, intent.getAction() = " + intent.getAction());
+            Log.i(TAG, "NotificationReceiver onReceive Tentative Calendar action, intent.getAction() = " + intent.getAction());
             String[] actionParts = intent.getAction().split("@@");
             int notificationId = Integer.parseInt(actionParts[1]);
             Integer msgId = Integer.parseInt(actionParts[2]);
