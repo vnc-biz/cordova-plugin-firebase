@@ -78,7 +78,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 return;
             }
             payloadProcessor.processTaskPayload(payload);
-        } else if (payload.get("calfcm") != null) {
+        } else if (payload.get("notificationType") != null && payload.get("notificationType").equals("appointment")) {
             payloadProcessor.processCalendarPayload(payload);
         } else if (payload.containsKey("subject") && payload.containsKey("fromAddress")) {
             payloadProcessor.processMailPayload(payload);

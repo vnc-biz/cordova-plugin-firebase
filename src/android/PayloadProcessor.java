@@ -236,7 +236,7 @@ public class PayloadProcessor {
 
     public void processCalendarPayload(Map<String, String> payload) {
         try {
-            JSONObject data = new JSONObject(payload.get("calfcm"));  
+            JSONObject data = new JSONObject(payload);  
 
             if (data == null || data.length() == 0) {
                 Log.w(TAG, "received empty data?");
@@ -255,9 +255,24 @@ public class PayloadProcessor {
             final String title = notification.title;
             final String body = notification.body;
 
+            Log.d(TAG, "processCalendarPayload: \n" +
+                    "subject = " + subject + "\n" +
+                    "body = " + body + "\n" +
+                    "title = " + title + "\n" +
+                    "fromDisplay = " + fromDisplay + "\n" +
+                    "folderId = " + folderId + "\n" +
+                    "mid = " + mid + "\n" +
+                    "type = " + type + "\n" +
+                    "ntype = " + ntype + "\n" +
+                    "fromAddress = " + fromAddress + "\n" +
+                    "cid = " + cid);
+
             if (FirebasePlugin.inBackground()) {
+                Log.d(TAG, "processCalendarPayload, inBackground");
                 notificationPool.execute(new Runnable() {
                     public void run() {
+                        try{
+                        Log.d(TAG, "processCalendarPayload, before displayCalendarNotification");
                         NotificationManager.displayCalendarNotification(
                             appContext,
                             mid,
@@ -270,9 +285,13 @@ public class PayloadProcessor {
                             type,
                             ntype,
                             folderId);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
                 });
             } else {
+                Log.d(TAG, "processCalendarPayload, inForeground");
                 // pass a notification to JS app in foreground
                 // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
                 if (FirebasePlugin.hasNotificationsReceivedCallback()) {
@@ -299,5 +318,6 @@ public class PayloadProcessor {
             e.printStackTrace();
             return;
         }
+        Log.d(TAG, "processCalendarPayload, after catch");
     }
 }
