@@ -3,6 +3,7 @@ package org.apache.cordova.firebase.actions;
 import android.content.Context;
 import android.util.Log;
 
+import org.apache.cordova.firebase.notification.NotificationManager;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
 import java.io.IOException;
