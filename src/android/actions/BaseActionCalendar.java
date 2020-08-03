@@ -49,5 +49,6 @@ public abstract class BaseActionCalendar extends BaseAction {
 
     protected void cancelNotification(){
         notificationManager.cancel(notificationId);
+        NotificationManager.hideCalendarSummaryNotificationIfNeed(context, notificationManager);
     }
 }

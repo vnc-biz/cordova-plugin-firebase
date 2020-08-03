@@ -46,6 +46,9 @@ public class NotificationManager {
     private static final int MAIL_SUMMARY_NOTIFICATION_ID = 123;
     private static final String MAIL_NOTIFICATIONS_GROUP_ID = "mailNotificationsGroupId";
 
+    private static final int CALENDAR_SUMMARY_NOTIFICATION_ID = 456;
+    private static final String CALENDAR_NOTIFICATIONS_GROUP_ID = "calendarNotificationsGroupId";
+
     private static long timeFromPrevNotify = 0;
 
     synchronized public static void displayMailNotification(Context activityOrServiceContext, Context appContext, String subject,
@@ -146,12 +149,26 @@ public class NotificationManager {
         String channelName = NotificationCreator.defineChannelName(context, nsound);
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
+        //prepare group's root notification
+        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null);
+        NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(context, channelId, nsound,
+        null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
+        summaryNotification.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
+        summaryNotification.setGroupSummary(true);
+        summaryNotification.setCategory(Notification.CATEGORY_EVENT);
+        summaryNotification.setOnlyAlertOnce(true);
+
+        NotificationCreator.setNotificationSmallIcon(context, summaryNotification);
+        NotificationCreator.setNotificationColor(context, summaryNotification);
+
         //create Notification PendingIntent
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, msgId, notificationId, type, folderId, cId);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, nsound,
         title, body, null, pendingIntent, defaultSoundUri);
         notificationBuilder.setCategory(Notification.CATEGORY_EVENT);
+        notificationBuilder.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
+        notificationBuilder.setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY);
 
         NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
         NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
@@ -169,6 +186,7 @@ public class NotificationManager {
         
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
+        notificationManager.notify(CALENDAR_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
         notificationManager.notify(notificationId, notification);
     }
 
@@ -574,6 +592,22 @@ public class NotificationManager {
                 StatusBarNotification statusBarNotification = statusBarNotifications[0];
                 if (statusBarNotification.getId() == MAIL_SUMMARY_NOTIFICATION_ID) {
                     notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideCalendarSummaryNotificationIfNeed(Context context, android.app.NotificationManager notificationManager) {
+        Log.d(TAG, "hideCalendarSummaryNotificationIfNeed");
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
+            Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
+            if (statusBarNotifications.length == 1) {
+                StatusBarNotification statusBarNotification = statusBarNotifications[0];
+                if (statusBarNotification.getId() == CALENDAR_SUMMARY_NOTIFICATION_ID) {
+                    notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
                 }
             }
         } catch (Exception e) {
