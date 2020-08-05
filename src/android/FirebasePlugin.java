@@ -303,6 +303,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("displayMissedCallNotification")) {
             this.displayMissedCallNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("scheduleCalendarNotification")) {
+            this.scheduleCalendarNotification(callbackContext, args.getJSONObject(0));
+            return true;
         }
         return false;
     }
@@ -487,12 +490,15 @@ public class FirebasePlugin extends CordovaPlugin {
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
+                Log.d(TAG, "onTokenRefresh");
                 try {
                     String currentToken = FirebaseInstanceId.getInstance().getToken();
                     if (currentToken != null) {
+                        Log.d(TAG, "onTokenRefresh, current token = " + currentToken);
                         FirebasePlugin.sendToken(currentToken);
                     }
                 } catch (Exception e) {
+                    Log.w(TAG, "onTokenRefresh, error " + e.getMessage());
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
                       Crashlytics.logException(e);
                     }
@@ -589,6 +595,7 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     public static void sendToken(String token) {
+        Log.d("FirebasePlugin", "sendToken");
         if (FirebasePlugin.tokenRefreshCallbackContext == null) {
             return;
         }
@@ -597,6 +604,7 @@ public class FirebasePlugin extends CordovaPlugin {
         if (callbackContext != null && token != null) {
             PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, token);
             pluginresult.setKeepCallback(true);
+            Log.d("FirebasePlugin", "sendToken to app"); 
             callbackContext.sendPluginResult(pluginresult);
         }
     }
@@ -1458,6 +1466,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     nm.cancel(id);
                     NotificationManager.hideMailSummaryNotificationIfNeed(context, nm);
+                    NotificationManager.hideCalendarSummaryNotificationIfNeed(context, nm);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
@@ -1567,6 +1576,50 @@ public class FirebasePlugin extends CordovaPlugin {
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
                                 target, username, groupName, message, initiator, receiver, 0l, jitsiRoom, jitsiURL);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    if (FirebasePlugin.isCrashlyticsEnabled()) {
+                        Crashlytics.log(e.getMessage());
+                    }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void scheduleCalendarNotification(CallbackContext callbackContext, JSONObject params) {
+        notificationPool.execute(new Runnable() {
+            public void run() {
+                try {
+                    Context activityContext = cordova.getActivity();
+                    Context appContext = activityContext.getApplicationContext();
+
+                    String subject = params.getString("subject");
+                    String body = params.getString("body");
+                    String title = params.getString("title");
+                    String fromDisplay = params.getString("fromDisplay");
+                    String folderId = params.getString("folderId");
+                    String mid = params.getString("mid");
+                    String type = params.getString("type");
+                    String ntype = params.getString("ntype");
+                    String fromAddress = params.getString("fromAddress");
+                    String cid = params.getString("cid");
+                    
+                    
+                    Log.d(TAG, "scheduleCalendarNotification: \n" +
+                    "subject = " + subject + "\n" +
+                    "body = " + body + "\n" +
+                    "title = " + title + "\n" +
+                    "fromDisplay = " + fromDisplay + "\n" +
+                    "folderId = " + folderId + "\n" +
+                    "mid = " + mid + "\n" +
+                    "type = " + type + "\n" +
+                    "ntype = " + ntype + "\n" +
+                    "fromAddress = " + fromAddress + "\n" +
+                    "cid = " + cid);
+
+                    NotificationManager.displayCalendarNotification(appContext, mid, cid, subject, title, body,
+                            fromDisplay, fromAddress, type, ntype, folderId);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {

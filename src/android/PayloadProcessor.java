@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.models.PayloadMail;
+import org.apache.cordova.firebase.models.PayloadCalendar;
 import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.apache.cordova.firebase.utils.FcmLoggerUtils;
 import java.util.concurrent.ExecutorService;
@@ -231,5 +232,92 @@ public class PayloadProcessor {
             e.printStackTrace();
             return;
         }
+    }
+
+    public void processCalendarPayload(Map<String, String> payload) {
+        try {
+            JSONObject data = new JSONObject(payload);  
+
+            if (data == null || data.length() == 0) {
+                Log.w(TAG, "received empty data?");
+                return;
+            }
+
+            PayloadCalendar notification = new Gson().fromJson(data.toString(), PayloadCalendar.class);
+            final String fromAddress = notification.fromAddress;
+            final String subject = notification.subject;
+            final String fromDisplay = notification.fromDisplay;
+            final String mid = notification.mid;
+            final String cid = notification.cid;
+            final String type = notification.type;
+            final String ntype = notification.ntype;
+            final String folderId = notification.folderId;
+            final String title = notification.title;
+            final String body = notification.body;
+
+            Log.d(TAG, "processCalendarPayload: \n" +
+                    "subject = " + subject + "\n" +
+                    "body = " + body + "\n" +
+                    "title = " + title + "\n" +
+                    "fromDisplay = " + fromDisplay + "\n" +
+                    "folderId = " + folderId + "\n" +
+                    "mid = " + mid + "\n" +
+                    "type = " + type + "\n" +
+                    "ntype = " + ntype + "\n" +
+                    "fromAddress = " + fromAddress + "\n" +
+                    "cid = " + cid);
+
+            if (FirebasePlugin.inBackground()) {
+                Log.d(TAG, "processCalendarPayload, inBackground");
+                notificationPool.execute(new Runnable() {
+                    public void run() {
+                        try{
+                        Log.d(TAG, "processCalendarPayload, before displayCalendarNotification");
+                        NotificationManager.displayCalendarNotification(
+                            appContext,
+                            mid,
+                            cid,
+                            subject,
+                            title,
+                            body,
+                            fromDisplay,
+                            fromAddress,
+                            type,
+                            ntype,
+                            folderId);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            } else {
+                Log.d(TAG, "processCalendarPayload, inForeground");
+                // pass a notification to JS app in foreground
+                // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
+                if (FirebasePlugin.hasNotificationsReceivedCallback()) {
+                    Log.i(TAG, "onNotificationReceived callback provided");
+
+                    Bundle dataBundle = new Bundle();
+                    dataBundle.putString("mid", mid);
+                    dataBundle.putString("cid", cid);
+                    dataBundle.putString("ntype", ntype);
+                    dataBundle.putString("type", type);
+                    dataBundle.putString("fromAddress", fromAddress);
+                    dataBundle.putString("subject", subject);
+                    dataBundle.putString("fromDisplay", fromDisplay);
+                    dataBundle.putString("folderId", folderId);
+                    dataBundle.putString("title", title);
+                    dataBundle.putString("body", body);
+
+                    FirebasePlugin.sendNotificationReceived(dataBundle);
+                } else {
+                    Log.i(TAG, "no onNotificationReceived callback provided");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        Log.d(TAG, "processCalendarPayload, after catch");
     }
 }

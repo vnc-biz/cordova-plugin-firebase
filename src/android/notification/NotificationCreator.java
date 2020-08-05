@@ -58,6 +58,10 @@ public class NotificationCreator {
     public static final String MAIL_NOTIFICATION_REPLY = "NotificationMailReply";
     public static final String MAIL_DELETE = "MailDelete";
 
+    public static final String CALENDAR_ACCEPT_ACTION = "CalendarAccept";
+    public static final String CALENDAR_REJECT_ACTION = "CalendarReject";
+    public static final String CALENDAR_TENTATIVE_ACTION = "CalendarTentativate";
+
     public static final String TALK_CALL_DECLINE = "TalkCallDecline";
     public static final String TALK_CALL_ACCEPT = "TalkCallAccept";
     public static final String TALK_DELETE_CALL_NOTIFICATION = "TalkDeleteCallNotification";
@@ -257,6 +261,19 @@ public class NotificationCreator {
 
         intent.putExtras(bundle);
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    static PendingIntent createNotifPendingIntentCalendar(Context context, String msgId, Integer notificationId, String type, String folderId, String cId) {
+        Intent intent = new Intent(context, OnNotificationOpenReceiver.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("mid", msgId);
+        bundle.putString("cid", cId);
+        bundle.putString("type", type);
+        bundle.putString("folderId", folderId);
+        bundle.putInt(NOTIFY_ID, notificationId);
+
+        intent.putExtras(bundle);
+        return PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
@@ -586,6 +603,69 @@ public class NotificationCreator {
                 .build();
 
         notificationBuilder.addAction(actionDelete);
+    }
+
+    public static void addAcceptCalendarAction(Context context, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String acceptActionParams = CALENDAR_ACCEPT_ACTION + "@@" + notificationIdString + "@@" + msgId;
+
+        Log.i(TAG, "addAcceptCalendarAction, acceptActionParams: " + acceptActionParams);
+
+        PendingIntent acceptActionPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    Integer.parseInt(msgId),
+                    new Intent(context, NotificationReceiver.class)
+                            .setAction(acceptActionParams),
+                    0);
+
+        NotificationCompat.Action actionAccept = new NotificationCompat.Action.Builder(
+                0, "Accept", acceptActionPendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionAccept);
+    }
+
+    public static void addRejectCalendarAction(Context context, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String rejectActionParams = CALENDAR_REJECT_ACTION + "@@" + notificationIdString + "@@" + msgId;
+
+        Log.i(TAG, "addAcceptCalendarAction, rejectActionParams: " + rejectActionParams);
+
+        PendingIntent rejectActionPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    Integer.parseInt(msgId),
+                    new Intent(context, NotificationReceiver.class)
+                            .setAction(rejectActionParams),
+                    0);
+
+        NotificationCompat.Action actionReject = new NotificationCompat.Action.Builder(
+                0, "Reject", rejectActionPendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionReject);
+    }
+
+    public static void addTentativeCalendarAction(Context context, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId) {
+        String notificationIdString = String.valueOf(notificationId);
+
+        String tentativeActionParams = CALENDAR_TENTATIVE_ACTION + "@@" + notificationIdString + "@@" + msgId;
+
+        Log.i(TAG, "addAcceptCalendarAction, tentativeActionParams: " + tentativeActionParams);
+
+        PendingIntent tentativeActionPendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    Integer.parseInt(msgId),
+                    new Intent(context, NotificationReceiver.class)
+                            .setAction(tentativeActionParams),
+                    0);
+
+        NotificationCompat.Action actionTentative = new NotificationCompat.Action.Builder(
+                0, "Tentative", tentativeActionPendingIntent)
+                .build();
+
+        notificationBuilder.addAction(actionTentative);
     }
 
     public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
