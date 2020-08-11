@@ -5,6 +5,7 @@ public class PayloadCalendar {
     public String fromAddress;
     public String subject;
     public String fromDisplay;
+    public String appointmentId;
     public String mid;
     public String cid;
     public String type;

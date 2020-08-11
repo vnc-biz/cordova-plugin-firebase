@@ -247,6 +247,7 @@ public class PayloadProcessor {
             final String fromAddress = notification.fromAddress;
             final String subject = notification.subject;
             final String fromDisplay = notification.fromDisplay;
+            final String appointmentId = notification.appointmentId;
             final String mid = notification.mid;
             final String cid = notification.cid;
             final String type = notification.type;
@@ -261,6 +262,7 @@ public class PayloadProcessor {
                     "title = " + title + "\n" +
                     "fromDisplay = " + fromDisplay + "\n" +
                     "folderId = " + folderId + "\n" +
+                    "appointmentId = " + appointmentId + "\n" +
                     "mid = " + mid + "\n" +
                     "type = " + type + "\n" +
                     "ntype = " + ntype + "\n" +
@@ -275,6 +277,7 @@ public class PayloadProcessor {
                         Log.d(TAG, "processCalendarPayload, before displayCalendarNotification");
                         NotificationManager.displayCalendarNotification(
                             appContext,
+                            appointmentId,
                             mid,
                             cid,
                             subject,
