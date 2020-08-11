@@ -252,6 +252,7 @@ public class PayloadProcessor {
             final String cid = notification.cid;
             final String type = notification.type;
             final String ntype = notification.ntype;
+            final String notificationType = notification.notificationType;
             final String folderId = notification.folderId;
             final String title = notification.title;
             final String body = notification.body;
@@ -266,6 +267,7 @@ public class PayloadProcessor {
                     "mid = " + mid + "\n" +
                     "type = " + type + "\n" +
                     "ntype = " + ntype + "\n" +
+                    "notificationType = " + notificationType + "\n" +
                     "fromAddress = " + fromAddress + "\n" +
                     "cid = " + cid);
 
@@ -287,6 +289,7 @@ public class PayloadProcessor {
                             fromAddress,
                             type,
                             ntype,
+                            notificationType,
                             folderId);
                         } catch (Exception e){
                             e.printStackTrace();

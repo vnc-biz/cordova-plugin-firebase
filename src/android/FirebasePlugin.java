@@ -1606,6 +1606,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String appointmentId = params.getString("appointmentId");
                     String type = params.getString("type");
                     String ntype = params.getString("ntype");
+                    String notificationType = params.getString("notificationType");
                     String fromAddress = params.getString("fromAddress");
                     String cid = params.getString("cid");
                     
@@ -1620,11 +1621,12 @@ public class FirebasePlugin extends CordovaPlugin {
                     "mid = " + mid + "\n" +
                     "type = " + type + "\n" +
                     "ntype = " + ntype + "\n" +
+                    "notificationType = " + notificationType + "\n" +
                     "fromAddress = " + fromAddress + "\n" +
                     "cid = " + cid);
 
                     NotificationManager.displayCalendarNotification(appContext, appointmentId, mid, cid, subject, title, body,
-                            fromDisplay, fromAddress, type, ntype, folderId);
+                            fromDisplay, fromAddress, type, ntype, notificationType, folderId);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {

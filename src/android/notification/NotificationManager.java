@@ -121,7 +121,7 @@ public class NotificationManager {
     }
 
     synchronized public static void displayCalendarNotification(Context context, String appointmentId, String msgId, String cId, String subject,
-        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String folderId) {
+        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String notificationType, String folderId) {
 
         if (checkIfNotificationExist(context, msgId)) {
             Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
@@ -143,6 +143,7 @@ public class NotificationManager {
             "fromAddress: "     + fromAddress       + "\n" +
             "type: "            + type              + "\n" +
             "nType: "           + nType             + "\n" +
+            "notificationType: " + notificationType + "\n" +
             "folderId: "        + folderId          + "\n" +
             "cId: "             + cId);
 
@@ -173,9 +174,11 @@ public class NotificationManager {
         notificationBuilder.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
         notificationBuilder.setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY);
 
-        NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
-        NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
-        NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+        if (TextUtils.isEmpty(notificationType) || !notificationType.equals("appointment_invite_reply")){
+            NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+        }
 
         NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
         NotificationCreator.setNotificationColor(context, notificationBuilder);
