@@ -314,6 +314,8 @@ public class PayloadProcessor {
                     dataBundle.putString("folderId", folderId);
                     dataBundle.putString("title", title);
                     dataBundle.putString("body", body);
+                    dataBundle.putString("appointmentId", appointmentId);
+                    dataBundle.putString("notificationType", notificationType);
 
                     FirebasePlugin.sendNotificationReceived(dataBundle);
                 } else {
