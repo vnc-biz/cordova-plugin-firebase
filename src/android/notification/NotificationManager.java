@@ -154,7 +154,7 @@ public class NotificationManager {
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
         //prepare group's root notification
-        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null);
+        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null, null, null);
         NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(context, channelId, nsound,
         null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
         summaryNotification.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
@@ -166,7 +166,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(context, summaryNotification);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, appointmentId, msgId, notificationId, type, folderId, cId);
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, appointmentId, msgId, notificationId, type, nType, notificationType, folderId, cId);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, nsound,
         title, body, null, pendingIntent, defaultSoundUri);

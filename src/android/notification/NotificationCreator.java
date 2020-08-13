@@ -263,7 +263,7 @@ public class NotificationCreator {
         return PendingIntent.getBroadcast(activityOrServiceContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    static PendingIntent createNotifPendingIntentCalendar(Context context, String appointmentId, String msgId, Integer notificationId, String type, String folderId, String cId) {
+    static PendingIntent createNotifPendingIntentCalendar(Context context, String appointmentId, String msgId, Integer notificationId, String type, String nType, String notificationType, String folderId, String cId) {
         Intent intent = new Intent(context, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString("mid", msgId);
@@ -271,6 +271,8 @@ public class NotificationCreator {
         bundle.putString("type", type);
         bundle.putString("folderId", folderId);
         bundle.putString("appointmentId", appointmentId);
+        bundle.putString("nType", nType);
+        bundle.putString("notificationType", notificationType);
         bundle.putInt(NOTIFY_ID, notificationId);
 
         intent.putExtras(bundle);
