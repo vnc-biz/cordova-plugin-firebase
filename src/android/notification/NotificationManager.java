@@ -33,6 +33,8 @@ public class NotificationManager {
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
 
+    private static final String APPOINTMENT_ID = "appointmentId";
+
     private static final String CALL_EVENT_INVITE = "invite";
     private static final String CALL_EVENT_LEAVE = "leave";
     private static final String CALL_EVENT_JOIN = "join";
@@ -118,8 +120,8 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
     }
 
-    synchronized public static void displayCalendarNotification(Context context, String msgId, String cId, String subject,
-        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String folderId) {
+    synchronized public static void displayCalendarNotification(Context context, String appointmentId, String msgId, String cId, String subject,
+        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String notificationType, String folderId) {
 
         if (checkIfNotificationExist(context, msgId)) {
             Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
@@ -132,6 +134,7 @@ public class NotificationManager {
 
         Log.i(TAG, "displayCalendarNotification: \n" +
             "notificationId: "  + notificationId    + "\n" +
+            "appointmentId: "   + appointmentId     + "\n" +
             "msgId: "           + msgId             + "\n" +
             "subject: "         + subject           + "\n" +
             "title: "           + title             + "\n" +
@@ -140,6 +143,7 @@ public class NotificationManager {
             "fromAddress: "     + fromAddress       + "\n" +
             "type: "            + type              + "\n" +
             "nType: "           + nType             + "\n" +
+            "notificationType: " + notificationType + "\n" +
             "folderId: "        + folderId          + "\n" +
             "cId: "             + cId);
 
@@ -150,7 +154,7 @@ public class NotificationManager {
         Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
 
         //prepare group's root notification
-        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null);
+        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null, null, null);
         NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(context, channelId, nsound,
         null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
         summaryNotification.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
@@ -162,7 +166,7 @@ public class NotificationManager {
         NotificationCreator.setNotificationColor(context, summaryNotification);
 
         //create Notification PendingIntent
-        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, msgId, notificationId, type, folderId, cId);
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, appointmentId, msgId, notificationId, type, nType, notificationType, folderId, cId);
 
         NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, nsound,
         title, body, null, pendingIntent, defaultSoundUri);
@@ -170,15 +174,18 @@ public class NotificationManager {
         notificationBuilder.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
         notificationBuilder.setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY);
 
-        NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
-        NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
-        NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+        if (TextUtils.isEmpty(notificationType) || !notificationType.equals("appointment_invite_reply")){
+            NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+        }
 
         NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
         NotificationCreator.setNotificationColor(context, notificationBuilder);
 
         Notification notification = notificationBuilder.build();
 
+        notification.extras.putString(APPOINTMENT_ID, appointmentId);
         notification.extras.putString(MESSAGE_ID, msgId);
         notification.extras.putString(CONV_ID, cId);
 
@@ -188,6 +195,24 @@ public class NotificationManager {
 
         notificationManager.notify(CALENDAR_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
         notificationManager.notify(notificationId, notification);
+    }
+
+    public static void hideNotificationByAppointmentId(Context context, String appointmentId) {
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
+            android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+            for (StatusBarNotification sbn : statusBarNotifications) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentAppointmentId = bundle.getString(APPOINTMENT_ID);
+                if (currentAppointmentId != null && currentAppointmentId.equals(appointmentId)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+            hideCalendarSummaryNotificationIfNeed(context, notificationManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,

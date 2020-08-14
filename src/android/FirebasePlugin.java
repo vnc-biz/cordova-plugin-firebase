@@ -306,6 +306,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("scheduleCalendarNotification")) {
             this.scheduleCalendarNotification(callbackContext, args.getJSONObject(0));
             return true;
+        } else if (action.equals("clearNotificationByAppointmentId")) {
+            this.clearNotificationByAppointmentId(callbackContext, args.getString(0));
+            return true;
         }
         return false;
     }
@@ -1600,8 +1603,10 @@ public class FirebasePlugin extends CordovaPlugin {
                     String fromDisplay = params.getString("fromDisplay");
                     String folderId = params.getString("folderId");
                     String mid = params.getString("mid");
+                    String appointmentId = params.getString("appointmentId");
                     String type = params.getString("type");
                     String ntype = params.getString("ntype");
+                    String notificationType = params.getString("notificationType");
                     String fromAddress = params.getString("fromAddress");
                     String cid = params.getString("cid");
                     
@@ -1612,19 +1617,36 @@ public class FirebasePlugin extends CordovaPlugin {
                     "title = " + title + "\n" +
                     "fromDisplay = " + fromDisplay + "\n" +
                     "folderId = " + folderId + "\n" +
+                    "appointmentId = " + appointmentId + "\n" +
                     "mid = " + mid + "\n" +
                     "type = " + type + "\n" +
                     "ntype = " + ntype + "\n" +
+                    "notificationType = " + notificationType + "\n" +
                     "fromAddress = " + fromAddress + "\n" +
                     "cid = " + cid);
 
-                    NotificationManager.displayCalendarNotification(appContext, mid, cid, subject, title, body,
-                            fromDisplay, fromAddress, type, ntype, folderId);
+                    NotificationManager.displayCalendarNotification(appContext, appointmentId, mid, cid, subject, title, body,
+                            fromDisplay, fromAddress, type, ntype, notificationType, folderId);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
                         Crashlytics.log(e.getMessage());
                     }
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    public void clearNotificationByAppointmentId(final CallbackContext callbackContext, final String appointmentId) {
+        final Context context = this.cordova.getActivity().getApplicationContext();
+        Log.d(TAG, "clearNotificationByAppointmentId: " + appointmentId);
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    NotificationManager.hideNotificationByAppointmentId(context, appointmentId);
+                    callbackContext.success();
+                } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
             }

@@ -247,10 +247,12 @@ public class PayloadProcessor {
             final String fromAddress = notification.fromAddress;
             final String subject = notification.subject;
             final String fromDisplay = notification.fromDisplay;
+            final String appointmentId = notification.appointmentId;
             final String mid = notification.mid;
             final String cid = notification.cid;
             final String type = notification.type;
             final String ntype = notification.ntype;
+            final String notificationType = notification.notificationType;
             final String folderId = notification.folderId;
             final String title = notification.title;
             final String body = notification.body;
@@ -261,9 +263,11 @@ public class PayloadProcessor {
                     "title = " + title + "\n" +
                     "fromDisplay = " + fromDisplay + "\n" +
                     "folderId = " + folderId + "\n" +
+                    "appointmentId = " + appointmentId + "\n" +
                     "mid = " + mid + "\n" +
                     "type = " + type + "\n" +
                     "ntype = " + ntype + "\n" +
+                    "notificationType = " + notificationType + "\n" +
                     "fromAddress = " + fromAddress + "\n" +
                     "cid = " + cid);
 
@@ -275,6 +279,7 @@ public class PayloadProcessor {
                         Log.d(TAG, "processCalendarPayload, before displayCalendarNotification");
                         NotificationManager.displayCalendarNotification(
                             appContext,
+                            appointmentId,
                             mid,
                             cid,
                             subject,
@@ -284,6 +289,7 @@ public class PayloadProcessor {
                             fromAddress,
                             type,
                             ntype,
+                            notificationType,
                             folderId);
                         } catch (Exception e){
                             e.printStackTrace();
@@ -308,6 +314,8 @@ public class PayloadProcessor {
                     dataBundle.putString("folderId", folderId);
                     dataBundle.putString("title", title);
                     dataBundle.putString("body", body);
+                    dataBundle.putString("appointmentId", appointmentId);
+                    dataBundle.putString("notificationType", notificationType);
 
                     FirebasePlugin.sendNotificationReceived(dataBundle);
                 } else {
