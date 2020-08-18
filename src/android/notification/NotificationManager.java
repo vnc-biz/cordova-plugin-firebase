@@ -123,14 +123,14 @@ public class NotificationManager {
     synchronized public static void displayCalendarNotification(Context context, String appointmentId, String msgId, String cId, String subject,
         String title, String body, String fromDisplay, String fromAddress, String type, String nType, String notificationType, String folderId) {
 
-        if (checkIfNotificationExist(context, msgId)) {
-            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+        if (checkIfNotificationExist(context, appointmentId)) {
+            Log.i(TAG, "Notification EXIST = " + appointmentId + ", so ignore it");
             return;
         }
 
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
 
-        Integer notificationId = msgId.hashCode();
+        Integer notificationId = appointmentId.hashCode();
 
         Log.i(TAG, "displayCalendarNotification: \n" +
             "notificationId: "  + notificationId    + "\n" +
