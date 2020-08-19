@@ -613,12 +613,18 @@ public class NotificationManager {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
             Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            if (statusBarNotifications.length == 1) {
-                StatusBarNotification statusBarNotification = statusBarNotifications[0];
-                if (statusBarNotification.getId() == MAIL_SUMMARY_NOTIFICATION_ID) {
-                    notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (MAIL_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
                 }
+
+                if (notificationsInGroup > 1) return;
             }
+
+            notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -629,12 +635,18 @@ public class NotificationManager {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
             Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            if (statusBarNotifications.length == 1) {
-                StatusBarNotification statusBarNotification = statusBarNotifications[0];
-                if (statusBarNotification.getId() == CALENDAR_SUMMARY_NOTIFICATION_ID) {
-                    notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (CALENDAR_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
                 }
+
+                if (notificationsInGroup > 1) return;
             }
+
+            notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
