@@ -186,8 +186,6 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         notification.extras.putString(APPOINTMENT_ID, appointmentId);
-        notification.extras.putString(MESSAGE_ID, msgId);
-        notification.extras.putString(CONV_ID, cId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
         
