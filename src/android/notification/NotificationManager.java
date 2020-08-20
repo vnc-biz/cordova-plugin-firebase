@@ -123,14 +123,14 @@ public class NotificationManager {
     synchronized public static void displayCalendarNotification(Context context, String appointmentId, String msgId, String cId, String subject,
         String title, String body, String fromDisplay, String fromAddress, String type, String nType, String notificationType, String folderId) {
 
-        if (checkIfNotificationExist(context, msgId)) {
-            Log.i(TAG, "Notification EXIST = " + msgId + ", so ignore it");
+        if (checkIfNotificationExist(context, appointmentId)) {
+            Log.i(TAG, "Notification EXIST = " + appointmentId + ", so ignore it");
             return;
         }
 
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
 
-        Integer notificationId = msgId.hashCode();
+        Integer notificationId = appointmentId.hashCode();
 
         Log.i(TAG, "displayCalendarNotification: \n" +
             "notificationId: "  + notificationId    + "\n" +
@@ -186,8 +186,6 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         notification.extras.putString(APPOINTMENT_ID, appointmentId);
-        notification.extras.putString(MESSAGE_ID, msgId);
-        notification.extras.putString(CONV_ID, cId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
         
@@ -613,12 +611,18 @@ public class NotificationManager {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
             Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            if (statusBarNotifications.length == 1) {
-                StatusBarNotification statusBarNotification = statusBarNotifications[0];
-                if (statusBarNotification.getId() == MAIL_SUMMARY_NOTIFICATION_ID) {
-                    notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (MAIL_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
                 }
+
+                if (notificationsInGroup > 1) return;
             }
+
+            notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -629,12 +633,18 @@ public class NotificationManager {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
             Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            if (statusBarNotifications.length == 1) {
-                StatusBarNotification statusBarNotification = statusBarNotifications[0];
-                if (statusBarNotification.getId() == CALENDAR_SUMMARY_NOTIFICATION_ID) {
-                    notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (CALENDAR_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
                 }
+
+                if (notificationsInGroup > 1) return;
             }
+
+            notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
