@@ -2,14 +2,19 @@ package org.apache.cordova.firebase.actions;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.support.v4.app.NotificationCompat;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
 
 import org.apache.cordova.firebase.utils.NotificationUtils;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 
 public abstract class BaseAction implements Runnable {
@@ -65,5 +70,21 @@ public abstract class BaseAction implements Runnable {
 
     protected void setRequestMethod(HttpURLConnection urlConnection) throws IOException {
 
+    }
+
+    protected boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddress = InetAddress.getByName("google.com");
+            Log.i("BaseAction", "[isInternetAvailable] ipAddress = " + ipAddress == null ? "null" : ipAddress.toString());
+            return ipAddress != null && !ipAddress.equals("");
+        } catch (Exception e) {
+            Log.e("BaseAction", "[isInternetAvailable] Exception " + e);
+            return false;
+        }
+    }
+
+    protected void showToast(CharSequence message, boolean isDurationShort) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() -> Toast.makeText(context, message, isDurationShort ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show());
     }
 }
