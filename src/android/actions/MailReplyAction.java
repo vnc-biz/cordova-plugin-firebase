@@ -1,6 +1,8 @@
 package org.apache.cordova.firebase.actions;
 
+import android.app.Notification;
 import android.content.Context;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -54,6 +56,23 @@ public class MailReplyAction extends BaseActionMail {
 
         if (!isInternetAvailable()) {
             showToast("No internet connection", false);
+
+            //Need update notification for hiding 'reply' field and progressbar on notification
+            android.app.NotificationManager manager = NotificationUtils.getManager(context);
+            StatusBarNotification[] activeNotifications = NotificationUtils.getStatusBarNotifications(context);
+            if (activeNotifications.length > 0) {
+                try {
+                    for (StatusBarNotification sbn : activeNotifications) {
+                        Notification notification = sbn.getNotification();
+                        if (sbn.getId() == notificationId) {
+                            manager.notify(notificationId, notification);
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             try {
                 // Reply
