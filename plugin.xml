@@ -164,14 +164,14 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 
 		<!-- <framework custom="true" src="src/ios/Crashlytics/Crashlytics.framework" /> -->
 		<!-- <framework custom="true" src="src/ios/Crashlytics/Fabric.framework" /> -->
-		<framework custom="true" src="src/ios/Firebase/Analytics/GoogleAppMeasurement.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/MeasurementNanoPB.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/GoogleAppMeasurement.framework" /> -->
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/MeasurementNanoPB.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCore.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseAnalytics.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/FirebaseAnalytics.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Analytics/GoogleUtilities.framework" />
 		<framework custom="true" src="src/ios/Firebase/Analytics/nanopb.framework" />
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseInstanceID.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCoreDiagnostics.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCoreDiagnostics.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Auth/GTMSessionFetcher.framework" />
 		<!-- <framework custom="true" src="src/ios/Firebase/Auth/FirebaseAuth.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Messaging/FirebaseMessaging.framework" />
