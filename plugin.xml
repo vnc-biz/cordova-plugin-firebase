@@ -175,8 +175,8 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework custom="true" src="src/ios/Firebase/Auth/GTMSessionFetcher.framework" />
 		<!-- <framework custom="true" src="src/ios/Firebase/Auth/FirebaseAuth.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Messaging/FirebaseMessaging.framework" />
-		<framework custom="true" src="src/ios/Firebase/Performance/GoogleToolboxForMac.framework" />
-		<framework custom="true" src="src/ios/Firebase/Performance/FirebasePerformance.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Performance/GoogleToolboxForMac.framework" /> -->
+		<!-- <framework custom="true" src="src/ios/Firebase/Performance/FirebasePerformance.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/Protobuf.framework" />
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/FirebaseRemoteConfig.framework" />
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/FirebaseABTesting.framework" />
