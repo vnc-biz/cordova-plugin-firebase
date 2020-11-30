@@ -59,7 +59,7 @@ public class PayloadProcessor {
               final long timeStamp = notification.t;
               final String jitsiRoom = notification.jitsiRoom;
               final String jitsiUrl = notification.jitsiURL;
-              final ArrayList<String> mention = notification.mention;
+              final List<String> mention = notification.mention;
 
               FcmLoggerUtils.logFcmReceived(appContext, msgid);
 
