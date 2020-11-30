@@ -1499,8 +1499,14 @@ public class FirebasePlugin extends CordovaPlugin {
                     String nsound = params.getString("nsound");
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
+                    String mentionString = params.getString("mention");
+                    ArrayList<String> mention = new ArrayList<>();
 
-                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, sound, lights);
+                    if (!TextUtils.isEmpty(mentionString)) {
+                        mention = new ArrayList<String>(Arrays.asList(mentionString.split(",")));
+                    }
+
+                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, mention, eventType, nsound, sound, lights);
 
                     callbackContext.success();
                 } catch (Exception e) {
