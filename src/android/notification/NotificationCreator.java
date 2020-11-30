@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -159,7 +160,7 @@ public class NotificationCreator {
         SpannableString spannableMessage;
 
         String typeOfLink = getTypeOfLink(message);
-        spannableMessage = typeOfLink == null ? getHighlitedMentions(message, mention) : new SpannableString(typeOfLink);
+        spannableMessage = typeOfLink == null ? StringUtils.getHightlitedMentions(message, mention) : new SpannableString(typeOfLink);
 
         CharSequence text;
         if (eventType.equals("chat")) {
@@ -284,7 +285,7 @@ public class NotificationCreator {
         return PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
+    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, CharSequence text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
         notificationBuilder
                 .setDefaults(nsound.equals("mute") ? NotificationCompat.DEFAULT_VIBRATE : NotificationCompat.DEFAULT_ALL)

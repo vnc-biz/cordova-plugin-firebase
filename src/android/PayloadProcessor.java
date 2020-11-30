@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import org.apache.cordova.firebase.notification.NotificationManager;
 
+import java.util.ArrayList;
 
 public class PayloadProcessor {
   private static final String TAG = "FirebasePayloadProcessor";
