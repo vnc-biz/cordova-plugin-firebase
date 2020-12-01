@@ -43,6 +43,7 @@ public class IncomingCallActivity extends Activity {
     private static final String EXTRA_JITSI_URL = "extra_jitsi_url";
 
     private static final String HIN_APP_ID = "biz.vnc.vnctalk.hintalk";
+    private static final String HIN_APP_PP_ID = "biz.vnc.vnctalk.hinpp";
     private static final String EKBO_APP_ID = "biz.vnc.vnctalk.ekbodialog";
     private static final String TALK_APP_ID = "biz.vnc.vnctalk";
 
@@ -201,6 +202,8 @@ public class IncomingCallActivity extends Activity {
         String backgroundResourceName;
         if (getPackageName().equals(HIN_APP_ID)){
             backgroundResourceName = "call_background_hin";
+        } else if (getPackageName().equals(HIN_APP_PP_ID)){
+            backgroundResourceName = "call_background_hin";
         } else if (getPackageName().equals(EKBO_APP_ID)){
             backgroundResourceName = "call_background_ekbo";
         } else {
@@ -217,6 +220,8 @@ public class IncomingCallActivity extends Activity {
 
         String avatarResourceName;
         if (getPackageName().equals(HIN_APP_ID)){
+            avatarResourceName = "hin_icon_round";
+        } else if (getPackageName().equals(HIN_APP_PP_ID)){
             avatarResourceName = "hin_icon_round";
         } else {
             avatarResourceName = "vnc_icon_circle";
@@ -272,7 +277,7 @@ public class IncomingCallActivity extends Activity {
         private final String callId;
         private final String avatarServiceUrl;
         private final WeakReference<ImageView> imageView;
-        
+
         private LoadAvatarTask(String callId, String avatarServiceUrl, ImageView imageView) {
             this.callId = callId;
             this.avatarServiceUrl = avatarServiceUrl;
