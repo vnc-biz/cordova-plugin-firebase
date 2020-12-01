@@ -93,6 +93,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />
 
+		<source-file src="src/android/models/PayloadCalendar.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadTalk.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadTask.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadMail.java" target-dir="src/org/apache/cordova/firebase/models" />
@@ -102,6 +103,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/BaseActionMail.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionTalk.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionTask.java" target-dir="src/org/apache/cordova/firebase/actions" />
+		<source-file src="src/android/actions/BaseActionCalendar.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/InlineReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/MarkAsReadAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/SnoozeAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
@@ -109,13 +111,14 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/actions/MailReplyAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/RejectCallAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
         <source-file src="src/android/actions/LogFCMPluginAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
+        <source-file src="src/android/actions/CalendarOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
-		<framework src="com.google.android.gms:play-services-tagmanager:+" />
-		<framework src="com.google.firebase:firebase-core:+" />
-		<framework src="com.google.firebase:firebase-messaging:+" />
-		<framework src="com.google.firebase:firebase-config:+" />
-		<framework src="com.google.firebase:firebase-perf:+" />
+		<framework src="com.google.android.gms:play-services-tagmanager:17.0.0" />
+		<framework src="com.google.firebase:firebase-core:17.5.0" />
+		<framework src="com.google.firebase:firebase-messaging:20.3.0" />
+		<framework src="com.google.firebase:firebase-config:19.2.0" />
+		<framework src="com.google.firebase:firebase-perf:19.0.9" />
 
 	</platform>
 
@@ -158,19 +161,19 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 
 		<!-- <framework custom="true" src="src/ios/Crashlytics/Crashlytics.framework" /> -->
 		<!-- <framework custom="true" src="src/ios/Crashlytics/Fabric.framework" /> -->
-		<framework custom="true" src="src/ios/Firebase/Analytics/GoogleAppMeasurement.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/MeasurementNanoPB.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/GoogleAppMeasurement.framework" /> -->
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/MeasurementNanoPB.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCore.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseAnalytics.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/FirebaseAnalytics.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Analytics/GoogleUtilities.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/nanopb.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/nanopb.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseInstanceID.framework" />
-		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCoreDiagnostics.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCoreDiagnostics.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Auth/GTMSessionFetcher.framework" />
 		<!-- <framework custom="true" src="src/ios/Firebase/Auth/FirebaseAuth.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/Messaging/FirebaseMessaging.framework" />
-		<framework custom="true" src="src/ios/Firebase/Performance/GoogleToolboxForMac.framework" />
-		<framework custom="true" src="src/ios/Firebase/Performance/FirebasePerformance.framework" />
+		<!-- <framework custom="true" src="src/ios/Firebase/Performance/GoogleToolboxForMac.framework" /> -->
+		<!-- <framework custom="true" src="src/ios/Firebase/Performance/FirebasePerformance.framework" /> -->
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/Protobuf.framework" />
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/FirebaseRemoteConfig.framework" />
 		<framework custom="true" src="src/ios/Firebase/RemoteConfig/FirebaseABTesting.framework" />

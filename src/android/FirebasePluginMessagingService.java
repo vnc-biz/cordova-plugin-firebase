@@ -78,6 +78,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 return;
             }
             payloadProcessor.processTaskPayload(payload);
+        } else if (payload.get("appointmentId") != null) {
+            payloadProcessor.processCalendarPayload(payload);
         } else if (payload.containsKey("subject") && payload.containsKey("fromAddress")) {
             payloadProcessor.processMailPayload(payload);
         }

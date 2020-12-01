@@ -19,6 +19,7 @@ import org.apache.cordova.firebase.actions.RejectCallAction;
 import org.apache.cordova.firebase.actions.SnoozeAction;
 import org.apache.cordova.firebase.actions.MailOptionsAction;
 import org.apache.cordova.firebase.actions.MailReplyAction;
+import org.apache.cordova.firebase.actions.CalendarOptionsAction;
 
 import org.apache.cordova.firebase.models.MailInfoItem;
 
@@ -126,6 +127,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             String callId = actionParts[1];
             String callType = actionParts[2];
             String callInitiator = actionParts[3];
+            String jitsiRoom = actionParts[4];
+            String jitsiUrl = actionParts[5];
             int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
@@ -137,6 +140,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             bundle.putString("vncEventType", callType);
             bundle.putInt(NotificationCreator.NOTIFY_ID, callNotificationId);
             bundle.putString(NotificationUtils.EXTRA_CALL_ACTION, NotificationCreator.TALK_CALL_ACCEPT);
+            bundle.putString(NotificationUtils.EXTRA_CALL_JITSI_ROOM, jitsiRoom);
+            bundle.putString(NotificationUtils.EXTRA_CALL_JITSI_URL, jitsiUrl);
             launchIntent.putExtras(bundle);
 
             dismissAnotherCalls(context, callId);
@@ -161,6 +166,36 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .sendBroadcast(new Intent(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
 
             NotificationManager.showMissedCallNotification(context.getApplicationContext(), callId, name, groupName, callType);
+        } else if (intent.getAction().contains(NotificationCreator.CALENDAR_ACCEPT_ACTION)) {
+            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, intent.getAction() = " + intent.getAction());
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+            
+            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, msgId: " + msgId);
+
+            Thread thread = new Thread(new CalendarOptionsAction(context, notificationId, "ACCEPT", msgId));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.CALENDAR_REJECT_ACTION)) {
+            Log.i(TAG, "NotificationReceiver onReceive Decline Calendar action, intent.getAction() = " + intent.getAction());
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+            
+            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, msgId: " + msgId);
+
+            Thread thread = new Thread(new CalendarOptionsAction(context, notificationId, "DECLINE", msgId));
+            thread.start();
+        } else if (intent.getAction().contains(NotificationCreator.CALENDAR_TENTATIVE_ACTION)) {
+            Log.i(TAG, "NotificationReceiver onReceive Tentative Calendar action, intent.getAction() = " + intent.getAction());
+            String[] actionParts = intent.getAction().split("@@");
+            int notificationId = Integer.parseInt(actionParts[1]);
+            Integer msgId = Integer.parseInt(actionParts[2]);
+            
+            Log.i(TAG, "NotificationReceiver onReceive Accept Calendar action, msgId: " + msgId);
+
+            Thread thread = new Thread(new CalendarOptionsAction(context, notificationId, "TENTATIVE", msgId));
+            thread.start();
         }
     }
 

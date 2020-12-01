@@ -1,7 +1,6 @@
 package org.apache.cordova.firebase.actions;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
 import android.text.TextUtils;
 
@@ -20,7 +19,6 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.StringBuffer;
@@ -41,52 +39,56 @@ public class MailOptionsAction extends BaseActionMail {
     @Override
     public void run() {
         super.run();
+        if (!isInternetAvailable()) {
+            showToast("No internet connection", false);
+        } else {
 
-        try {
-            JSONObject postData = new JSONObject();
-            postData.put("op", option);
-            postData.put("id", new JSONArray(msgIds));
+            try {
+                JSONObject postData = new JSONObject();
+                postData.put("op", option);
+                postData.put("id", new JSONArray(msgIds));
 
-            Log.i(TAG, "postData : " + postData);
+                Log.i(TAG, "postData : " + postData);
 
-            HttpURLConnection urlConnection = createUrlConnection();
+                HttpURLConnection urlConnection = createUrlConnection();
 
-            NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
+                NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
 
-            if (postData != null) {
-                OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
-                writer.write(postData.toString());
-                writer.flush();
-            }
-            int statusCode = urlConnection.getResponseCode();
-            Log.i(TAG, "Server response, statusCode: " + statusCode);
-            if (statusCode > 400) {
-                Log.i(TAG, "Server response: " + urlConnection.getResponseMessage());
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                if (postData != null) {
+                    OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+                    writer.write(postData.toString());
+                    writer.flush();
                 }
-                in.close();
+                int statusCode = urlConnection.getResponseCode();
+                Log.i(TAG, "Server response, statusCode: " + statusCode);
+                if (statusCode > 400) {
+                    Log.i(TAG, "Server response: " + urlConnection.getResponseMessage());
 
-                Log.i(TAG, "Server error response: " + response.toString());
+                    BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()));
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    Log.i(TAG, "Server error response: " + response.toString());
+
+                    saveOptionOnError(context, option, msgIds);
+                } else if (HttpURLConnection.HTTP_OK == statusCode) {
+                    // notify widget data set changed
+                    WidgetNotifier.notifyMessagesListUpdated(context);
+                }
+                cancelNotification();
+            } catch (Exception e) {
+                Log.i(TAG, e.getLocalizedMessage());
 
                 saveOptionOnError(context, option, msgIds);
-            } else if (HttpURLConnection.HTTP_OK == statusCode){
-                // notify widget data set changed
-                WidgetNotifier.notifyMessagesListUpdated(context);
+                cancelNotification();
+            } finally {
+
             }
-            cancelNotification();
-        } catch (Exception e) {
-            Log.i(TAG, e.getLocalizedMessage());
-
-            saveOptionOnError(context, option, msgIds);
-            cancelNotification();
-        } finally {
-
         }
     }
 
@@ -122,5 +124,4 @@ public class MailOptionsAction extends BaseActionMail {
             this.option = option;
         }
     }
-
 }

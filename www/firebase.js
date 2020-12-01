@@ -247,3 +247,11 @@ exports.hideIncomingCallNotification = function (params, success, error) {
 exports.displayMissedCallNotification = function (params, success, error) {
   exec(success, error, "FirebasePlugin", "displayMissedCallNotification", [params]);
 };
+
+exports.scheduleCalendarNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "scheduleCalendarNotification", [params]);
+};
+
+exports.clearNotificationByAppointmentId = function (appointmentId, success, error) {
+  exec(success, error, "FirebasePlugin", "clearNotificationByAppointmentId", [appointmentId]);
+};

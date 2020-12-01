@@ -25,6 +25,8 @@ public class NotificationUtils {
     public static final String EXTRA_CALL_RECEIVER = "extra_call_receiver";
     public static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
     public static final String EXTRA_CALL_ACTION = "extra_call_action";
+    public static final String EXTRA_CALL_JITSI_ROOM = "extra_jitsi_room";
+    public static final String EXTRA_CALL_JITSI_URL = "extra_jitsi_url";
 
     public static void saveNotificationsIdInFile(Context activityOrServiceContext, String target, Integer nId) {
         File file = new File(activityOrServiceContext.getFilesDir(), FILE_NAME);

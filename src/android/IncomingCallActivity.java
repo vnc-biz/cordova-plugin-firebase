@@ -39,6 +39,8 @@ public class IncomingCallActivity extends Activity {
     private static final String EXTRA_CALL_TITLE = "extra_call_title";
     private static final String EXTRA_CALL_SUBTITLE = "extra_call_subtitle";
     private static final String EXTRA_IS_GROUP_CALL = "extra_is_group_call";
+    private static final String EXTRA_JITSI_ROOM = "extra_jitsi_room";
+    private static final String EXTRA_JITSI_URL = "extra_jitsi_url";
 
     private BroadcastReceiver callStateReceiver;
     private LocalBroadcastManager localBroadcastManager;
@@ -50,9 +52,12 @@ public class IncomingCallActivity extends Activity {
     private String callTitle;
     private String callSubTitle;
     private boolean isGroupCall;
+    private String jitsiRoom;
+    private String jitsiURL;
 
     public static Intent createStartIntent(Context context, String callId, String callType, String callInitiator,
-                                           String callReceiver, String title, String subTitle, boolean isGroupCall){
+                                           String callReceiver, String title, String subTitle, boolean isGroupCall,
+                                           String jitsiRoom, String jitsiURL){
         Intent intent = new Intent(context, IncomingCallActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_CALL_ID, callId);
@@ -62,6 +67,8 @@ public class IncomingCallActivity extends Activity {
         intent.putExtra(EXTRA_CALL_TITLE, title);
         intent.putExtra(EXTRA_CALL_SUBTITLE, subTitle);
         intent.putExtra(EXTRA_IS_GROUP_CALL, isGroupCall);
+        intent.putExtra(EXTRA_JITSI_ROOM, jitsiRoom);
+        intent.putExtra(EXTRA_JITSI_URL, jitsiURL);
 
         return intent;
     }
@@ -167,6 +174,8 @@ public class IncomingCallActivity extends Activity {
         callTitle = intent.getStringExtra(EXTRA_CALL_TITLE);
         callSubTitle = intent.getStringExtra(EXTRA_CALL_SUBTITLE);
         isGroupCall = intent.getBooleanExtra(EXTRA_IS_GROUP_CALL, false);
+        jitsiRoom = intent.getStringExtra(EXTRA_JITSI_ROOM);
+        jitsiURL = intent.getStringExtra(EXTRA_JITSI_URL);
     }
 
     private void initUi() {
@@ -200,7 +209,9 @@ public class IncomingCallActivity extends Activity {
         String callAcceptActionName = NotificationCreator.TALK_CALL_ACCEPT
                 + "@@" + callId
                 + "@@" + callType
-                + "@@" + callInitiator;
+                + "@@" + callInitiator
+                + "@@" + jitsiRoom
+                + "@@" + jitsiURL;
 
         Intent startCallIntent = new Intent(this, NotificationReceiver.class);
         startCallIntent.setAction(callAcceptActionName);

@@ -33,6 +33,8 @@ public class NotificationManager {
     private static final String MESSAGE_ID = "messageId";
     private static final String CONV_ID = "convId";
 
+    private static final String APPOINTMENT_ID = "appointmentId";
+
     private static final String CALL_EVENT_INVITE = "invite";
     private static final String CALL_EVENT_LEAVE = "leave";
     private static final String CALL_EVENT_JOIN = "join";
@@ -45,6 +47,9 @@ public class NotificationManager {
 
     private static final int MAIL_SUMMARY_NOTIFICATION_ID = 123;
     private static final String MAIL_NOTIFICATIONS_GROUP_ID = "mailNotificationsGroupId";
+
+    private static final int CALENDAR_SUMMARY_NOTIFICATION_ID = 456;
+    private static final String CALENDAR_NOTIFICATIONS_GROUP_ID = "calendarNotificationsGroupId";
 
     private static long timeFromPrevNotify = 0;
 
@@ -115,6 +120,99 @@ public class NotificationManager {
         notificationManager.notify(notificationId, notification);
     }
 
+    synchronized public static void displayCalendarNotification(Context context, String appointmentId, String msgId, String cId, String subject,
+        String title, String body, String fromDisplay, String fromAddress, String type, String nType, String notificationType, String folderId) {
+
+        if (checkIfNotificationExist(context, appointmentId)) {
+            Log.i(TAG, "Notification EXIST = " + appointmentId + ", so ignore it");
+            return;
+        }
+
+        android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+
+        Integer notificationId = appointmentId.hashCode();
+
+        Log.i(TAG, "displayCalendarNotification: \n" +
+            "notificationId: "  + notificationId    + "\n" +
+            "appointmentId: "   + appointmentId     + "\n" +
+            "msgId: "           + msgId             + "\n" +
+            "subject: "         + subject           + "\n" +
+            "title: "           + title             + "\n" +
+            "body: "            + body              + "\n" +
+            "fromDisplay: "     + fromDisplay       + "\n" +
+            "fromAddress: "     + fromAddress       + "\n" +
+            "type: "            + type              + "\n" +
+            "nType: "           + nType             + "\n" +
+            "notificationType: " + notificationType + "\n" +
+            "folderId: "        + folderId          + "\n" +
+            "cId: "             + cId);
+
+        // defineChannelData
+        String nsound = "";
+        String channelId = NotificationCreator.defineChannelId(context, nsound);
+        String channelName = NotificationCreator.defineChannelName(context, nsound);
+        Uri defaultSoundUri = NotificationCreator.defineSoundUri(nsound);
+
+        //prepare group's root notification
+        PendingIntent summaryNotificationPendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, null, null, CALENDAR_SUMMARY_NOTIFICATION_ID, null, null, null, null, null);
+        NotificationCompat.Builder summaryNotification = NotificationCreator.createNotification(context, channelId, nsound,
+        null, null, null, summaryNotificationPendingIntent, defaultSoundUri);
+        summaryNotification.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
+        summaryNotification.setGroupSummary(true);
+        summaryNotification.setCategory(Notification.CATEGORY_EVENT);
+        summaryNotification.setOnlyAlertOnce(true);
+
+        NotificationCreator.setNotificationSmallIcon(context, summaryNotification);
+        NotificationCreator.setNotificationColor(context, summaryNotification);
+
+        //create Notification PendingIntent
+        PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentCalendar(context, appointmentId, msgId, notificationId, type, nType, notificationType, folderId, cId);
+
+        NotificationCompat.Builder notificationBuilder = NotificationCreator.createNotification(context, channelId, nsound,
+        title, body, null, pendingIntent, defaultSoundUri);
+        notificationBuilder.setCategory(Notification.CATEGORY_EVENT);
+        notificationBuilder.setGroup(CALENDAR_NOTIFICATIONS_GROUP_ID);
+        notificationBuilder.setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY);
+
+        if (TextUtils.isEmpty(notificationType) || !notificationType.equals("appointment_invite_reply")){
+            NotificationCreator.addAcceptCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addRejectCalendarAction(context, notificationId, notificationBuilder, msgId);
+            NotificationCreator.addTentativeCalendarAction(context, notificationId, notificationBuilder, msgId);
+        }
+
+        NotificationCreator.setNotificationSmallIcon(context, notificationBuilder);
+        NotificationCreator.setNotificationColor(context, notificationBuilder);
+
+        Notification notification = notificationBuilder.build();
+
+        notification.extras.putString(APPOINTMENT_ID, appointmentId);
+
+        NotificationCreator.setNotificationImageRes(context, notification);
+        
+        NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
+
+        notificationManager.notify(CALENDAR_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
+        notificationManager.notify(notificationId, notification);
+    }
+
+    public static void hideNotificationByAppointmentId(Context context, String appointmentId) {
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
+            android.app.NotificationManager notificationManager = NotificationUtils.getManager(context);
+            for (StatusBarNotification sbn : statusBarNotifications) {
+                Notification curNotif = sbn.getNotification();
+                Bundle bundle = curNotif.extras;
+                String currentAppointmentId = bundle.getString(APPOINTMENT_ID);
+                if (currentAppointmentId != null && currentAppointmentId.equals(appointmentId)) {
+                    notificationManager.cancel(sbn.getId());
+                }
+            }
+            hideCalendarSummaryNotificationIfNeed(context, notificationManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     synchronized public static void displayTaskNotification(Context activityOrServiceContext, Context appContext,
                                                           String body, String username, String taskId, String taskUpdatedOn,
                                                           String type, String sound, String open_in_browser, String language) {
@@ -152,6 +250,8 @@ public class NotificationManager {
                 title = "Task removed";
             } else if (type.equals("due_tasks")) {
                 title = "Task due today";
+            } else if (type.equals("watcher_added")) {
+                title = "Task watcher";
             } else {
                 title = "Task notification";
             }
@@ -172,6 +272,8 @@ public class NotificationManager {
                 title = "Aufgabe(n) entfernt";
             } else if (type.equals("due_tasks")) {
                 title = "Heute fällige Aufgaben";
+            } else if (type.equals("watcher_added")) {
+                title = "Aufgabe(n) Beobachter";
             } else {
                 title = "Aufgabenbenachrichtigung";
             }
@@ -301,7 +403,7 @@ public class NotificationManager {
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
                                                 String callEventType, String callId, String name, String groupName, String callType,
-                                                String callInitiator, String callReceiver, long timeStamp) {
+                                                String callInitiator, String callReceiver, long timeStamp, String jitsiRoom, String jitsiURL) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +
             "callId: "        + callId        + "\n" +
@@ -310,6 +412,8 @@ public class NotificationManager {
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
             "timeStamp: "     + timeStamp     + "\n" +
+            "jitsiRoom: "     + jitsiRoom     + "\n" +
+            "jitsiURL: "      + jitsiURL      + "\n" +
             "callType: "      + callType);
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
@@ -364,10 +468,10 @@ public class NotificationManager {
 
         // Add actions
         NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
-        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator, jitsiRoom, jitsiURL);
 
         // Add full screen intent (to show on lock screen)
-        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall);
+        NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall, jitsiRoom, jitsiURL);
 
         // Add action when delete call notification
         NotificationCreator.addDeleteCallNotificationIntent(appContext, notificationBuilder, callId, name, groupName, callType);
@@ -507,12 +611,40 @@ public class NotificationManager {
         try {
             StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
             Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
-            if (statusBarNotifications.length == 1) {
-                StatusBarNotification statusBarNotification = statusBarNotifications[0];
-                if (statusBarNotification.getId() == MAIL_SUMMARY_NOTIFICATION_ID) {
-                    notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (MAIL_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
                 }
+
+                if (notificationsInGroup > 1) return;
             }
+
+            notificationManager.cancel(MAIL_SUMMARY_NOTIFICATION_ID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void hideCalendarSummaryNotificationIfNeed(Context context, android.app.NotificationManager notificationManager) {
+        Log.d(TAG, "hideCalendarSummaryNotificationIfNeed");
+        try {
+            StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(context);
+            Log.d(TAG, "statusBarNotifications.length = " + statusBarNotifications.length);
+
+            int notificationsInGroup = 0;
+            for (StatusBarNotification statusBarNotification : statusBarNotifications){
+                String groupId = statusBarNotification.getNotification().getGroup();
+                if (CALENDAR_NOTIFICATIONS_GROUP_ID.equals(groupId)) {
+                    notificationsInGroup++;
+                }
+
+                if (notificationsInGroup > 1) return;
+            }
+
+            notificationManager.cancel(CALENDAR_SUMMARY_NOTIFICATION_ID);
         } catch (Exception e) {
             e.printStackTrace();
         }
