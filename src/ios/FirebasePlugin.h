@@ -12,7 +12,7 @@
 - (void)getInstanceId:(CDVInvokedUrlCommand*)command;
 - (void)getId:(CDVInvokedUrlCommand*)command;
 - (void)getToken:(CDVInvokedUrlCommand*)command;
-- (void)getAPNSToken:(CDVInvokedUrlCommand*)command;
+- (void)onAPNSToken:(CDVInvokedUrlCommand*)command;
 - (void)grantPermission:(CDVInvokedUrlCommand*)command;
 - (void)hasPermission:(CDVInvokedUrlCommand*)command;
 - (void)setBadgeNumber:(CDVInvokedUrlCommand*)command;
@@ -40,6 +40,7 @@
 - (void)clearAllNotifications:(CDVInvokedUrlCommand *)command;
 @property (nonatomic, copy) NSString *notificationCallbackId;
 @property (nonatomic, copy) NSString *tokenRefreshCallbackId;
+@property (nonatomic, copy) NSString *tokenAPNSCallbackId;
 @property (nonatomic, retain) NSMutableArray *notificationStack;
 @property (nonatomic, readwrite) NSMutableDictionary* traces;
 // @property (atomic, assign) BOOL crashlyticsInit;

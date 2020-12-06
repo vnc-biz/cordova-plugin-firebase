@@ -23,6 +23,7 @@
 
 @synthesize notificationCallbackId;
 @synthesize tokenRefreshCallbackId;
+@synthesize tokenAPNSCallbackId;
 @synthesize notificationStack;
 // @synthesize traces;
 
@@ -121,11 +122,6 @@ static FirebasePlugin *firebasePlugin;
 
 - (void)getToken:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[FIRInstanceID instanceID] token]];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-- (void)getAPNSToken:(CDVInvokedUrlCommand*)command {
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[FIRMessaging messaging].APNSToken];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -302,6 +298,21 @@ static FirebasePlugin *firebasePlugin;
     }
 }
 
+- (void)onAPNSToken:(CDVInvokedUrlCommand*)command {
+    self.tokenAPNSCallbackId = command.callbackId;
+
+    NSData *data = [FIRMessaging messaging].APNSToken;
+
+    if (data != nil) {
+        NSMutableString *parsedDeviceToken = [NSMutableString new];
+        const char *byteArray = (char *)data.bytes;
+        for (int i = 0; i < data.length; i++) {
+            [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
+        }
+        [self sendAPNSToken:parsedDeviceToken];
+    }
+}
+
 - (void)sendNotification:(NSDictionary *)userInfo {
     if (self.notificationCallbackId != nil) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];
@@ -326,6 +337,14 @@ static FirebasePlugin *firebasePlugin;
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:token];
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.tokenRefreshCallbackId];
+    }
+}
+
+- (void)sendAPNSToken:(NSString *)token {
+    if (self.tokenAPNSCallbackId != nil) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:token];
+        // [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.tokenAPNSCallbackId];
     }
 }
 
