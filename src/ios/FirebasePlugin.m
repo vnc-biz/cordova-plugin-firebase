@@ -335,7 +335,7 @@ static FirebasePlugin *firebasePlugin;
     }
 }
 
-- (void)sendAPNSToken:(NSData *)token {
+- (void)sendAPNSToken:(NSData *)data {
     if (self.tokenAPNSCallbackId != nil) {
 
         NSMutableString *parsedDeviceToken = [NSMutableString new];
