@@ -124,6 +124,11 @@ static FirebasePlugin *firebasePlugin;
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)getAPNSToken:(CDVInvokedUrlCommand*)command {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[FIRMessaging messaging].APNSToken];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)hasPermission:(CDVInvokedUrlCommand *)command {
     BOOL enabled = NO;
     UIApplication *application = [UIApplication sharedApplication];
