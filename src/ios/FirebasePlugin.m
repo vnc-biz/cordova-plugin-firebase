@@ -304,12 +304,7 @@ static FirebasePlugin *firebasePlugin;
     NSData *data = [FIRMessaging messaging].APNSToken;
 
     if (data != nil) {
-        NSMutableString *parsedDeviceToken = [NSMutableString new];
-        const char *byteArray = (char *)data.bytes;
-        for (int i = 0; i < data.length; i++) {
-            [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
-        }
-        [self sendAPNSToken:parsedDeviceToken];
+        [self sendAPNSToken:data];
     }
 }
 
@@ -340,9 +335,16 @@ static FirebasePlugin *firebasePlugin;
     }
 }
 
-- (void)sendAPNSToken:(NSString *)token {
+- (void)sendAPNSToken:(NSData *)token {
     if (self.tokenAPNSCallbackId != nil) {
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:token];
+
+        NSMutableString *parsedDeviceToken = [NSMutableString new];
+        const char *byteArray = (char *)data.bytes;
+        for (int i = 0; i < data.length; i++) {
+            [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
+        }
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:parsedDeviceToken];
         // [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.tokenAPNSCallbackId];
     }
