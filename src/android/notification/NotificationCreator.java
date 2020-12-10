@@ -112,7 +112,7 @@ public class NotificationCreator {
         String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone"));
 
         String channelId = "call_channel_id" + "_" + currentRingtoneName;
-
+        Log.d(TAG, "defineCallChannelId  channelId - " + channelId);
         return channelId;
     }
 
@@ -125,6 +125,7 @@ public class NotificationCreator {
         String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/" + currentRingtoneName);
+        Log.d(TAG, "defineCallSoundUri  soundUri - " + soundUri.toString());
         return soundUri;
     }
 
@@ -401,9 +402,11 @@ public class NotificationCreator {
 
     static void createCallNotificationChannel(Context context, NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            Log.d(TAG, "createCallNotificationChannel (>=O)");
             List<NotificationChannel> channels = notificationManager.getNotificationChannels();
 
             if (channels == null || channels.isEmpty()) {
+                Log.i(TAG, "createCallNotificationChannel any channels found, just create new channel " + channelId);
                 createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
                 return;
             }
@@ -411,12 +414,17 @@ public class NotificationCreator {
             String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
             for (NotificationChannel channel : channels) {
+                Log.i(TAG, "createCallNotificationChannel channel: " + channel.toString());
                 String existChannelId = channel.getId();
+                Log.i(TAG, "createCallNotificationChannel existChannelId: " + existChannelId);
+
                 boolean isCallNotificationChannel = existChannelId.startsWith("call_channel_id");
 
                 if (isCallNotificationChannel && existChannelId.contains(currentRingtoneName)) {
+                    Log.i(TAG, "createCallNotificationChannel have actual channel, break: " + existChannelId);
                     break;
                 } else if (isCallNotificationChannel) {
+                    Log.i(TAG, "createCallNotificationChannel remove channel " + existChannelId);
                     notificationManager.deleteNotificationChannel(existChannelId);
                     createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
                 }
@@ -425,6 +433,7 @@ public class NotificationCreator {
     }
 
     private static void createNewCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
+        Log.i(TAG, "createNewCallNotificationChannel create new channel " + channelId);
         NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
         channel.setSound(sound, new AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
