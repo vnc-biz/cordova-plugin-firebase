@@ -493,7 +493,7 @@ public class NotificationManager {
 
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(appContext);
 
-        NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
+        NotificationCreator.createCallNotificationChannel(activityOrServiceContext, notificationManager, channelId, channelName, soundUri);
         notificationManager.notify(notificationId, notification);
     }
 

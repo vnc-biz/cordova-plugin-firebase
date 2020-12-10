@@ -399,7 +399,7 @@ public class NotificationCreator {
         }
     }
 
-    static void createCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
+    static void createCallNotificationChannel(Context context, NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             List<NotificationChannel> channels = notificationManager.getNotificationChannels();
 
@@ -424,7 +424,7 @@ public class NotificationCreator {
         }
     }
 
-    private void createNewCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
+    private static void createNewCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
         NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
         channel.setSound(sound, new AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -783,7 +783,7 @@ public class NotificationCreator {
         notificationBuilder.setDeleteIntent(deleteCallNotificationPendingIntent);
     }
 
-    private String getRingtoneResName(String name){
+    private static String getRingtoneResName(String name){
         String result = "incoming_call";
 
         if (TextUtils.isEmpty(name)){
