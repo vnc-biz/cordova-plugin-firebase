@@ -62,9 +62,9 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<resource-file src="src/android/res/raw/on_hold_ringtone.mp3" target="res/raw/on_hold_ringtone.mp3" />
 		<resource-file src="src/android/res/raw/retro_movie_ringtone.mp3" target="res/raw/retro_movie_ringtone.mp3" />
 		<resource-file src="src/android/res/raw/ringtone_loop_3.mp3" target="res/raw/ringtone_loop_3.mp3" />
+		<resource-file src="src/android/res/raw/technology_ringtone_0.mp3" target="res/raw/technology_ringtone_0.mp3" />
 		<resource-file src="src/android/res/raw/technology_ringtone_4.mp3" target="res/raw/technology_ringtone_4.mp3" />
 		<resource-file src="src/android/res/raw/technology_ringtone_5.mp3" target="res/raw/technology_ringtone_5.mp3" />
-		<resource-file src="src/android/res/raw/technology_ringtone.mp3" target="res/raw/technology_ringtone.mp3" />
 		<resource-file src="src/android/res/drawable/ic_call_end.xml" target="res/drawable/ic_call_end.xml" />
 		<resource-file src="src/android/res/drawable/ic_call_start.xml" target="res/drawable/ic_call_start.xml" />
 		<resource-file src="src/android/res/drawable/selector_call_end.xml" target="res/drawable/selector_call_end.xml" />

@@ -813,7 +813,7 @@ public class NotificationCreator {
                 result = "ringtone_loop_3";
                 break;
             case "technologyRingtone":
-                result = "technology_ringtone";
+                result = "technology_ringtone_0";
                 break;
             case "technologyRingtone4":
                 result = "technology_ringtone_4";
