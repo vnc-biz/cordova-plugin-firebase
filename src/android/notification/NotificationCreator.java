@@ -109,10 +109,7 @@ public class NotificationCreator {
     }
 
     static String defineCallChannelId(Context activityOrServiceContext) {
-        String currentRingtoneName = SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone");
-        if (TextUtils.isEmpty(currentRingtoneName)){
-            currentRingtoneName = "incoming_call";
-        }
+        String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone"));
 
         String channelId = "call_channel_id" + "_" + currentRingtoneName;
 
@@ -125,10 +122,7 @@ public class NotificationCreator {
     }
 
     static Uri defineCallSoundUri(Context context) {
-        String currentRingtoneName = SharedPrefsUtils.getString(context, "currentRingtone");
-        if (TextUtils.isEmpty(currentRingtoneName) || currentRingtoneName.equals("incoming-call")){
-            currentRingtoneName = "incoming_call";
-        }
+        String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/" + currentRingtoneName);
         return soundUri;
@@ -414,10 +408,7 @@ public class NotificationCreator {
                 return;
             }
 
-            String currentRingtoneName = SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone");
-            if (TextUtils.isEmpty(currentRingtoneName) || currentRingtoneName.equals("incoming-call")) {
-                currentRingtoneName = "incoming_call";
-            }
+            String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
             for (NotificationChannel channel : channels) {
                 String existChannelId = channel.getId();
@@ -790,5 +781,42 @@ public class NotificationCreator {
             PendingIntent.FLAG_UPDATE_CURRENT);
         
         notificationBuilder.setDeleteIntent(deleteCallNotificationPendingIntent);
+    }
+
+    private String getRingtoneResName(String name){
+        String result = "incoming_call";
+
+        if (TextUtils.isEmpty(name)){
+            return result;
+        }
+
+        switch (name){
+            case "europeanPhoneConnecting":
+                result = "european_phone_connecting";
+                break;
+            case "onHoldRingtone":
+                result = "on_hold_ringtone";
+                break;
+            case "retroMovieRingtone":
+                result = "retro_movie_ringtone";
+                break;
+            case "ringtoneLoop3":
+                result = "ringtone_loop_3";
+                break;
+            case "technologyRingtone":
+                result = "technology_ringtone";
+                break;
+            case "technologyRingtone4":
+                result = "technology_ringtone_4";
+                break;
+            case "technologyRingtone5":
+                result = "technology_ringtone_5";
+                break;
+            default:
+                result = "incoming_call";
+
+        }
+
+        return result;
     }
 }
