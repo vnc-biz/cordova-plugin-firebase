@@ -26,6 +26,7 @@ import org.apache.cordova.firebase.NotificationReceiver;
 import org.apache.cordova.firebase.OnNotificationOpenReceiver;
 import org.apache.cordova.firebase.ReplyActivity;
 import org.apache.cordova.firebase.IncomingCallActivity;
+import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -108,7 +109,12 @@ public class NotificationCreator {
     }
 
     static String defineCallChannelId(Context activityOrServiceContext) {
-        String channelId = "call_channel_id";
+        String currentRingtoneName = SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone");
+        if (TextUtils.isEmpty(currentRingtoneName)){
+            currentRingtoneName = "incoming_call";
+        }
+
+        String channelId = "call_channel_id" + "_" + currentRingtoneName;
 
         return channelId;
     }
@@ -119,7 +125,12 @@ public class NotificationCreator {
     }
 
     static Uri defineCallSoundUri(Context context) {
-        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/incoming_call");
+        String currentRingtoneName = SharedPrefsUtils.getString(context, "currentRingtone");
+        if (TextUtils.isEmpty(currentRingtoneName) || currentRingtoneName.equals("incoming-call")){
+            currentRingtoneName = "incoming_call";
+        }
+
+        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/" + currentRingtoneName);
         return soundUri;
     }
 
@@ -396,13 +407,39 @@ public class NotificationCreator {
 
     static void createCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
-            channel.setSound(sound, new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                        .build());
-            notificationManager.createNotificationChannel(channel);
+            List<NotificationChannel> channels = notificationManager.getNotificationChannels();
+
+            if (channels == null || channels.isEmpty()) {
+                createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
+                return;
+            }
+
+            String currentRingtoneName = SharedPrefsUtils.getString(activityOrServiceContext, "currentRingtone");
+            if (TextUtils.isEmpty(currentRingtoneName) || currentRingtoneName.equals("incoming-call")) {
+                currentRingtoneName = "incoming_call";
+            }
+
+            for (NotificationChannel channel : channels) {
+                String existChannelId = channel.getId();
+                boolean isCallNotificationChannel = existChannelId.startsWith("call_channel_id");
+
+                if (isCallNotificationChannel && existChannelId.contains(currentRingtoneName)) {
+                    break;
+                } else if (isCallNotificationChannel) {
+                    notificationManager.deleteNotificationChannel(existChannelId);
+                    createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
+                }
+            }
         }
+    }
+
+    private void createNewCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
+        channel.setSound(sound, new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                    .build());
+        notificationManager.createNotificationChannel(channel);
     }
 
     private static String getTypeOfLink(String text) {
