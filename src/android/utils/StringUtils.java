@@ -86,6 +86,7 @@ public class StringUtils {
             }
         }
 
+        text = text.toLowerCase(Locale.ENGLISH);
         for (int i = 0; i < text.length() - 1; i++) {
             int startIndex = text.indexOf("@all".toLowerCase(Locale.ENGLISH), i);
             if (startIndex != -1) {
