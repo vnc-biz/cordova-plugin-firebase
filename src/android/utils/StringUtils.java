@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class StringUtils {
@@ -64,7 +65,7 @@ public class StringUtils {
                 }
             }
 
-            text = text.toLowerCase();
+            text = text.toLowerCase(Locale.ENGLISH);
             String[] mentionParts = mentionUserName.split("\\.");
 
             for (int i = 0; i < text.length() - 1; i++) {
@@ -86,7 +87,7 @@ public class StringUtils {
         }
 
         for (int i = 0; i < text.length() - 1; i++) {
-            int startIndex = text.indexOf("@all", i);
+            int startIndex = text.indexOf("@all".toLowerCase(Locale.ENGLISH), i);
             if (startIndex != -1) {
                 boldParts.add(new Pair<>(startIndex, startIndex + 4));
             }
