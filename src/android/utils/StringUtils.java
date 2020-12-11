@@ -51,6 +51,8 @@ public class StringUtils {
 
         Set<Pair<Integer, Integer>> boldParts = new HashSet<>();
 
+        text = text.toLowerCase(Locale.ENGLISH);
+
         for (String mention : mentions) {
             String mentionUserName = mention.substring(0, mention.indexOf('@'));
 
@@ -65,7 +67,6 @@ public class StringUtils {
                 }
             }
 
-            text = text.toLowerCase(Locale.ENGLISH);
             String[] mentionParts = mentionUserName.split("\\.");
 
             for (int i = 0; i < text.length() - 1; i++) {
@@ -86,7 +87,6 @@ public class StringUtils {
             }
         }
 
-        text = text.toLowerCase(Locale.ENGLISH);
         for (int i = 0; i < text.length() - 1; i++) {
             int startIndex = text.indexOf("@all".toLowerCase(Locale.ENGLISH), i);
             if (startIndex != -1) {
