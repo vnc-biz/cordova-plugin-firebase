@@ -710,13 +710,7 @@ public class NotificationCreator {
                                             String callId, String callType, String callReceiver, boolean isGroupCall) {
         String callDeclineActionName = TALK_CALL_DECLINE
                 + "@@" + callId
-        + "@@" + callId 
-                + "@@" + callId
                 + "@@" + callType
-        + "@@" + callType 
-                + "@@" + callType
-                + "@@" + callReceiver
-        + "@@" + callReceiver 
                 + "@@" + callReceiver
                 + "@@" + String.valueOf(isGroupCall);
 
@@ -739,8 +733,6 @@ public class NotificationCreator {
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder,
                                            String callId, String callType, String callInitiator, String jitsiRoom, String jitsiURL) {
         String callAcceptActionName = TALK_CALL_ACCEPT
-                + "@@" + callId
-        + "@@" + callId 
                 + "@@" + callId
                 + "@@" + callType
                 + "@@" + callInitiator
