@@ -29,7 +29,6 @@ import org.apache.cordova.firebase.IncomingCallActivity;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -174,13 +173,14 @@ public class NotificationCreator {
         }
         return text;
     }
+
     static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, List<String> msgs) {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
 
             String missedCallId = bundle.getString(MISSED_CALL_ID);
-            if (!TextUtils.isEmpty(missedCallId)){
+            if (!TextUtils.isEmpty(missedCallId)) {
                 continue;
             }
 
@@ -226,7 +226,7 @@ public class NotificationCreator {
     }
 
     static PendingIntent createNotifPendingIntentTalk(Context activityOrServiceContext, String target,
-                                                  Integer notificationId, String vncEventType, String vncEventValue, String vncInitiatorJid) {
+                                                      Integer notificationId, String vncEventType, String vncEventValue, String vncInitiatorJid) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_PEER_JID, target);
@@ -238,8 +238,8 @@ public class NotificationCreator {
     }
 
     static PendingIntent createNotifPendingIntentTask(Context activityOrServiceContext, String taskId,
-                                                  Integer notificationId, String vncEventType, String taskUpdatedOn,
-                                                  String vncEventValue, String open_in_browser) {
+                                                      Integer notificationId, String vncEventType, String taskUpdatedOn,
+                                                      String vncEventValue, String open_in_browser) {
         Intent intent = new Intent(activityOrServiceContext, OnNotificationOpenReceiver.class);
         Bundle bundle = new Bundle();
         bundle.putString(VNC_TASK_TASKID, taskId);
@@ -298,9 +298,9 @@ public class NotificationCreator {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         if (style != null) {
-          notificationBuilder.setStyle(style);
+            notificationBuilder.setStyle(style);
         } else {
-          // ... do we have a default style ?
+            // ... do we have a default style ?
         }
 
         return notificationBuilder;
@@ -409,17 +409,24 @@ public class NotificationCreator {
 
             String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
+            boolean hasSuitableChannel = false;
             for (NotificationChannel channel : channels) {
                 String existChannelId = channel.getId();
 
                 boolean isCallNotificationChannel = existChannelId.startsWith("call_channel_id");
 
                 if (isCallNotificationChannel && existChannelId.contains(currentRingtoneName)) {
+                    hasSuitableChannel = true;
                     break;
                 } else if (isCallNotificationChannel) {
                     notificationManager.deleteNotificationChannel(existChannelId);
                     createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
+                    hasSuitableChannel = true;
                 }
+            }
+
+            if (!hasSuitableChannel) {
+                createNewCallNotificationChannel(notificationManager, channelId, channelName, sound);
             }
         }
     }
@@ -427,9 +434,9 @@ public class NotificationCreator {
     private static void createNewCallNotificationChannel(NotificationManager notificationManager, String channelId, String channelName, Uri sound) {
         NotificationChannel channel = new NotificationChannel(channelId, channelName, android.app.NotificationManager.IMPORTANCE_HIGH);
         channel.setSound(sound, new AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .build());
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .build());
         notificationManager.createNotificationChannel(channel);
     }
 
@@ -518,45 +525,45 @@ public class NotificationCreator {
     }
 
     public static void addReplyMailAction(Context activityOrServiceContext, Context appContext, Integer notificationId, NotificationCompat.Builder notificationBuilder, String msgId, String subject, String fromAddress, String fromDisplay) {
-       String notificationIdString = String.valueOf(notificationId);
-       String inlineReplyActionName = MAIL_NOTIFICATION_REPLY
-           + "@@" + notificationIdString
-           + "@@" + msgId
-           + "@@" + subject
-           + "@@" + fromAddress
-           + "@@" + fromDisplay;
+        String notificationIdString = String.valueOf(notificationId);
+        String inlineReplyActionName = MAIL_NOTIFICATION_REPLY
+                + "@@" + notificationIdString
+                + "@@" + msgId
+                + "@@" + subject
+                + "@@" + fromAddress
+                + "@@" + fromDisplay;
 
-      //
-       PendingIntent replyPendingIntent;
-       //
-       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-           Log.i(TAG, "addReplyAndMarkAsReadActions (>=N)");
+        //
+        PendingIntent replyPendingIntent;
+        //
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.i(TAG, "addReplyAndMarkAsReadActions (>=N)");
 
-          replyPendingIntent = PendingIntent.getBroadcast(
-               appContext,
-               notificationId,
-               new Intent(activityOrServiceContext, NotificationReceiver.class)
-                   .setAction(inlineReplyActionName),
-               PendingIntent.FLAG_UPDATE_CURRENT);
-       } else {
-           Log.i(TAG, "addReplyAndMarkAsReadActions");
+            replyPendingIntent = PendingIntent.getBroadcast(
+                    appContext,
+                    notificationId,
+                    new Intent(activityOrServiceContext, NotificationReceiver.class)
+                            .setAction(inlineReplyActionName),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            Log.i(TAG, "addReplyAndMarkAsReadActions");
 
-           replyPendingIntent = PendingIntent.getActivity(
-               appContext,
-               notificationId,
-               new Intent(activityOrServiceContext, ReplyActivity.class)
-                   .setAction(inlineReplyActionName),
-               PendingIntent.FLAG_UPDATE_CURRENT);
-       }
+            replyPendingIntent = PendingIntent.getActivity(
+                    appContext,
+                    notificationId,
+                    new Intent(activityOrServiceContext, ReplyActivity.class)
+                            .setAction(inlineReplyActionName),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
-       NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
-               android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
-               .addRemoteInput(new RemoteInput.Builder("Reply")
-                       .setLabel("Type your message").build())
-               .setAllowGeneratedReplies(true)
-               .build();
+        NotificationCompat.Action actionReply = new NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_revert, "Reply", replyPendingIntent)
+                .addRemoteInput(new RemoteInput.Builder("Reply")
+                        .setLabel("Type your message").build())
+                .setAllowGeneratedReplies(true)
+                .build();
 
-       notificationBuilder.addAction(actionReply);
+        notificationBuilder.addAction(actionReply);
     }
 
 
@@ -602,11 +609,11 @@ public class NotificationCreator {
         Log.i(TAG, "addMarkMailAsReadAction, markAsReadActionName: " + markAsReadActionName);
 
         PendingIntent markAsReadPendingIntent = PendingIntent.getBroadcast(
-                    appContext,
-                    Integer.parseInt(msgId),
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(markAsReadActionName),
-                    0);
+                appContext,
+                Integer.parseInt(msgId),
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                        .setAction(markAsReadActionName),
+                0);
 
         NotificationCompat.Action actionMarkAsRead = new NotificationCompat.Action.Builder(
                 0, "Mark as read", markAsReadPendingIntent)
@@ -623,11 +630,11 @@ public class NotificationCreator {
         Log.i(TAG, "addMarkMailAsReadAction, deleteActionParams: " + deleteActionParams);
 
         PendingIntent markAsReadPendingIntent = PendingIntent.getBroadcast(
-                    appContext,
-                    Integer.parseInt(msgId),
-                    new Intent(activityOrServiceContext, NotificationReceiver.class)
-                            .setAction(deleteActionParams),
-                    0);
+                appContext,
+                Integer.parseInt(msgId),
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                        .setAction(deleteActionParams),
+                0);
 
         NotificationCompat.Action actionDelete = new NotificationCompat.Action.Builder(
                 0, "Delete", markAsReadPendingIntent)
@@ -644,11 +651,11 @@ public class NotificationCreator {
         Log.i(TAG, "addAcceptCalendarAction, acceptActionParams: " + acceptActionParams);
 
         PendingIntent acceptActionPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    Integer.parseInt(msgId),
-                    new Intent(context, NotificationReceiver.class)
-                            .setAction(acceptActionParams),
-                    0);
+                context,
+                Integer.parseInt(msgId),
+                new Intent(context, NotificationReceiver.class)
+                        .setAction(acceptActionParams),
+                0);
 
         NotificationCompat.Action actionAccept = new NotificationCompat.Action.Builder(
                 0, "Accept", acceptActionPendingIntent)
@@ -665,11 +672,11 @@ public class NotificationCreator {
         Log.i(TAG, "addAcceptCalendarAction, rejectActionParams: " + rejectActionParams);
 
         PendingIntent rejectActionPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    Integer.parseInt(msgId),
-                    new Intent(context, NotificationReceiver.class)
-                            .setAction(rejectActionParams),
-                    0);
+                context,
+                Integer.parseInt(msgId),
+                new Intent(context, NotificationReceiver.class)
+                        .setAction(rejectActionParams),
+                0);
 
         NotificationCompat.Action actionReject = new NotificationCompat.Action.Builder(
                 0, "Reject", rejectActionPendingIntent)
@@ -686,11 +693,11 @@ public class NotificationCreator {
         Log.i(TAG, "addAcceptCalendarAction, tentativeActionParams: " + tentativeActionParams);
 
         PendingIntent tentativeActionPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    Integer.parseInt(msgId),
-                    new Intent(context, NotificationReceiver.class)
-                            .setAction(tentativeActionParams),
-                    0);
+                context,
+                Integer.parseInt(msgId),
+                new Intent(context, NotificationReceiver.class)
+                        .setAction(tentativeActionParams),
+                0);
 
         NotificationCompat.Action actionTentative = new NotificationCompat.Action.Builder(
                 0, "Tentative", tentativeActionPendingIntent)
@@ -699,98 +706,98 @@ public class NotificationCreator {
         notificationBuilder.addAction(actionTentative);
     }
 
-    public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
+    public static void addCallDeclineAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder,
                                             String callId, String callType, String callReceiver, boolean isGroupCall) {
-        String callDeclineActionName = TALK_CALL_DECLINE 
-        + "@@" + callId 
-        + "@@" + callType 
-        + "@@" + callReceiver 
-        + "@@" + String.valueOf(isGroupCall);
+        String callDeclineActionName = TALK_CALL_DECLINE
+                + "@@" + callId
+                + "@@" + callType
+                + "@@" + callReceiver
+                + "@@" + String.valueOf(isGroupCall);
 
         PendingIntent declinePendingIntent = PendingIntent.getBroadcast(
                 appContext,
                 callId.hashCode(),
                 new Intent(activityOrServiceContext, NotificationReceiver.class)
-                    .setAction(callDeclineActionName),
+                        .setAction(callDeclineActionName),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action declineAction = new NotificationCompat.Action.Builder(
-            android.R.drawable.ic_menu_close_clear_cancel,
-            StringUtils.getColorizedText(activityOrServiceContext, "call_action_decline", "decline_call_btn"),
-            declinePendingIntent)
-        .build();
- 
+                android.R.drawable.ic_menu_close_clear_cancel,
+                StringUtils.getColorizedText(activityOrServiceContext, "call_action_decline", "decline_call_btn"),
+                declinePendingIntent)
+                .build();
+
         notificationBuilder.addAction(declineAction);
     }
 
-    public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                            String callId, String callType, String callInitiator, String jitsiRoom, String jitsiURL) {
-        String callAcceptActionName = TALK_CALL_ACCEPT 
-        + "@@" + callId 
-        + "@@" + callType
-        + "@@" + callInitiator
-        + "@@" + jitsiRoom
-        + "@@" + jitsiURL;
- 
+    public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder,
+                                           String callId, String callType, String callInitiator, String jitsiRoom, String jitsiURL) {
+        String callAcceptActionName = TALK_CALL_ACCEPT
+                + "@@" + callId
+                + "@@" + callType
+                + "@@" + callInitiator
+                + "@@" + jitsiRoom
+                + "@@" + jitsiURL;
+
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
-            appContext,
-            callId.hashCode(),
-            new Intent(activityOrServiceContext, NotificationReceiver.class)
-                .setAction(callAcceptActionName),
-            PendingIntent.FLAG_UPDATE_CURRENT);
+                appContext,
+                callId.hashCode(),
+                new Intent(activityOrServiceContext, NotificationReceiver.class)
+                        .setAction(callAcceptActionName),
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Action acceptAction = new NotificationCompat.Action.Builder(
-            android.R.drawable.ic_menu_call,
-            StringUtils.getColorizedText(activityOrServiceContext, "call_action_accept", "accept_call_btn"),
-            acceptPendingIntent)
-        .build();
- 
+                android.R.drawable.ic_menu_call,
+                StringUtils.getColorizedText(activityOrServiceContext, "call_action_accept", "accept_call_btn"),
+                acceptPendingIntent)
+                .build();
+
         notificationBuilder.addAction(acceptAction);
     }
 
-    public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder, 
-                                                String callId, String callType, String callInitiator, String callReceiver,
-                                                String callTitle, String callSubTitle, boolean isGroupCall, String jitsiRoom, String jitsiURL) {
+    public static void addCallFullScreenIntent(Context appContext, NotificationCompat.Builder notificationBuilder,
+                                               String callId, String callType, String callInitiator, String callReceiver,
+                                               String callTitle, String callSubTitle, boolean isGroupCall, String jitsiRoom, String jitsiURL) {
 
 
-        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callInitiator, callReceiver, 
-                                                                            callTitle, callSubTitle, isGroupCall, jitsiRoom, jitsiURL);
+        Intent callFullScreenIntent = IncomingCallActivity.createStartIntent(appContext, callId, callType, callInitiator, callReceiver,
+                callTitle, callSubTitle, isGroupCall, jitsiRoom, jitsiURL);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
-            appContext, 
-            callId.hashCode(),
-            callFullScreenIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT);
-        
+                appContext,
+                callId.hashCode(),
+                callFullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
         notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
     }
 
     public static void addDeleteCallNotificationIntent(Context appContext, NotificationCompat.Builder notificationBuilder, String callId, String name, String groupName, String callType) {
-        String deleteCallNotificationIntent = TALK_DELETE_CALL_NOTIFICATION 
-            + "@@" + callId
-            + "@@" + name
-            + "@@" + groupName
-            + "@@" + callType;
- 
+        String deleteCallNotificationIntent = TALK_DELETE_CALL_NOTIFICATION
+                + "@@" + callId
+                + "@@" + name
+                + "@@" + groupName
+                + "@@" + callType;
+
         Log.i(TAG, "addDeleteCallNotificationIntent, deleteCallNotificationIntent: " + deleteCallNotificationIntent);
 
         PendingIntent deleteCallNotificationPendingIntent = PendingIntent.getBroadcast(
-            appContext,
-            callId.hashCode(),
-            new Intent(appContext, NotificationReceiver.class)
-                .setAction(deleteCallNotificationIntent),
-            PendingIntent.FLAG_UPDATE_CURRENT);
-        
+                appContext,
+                callId.hashCode(),
+                new Intent(appContext, NotificationReceiver.class)
+                        .setAction(deleteCallNotificationIntent),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
         notificationBuilder.setDeleteIntent(deleteCallNotificationPendingIntent);
     }
 
-    private static String getRingtoneResName(String name){
+    private static String getRingtoneResName(String name) {
         String result = "incoming_call";
 
-        if (TextUtils.isEmpty(name)){
+        if (TextUtils.isEmpty(name)) {
             return result;
         }
 
-        switch (name){
+        switch (name) {
             case "europeanPhoneConnecting":
                 result = "european_phone_connecting";
                 break;
