@@ -245,6 +245,9 @@ public class PayloadProcessor {
                 return;
             }
 
+            // notify widget data set changed
+            WidgetNotifier.updateCalendarWidgets(appContext);
+
             PayloadCalendar notification = new Gson().fromJson(data.toString(), PayloadCalendar.class);
             final String fromAddress = notification.fromAddress;
             final String subject = notification.subject;
