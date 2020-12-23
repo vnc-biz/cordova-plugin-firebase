@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import org.apache.cordova.firebase.notification.NotificationManager;
 
+import java.util.List;
 
 public class PayloadProcessor {
   private static final String TAG = "FirebasePayloadProcessor";
@@ -58,6 +59,7 @@ public class PayloadProcessor {
               final long timeStamp = notification.t;
               final String jitsiRoom = notification.jitsiRoom;
               final String jitsiUrl = notification.jitsiURL;
+              final List<String> mention = notification.mention;
 
               FcmLoggerUtils.logFcmReceived(appContext, msgid);
 
@@ -74,7 +76,7 @@ public class PayloadProcessor {
                                 eventType, target, username, groupName, message, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
-                                target, username, groupName, message, eventType, nsound, "", "");
+                                target, username, groupName, message, mention, eventType, nsound, "", "");
                         }
                     }
                 });
@@ -94,7 +96,7 @@ public class PayloadProcessor {
                       dataBundle.putString("message", message);
                       dataBundle.putString("eventType", eventType);
                       dataBundle.putString("nsound", nsound);
-                      dataBundle.putString("mention", TextUtils.join(",", notification.mention));
+                      dataBundle.putString("mention", TextUtils.join(",", mention));
                       dataBundle.putString("callSignal", callSignal);
                       dataBundle.putString("jitsiRoom", jitsiRoom);
                       dataBundle.putString("jitsiURL", jitsiUrl);

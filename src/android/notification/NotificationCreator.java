@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -157,24 +158,28 @@ public class NotificationCreator {
         return title;
     }
 
-    static String defineNotificationText(String eventType,
-                                         String name, String message) {
-        String typeOfLink = getTypeOfLink(message);
-        message = typeOfLink == null ? message : typeOfLink;
+    static CharSequence defineNotificationText(String eventType,
+                                         String name, String message, List<String> mention) {
+        SpannableString spannableMessage;
 
-        String text;
+        String typeOfLink = getTypeOfLink(message);
+        spannableMessage = typeOfLink == null ? StringUtils.getHightlitedMentions(message, mention) : new SpannableString(typeOfLink);
+
+        CharSequence text;
         if (eventType.equals("chat")) {
-            text = message;
+            text = spannableMessage;
         } else {
-            text = name;
+            text = new SpannableString(name);
+
             if (message != null && message.trim().length() > 0) {
-                text = text + " : " + message;
+                text = TextUtils.concat(new SpannableString(text + " : "),  spannableMessage);
             }
         }
+
         return text;
     }
 
-    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, List<String> msgs) {
+    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, List<CharSequence> msgs) {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
@@ -185,7 +190,7 @@ public class NotificationCreator {
             }
 
             String currentTarget = bundle.getString(MESSAGE_TARGET);
-            List<String> previousMessages = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES);
+            List<CharSequence> previousMessages = sbn.getNotification().extras.getCharSequenceArrayList(PREVIOUS_MESSAGES);
 
             if (currentTarget != null && currentTarget.equals(target)) {
                 msgs.addAll(previousMessages);
@@ -208,14 +213,14 @@ public class NotificationCreator {
         return 0;
     }
 
-    static NotificationCompat.MessagingStyle defineMessagingStyle(String title, List<String> msgs) {
+    static NotificationCompat.MessagingStyle defineMessagingStyle(String title, List<CharSequence> msgs) {
         NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(title);
         //
         if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
             messagingStyle.setConversationTitle(title);
         }
         //
-        for (String msg : msgs) {
+        for (CharSequence msg : msgs) {
             if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.O) {
                 messagingStyle.addMessage(msg, System.currentTimeMillis(), new Person.Builder().setName(title).build());
             } else {
@@ -283,7 +288,7 @@ public class NotificationCreator {
         return PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, String text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
+    static NotificationCompat.Builder createNotification(Context activityOrServiceContext, String channelId, String nsound, String title, CharSequence text, NotificationCompat.Style style, PendingIntent pendingIntent, Uri defaultSoundUri) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
         notificationBuilder
                 .setDefaults(nsound.equals("mute") ? NotificationCompat.DEFAULT_VIBRATE : NotificationCompat.DEFAULT_ALL)
