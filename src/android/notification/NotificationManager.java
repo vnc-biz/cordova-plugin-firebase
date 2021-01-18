@@ -403,7 +403,7 @@ public class NotificationManager {
     }
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
-                                                String callEventType, String callId, String name, String groupName, String callType,
+                                                String callEventType, String callId, String name, String groupName, String callType, String nsound,
                                                 String callInitiator, String callReceiver, long timeStamp, String jitsiRoom, String jitsiURL) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +
@@ -413,6 +413,7 @@ public class NotificationManager {
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
             "timeStamp: "     + timeStamp     + "\n" +
+            "nsound: "        + nsound        + "\n" +
             "jitsiRoom: "     + jitsiRoom     + "\n" +
             "jitsiURL: "      + jitsiURL      + "\n" +
             "callType: "      + callType);
@@ -453,7 +454,7 @@ public class NotificationManager {
         // defineChannelData
         String channelId = NotificationCreator.defineCallChannelId(activityOrServiceContext);
         String channelName = NotificationCreator.defineCallChannelName(activityOrServiceContext);
-        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext);
+        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext, nsound);
 
         // defineTitleAndText()
         String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);

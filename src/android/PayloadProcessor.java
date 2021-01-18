@@ -73,7 +73,7 @@ public class PayloadProcessor {
                     public void run() {
                         if (notification.isCallNotification()) {
                             NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
-                                eventType, target, username, groupName, message, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
+                                eventType, target, username, groupName, message, nsound, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
                                 target, username, groupName, message, mention, eventType, nsound, "", "");

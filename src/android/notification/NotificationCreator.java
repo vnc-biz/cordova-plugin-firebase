@@ -120,7 +120,11 @@ public class NotificationCreator {
         return channelName;
     }
 
-    static Uri defineCallSoundUri(Context context) {
+    static Uri defineCallSoundUri(Context context, String nsound) {
+        if (nsound.equals("mute")) {
+            return null;
+        }
+
         String currentRingtoneName = getRingtoneResName(SharedPrefsUtils.getString(context, "currentRingtone"));
 
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/raw/" + currentRingtoneName);
@@ -313,7 +317,7 @@ public class NotificationCreator {
     }
 
     static NotificationCompat.Builder createCallNotification(Context activityOrServiceContext, String channelId, String title, String text, PendingIntent pendingIntent, Uri defaultSoundUri) {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, channelId);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(activityOrServiceContext, defaultSoundUri == null ? "mute_call_channelId" : channelId);
         notificationBuilder
                 .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
                 .setContentTitle(title)
@@ -443,6 +447,12 @@ public class NotificationCreator {
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .build());
         notificationManager.createNotificationChannel(channel);
+
+        if (notificationManager.getNotificationChannel("mute_call_channelId") == null) {
+            NotificationChannel muteChannel = new NotificationChannel("mute_call_channelId", channelName + "(muted)", android.app.NotificationManager.IMPORTANCE_HIGH);
+            muteChannel.setSound(null);  
+            notificationManager.createNotificationChannel(muteChannel);
+        }
     }
 
     private static String getTypeOfLink(String text) {
