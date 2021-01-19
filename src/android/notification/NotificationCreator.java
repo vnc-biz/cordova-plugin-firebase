@@ -450,7 +450,7 @@ public class NotificationCreator {
 
         if (notificationManager.getNotificationChannel("mute_call_channelId") == null) {
             NotificationChannel muteChannel = new NotificationChannel("mute_call_channelId", channelName + "(muted)", android.app.NotificationManager.IMPORTANCE_HIGH);
-            muteChannel.setSound(null);  
+            muteChannel.setSound(null, null);  
             notificationManager.createNotificationChannel(muteChannel);
         }
     }
