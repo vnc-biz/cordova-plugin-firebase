@@ -306,13 +306,14 @@ public class NotificationManager {
 
     synchronized public static void displayTalkNotification(Context activityOrServiceContext, Context appContext,
                                                         String id, String msgid, String target, String name, String groupName,
-                                                        String message, String eventType, String nsound,
+                                                        String message, List<String> mention, String eventType, String nsound,
                                                         String sound, String lights) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
         Log.i(TAG, "displayNotification: groupName: " + groupName);
         Log.i(TAG, "displayNotification: message: " + message);
+        Log.i(TAG, "displayNotification: mention: " + mention);
         Log.i(TAG, "displayNotification: eventType: " + eventType);
         Log.i(TAG, "displayNotification: nsound: " + nsound);
         Log.i(TAG, "displayNotification: sound: " + sound);
@@ -333,7 +334,7 @@ public class NotificationManager {
         // defineTitleAndText()
         String title = NotificationCreator.defineNotificationTitle(eventType, target, name, groupName);
         Log.d(TAG, "Notification title: " + title);
-        String text = NotificationCreator.defineNotificationText(eventType, name, message);
+        CharSequence text = NotificationCreator.defineNotificationText(eventType, name, message, mention);
 
         //
         if (timeFromPrevNotify > 0) {
@@ -350,7 +351,7 @@ public class NotificationManager {
 
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
-        List<String> msgs = new ArrayList<String>();
+        List<CharSequence> msgs = new ArrayList<CharSequence>();
         Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, msgs);
         if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
@@ -382,7 +383,7 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         //saveDataInNotification
-        notification.extras.putStringArrayList(NotificationCreator.PREVIOUS_MESSAGES, (ArrayList<String>) msgs);
+        notification.extras.putCharSequenceArrayList(NotificationCreator.PREVIOUS_MESSAGES, (ArrayList<CharSequence>) msgs);
         notification.extras.putInt(NotificationCreator.NOTIFY_ID_FOR_UPDATING, notificationId);
         notification.extras.putString(NotificationCreator.MESSAGE_TARGET, target);
 
@@ -402,7 +403,7 @@ public class NotificationManager {
     }
 
     synchronized public static void displayTalkCallNotification(Context activityOrServiceContext, Context appContext, String msgId,
-                                                String callEventType, String callId, String name, String groupName, String callType,
+                                                String callEventType, String callId, String name, String groupName, String callType, String nsound,
                                                 String callInitiator, String callReceiver, long timeStamp, String jitsiRoom, String jitsiURL) {
         Log.i(TAG, "displayCallNotification: \n" +
             "msgId: "         + msgId         + "\n" +
@@ -412,6 +413,7 @@ public class NotificationManager {
             "callInitiator: " + callInitiator + "\n" +
             "callReceiver: "  + callReceiver  + "\n" +
             "timeStamp: "     + timeStamp     + "\n" +
+            "nsound: "        + nsound        + "\n" +
             "jitsiRoom: "     + jitsiRoom     + "\n" +
             "jitsiURL: "      + jitsiURL      + "\n" +
             "callType: "      + callType);
@@ -452,7 +454,7 @@ public class NotificationManager {
         // defineChannelData
         String channelId = NotificationCreator.defineCallChannelId(activityOrServiceContext);
         String channelName = NotificationCreator.defineCallChannelName(activityOrServiceContext);
-        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext);
+        Uri soundUri = NotificationCreator.defineCallSoundUri(activityOrServiceContext, nsound);
 
         // defineTitleAndText()
         String title = NotificationCreator.defineCallNotificationTitle(callId, name, groupName);
@@ -493,7 +495,7 @@ public class NotificationManager {
 
         android.app.NotificationManager notificationManager = NotificationUtils.getManager(appContext);
 
-        NotificationCreator.createCallNotificationChannel(notificationManager, channelId, channelName, soundUri);
+        NotificationCreator.createCallNotificationChannel(appContext, notificationManager, channelId, channelName, soundUri);
         notificationManager.notify(notificationId, notification);
     }
 

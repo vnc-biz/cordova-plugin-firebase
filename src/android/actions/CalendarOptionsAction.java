@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
+import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.json.JSONObject;
 
 import java.io.OutputStreamWriter;
@@ -68,6 +69,9 @@ public class CalendarOptionsAction extends BaseActionCalendar {
                 Log.i(TAG, "Server error response: " + response.toString());
 
                 saveOptionOnError(context, option, msgId);
+            } else if (HttpURLConnection.HTTP_OK == statusCode) {
+                // notify widget data set changed
+                WidgetNotifier.updateCalendarWidgets(context);
             }
         } catch (Exception e) {
             Log.i(TAG, e.getLocalizedMessage());

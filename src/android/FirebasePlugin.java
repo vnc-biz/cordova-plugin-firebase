@@ -1500,7 +1500,18 @@ public class FirebasePlugin extends CordovaPlugin {
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
 
-                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, eventType, nsound, sound, lights);
+                    String mentionString = null;
+                    if (params.has("mention")) {
+                        mentionString = params.getString("mention");
+                    }
+
+                    ArrayList<String> mention = new ArrayList<>();
+
+                    if (!TextUtils.isEmpty(mentionString)) {
+                        mention = new ArrayList<String>(Arrays.asList(mentionString.split(",")));
+                    }
+
+                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, mention, eventType, nsound, sound, lights);
 
                     callbackContext.success();
                 } catch (Exception e) {
@@ -1577,8 +1588,13 @@ public class FirebasePlugin extends CordovaPlugin {
                     "jitsiURL= " + jitsiURL + "\n" +
                     "eventType= " + eventType);
 
+                    String nsound = "nomute";
+                    if (params.has("nsound")) {
+                        nsound = params.getString("nsound");
+                    }
+
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
-                                target, username, groupName, message, initiator, receiver, 0l, jitsiRoom, jitsiURL);
+                                target, username, groupName, message, nsound, initiator, receiver, 0l, jitsiRoom, jitsiURL);
                     callbackContext.success();
                 } catch (Exception e) {
                     if (FirebasePlugin.isCrashlyticsEnabled()) {
