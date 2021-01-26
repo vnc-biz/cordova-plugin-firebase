@@ -1499,7 +1499,12 @@ public class FirebasePlugin extends CordovaPlugin {
                     String nsound = params.getString("nsound");
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
-                    String mentionString = params.getString("mention");
+
+                    String mentionString = null;
+                    if (params.has("mention")) {
+                        mentionString = params.getString("mention");
+                    }
+
                     ArrayList<String> mention = new ArrayList<>();
 
                     if (!TextUtils.isEmpty(mentionString)) {
@@ -1568,7 +1573,6 @@ public class FirebasePlugin extends CordovaPlugin {
                     String username = params.getString("username");
                     String groupName = params.getString("groupName");
                     String message = params.getString("message");
-                    String nsound = params.getString("nsound");
                     String eventType = params.getString("eventType");
                     String jitsiRoom = params.getString("jitsiRoom");
                     String jitsiURL = params.getString("jitsiURL");
@@ -1580,10 +1584,14 @@ public class FirebasePlugin extends CordovaPlugin {
                     "username= " + username + "\n" +
                     "groupName= " + groupName + "\n" +
                     "message= " + message + "\n" +
-                    "nsound= " + nsound + "\n" +
                     "jitsiRoom= " + jitsiRoom + "\n" +
                     "jitsiURL= " + jitsiURL + "\n" +
                     "eventType= " + eventType);
+
+                    String nsound = "nomute";
+                    if (params.has("nsound")) {
+                        nsound = params.getString("nsound");
+                    }
 
                     NotificationManager.displayTalkCallNotification(activityContext, appContext, msgid, eventType,
                                 target, username, groupName, message, nsound, initiator, receiver, 0l, jitsiRoom, jitsiURL);
