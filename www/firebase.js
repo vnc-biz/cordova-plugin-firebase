@@ -203,3 +203,55 @@ exports.getActiveIdsByTarget = function (target, success, error) {
 exports.clearNotificationsByTarget = function (target, success, error) {
   exec(success, error, "FirebasePlugin", "clearNotificationsByTarget", [target]);
 };
+
+exports.clearTalkNotificationsExceptTargets = function (targets, success, error) {
+  exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargets", [targets]);
+};
+
+exports.clearTalkNotificationsExceptTargetsAndMissedCalls = function (targets, success, error) {
+  exec(success, error, "FirebasePlugin", "clearTalkNotificationsExceptTargetsAndMissedCalls", [targets]);
+};
+
+exports.scheduleLocalMailNotification = function (params, success, error) {
+    exec(success, error, "FirebasePlugin", "scheduleLocalMailNotification", [params]);
+};
+
+exports.scheduleCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "scheduleCallNotification", [params]);
+};
+
+exports.clearMailNotification = function (mid, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotification", [mid]);
+};
+
+exports.clearMailNotificationsExceptMids = function (mids, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotificationsExceptMids", [mids]);
+};
+
+exports.clearAllMailNotificationsForConv = function (cid, success, error) {
+  exec(success, error, "FirebasePlugin", "clearAllMailNotificationsForConv", [cid]);
+};
+
+exports.clearMailNotificationsExceptCids = function (cids, success, error) {
+  exec(success, error, "FirebasePlugin", "clearMailNotificationsExceptCids", [cids]);
+};
+
+exports.enableLockScreenVisibility = function (enable, success, error) {
+  exec(success, error, "FirebasePlugin", "enableLockScreenVisibility", [enable]);
+};
+
+exports.hideIncomingCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "hideIncomingCallNotification", [params]);
+};
+
+exports.displayMissedCallNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "displayMissedCallNotification", [params]);
+};
+
+exports.scheduleCalendarNotification = function (params, success, error) {
+  exec(success, error, "FirebasePlugin", "scheduleCalendarNotification", [params]);
+};
+
+exports.clearNotificationByAppointmentId = function (appointmentId, success, error) {
+  exec(success, error, "FirebasePlugin", "clearNotificationByAppointmentId", [appointmentId]);
+};
