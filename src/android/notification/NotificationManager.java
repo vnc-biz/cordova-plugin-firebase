@@ -188,7 +188,7 @@ public class NotificationManager {
         notification.extras.putString(APPOINTMENT_ID, appointmentId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
-        
+
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
         notificationManager.notify(CALENDAR_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
@@ -416,6 +416,7 @@ public class NotificationManager {
             "nsound: "        + nsound        + "\n" +
             "jitsiRoom: "     + jitsiRoom     + "\n" +
             "jitsiURL: "      + jitsiURL      + "\n" +
+            "callEventType: " + callEventType + "\n" +
             "callType: "      + callType);
 
         if(CALL_EVENT_JOINED_SELF.equals(callEventType) || CALL_EVENT_REJECTED_SELF.equals(callEventType)){
@@ -429,14 +430,14 @@ public class NotificationManager {
         }
 
         if (cancelExistCall(appContext, callId, callInitiator, callEventType)) {
-            Log.i(TAG, "Cancel EXIST call " + callId);
+            Log.i(TAG, "Cancel EXISTING call " + callId);
             LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
             return;
         }
 
         if(!CALL_EVENT_INVITE.equals(callEventType)) {
-            Log.i(TAG, "NOT INVITE push reseive, call event type = " + callEventType);
+            Log.i(TAG, "not INVITE push received, call event type = " + callEventType);
             return;
         }
 
@@ -777,6 +778,8 @@ public class NotificationManager {
     }
 
     private static boolean cancelExistCall(Context context, String pushCallId, String pushCallInitiator, String callEventType) {
+        Log.i(TAG, "[cancelExistCall]: " + pushCallId + ", " + pushCallInitiator + ", " + callEventType);
+
         if (!CALL_EVENT_LEAVE.equals(callEventType)){
             return false;
         }
@@ -787,6 +790,8 @@ public class NotificationManager {
             Bundle bundle = notification.extras;
             String callId = bundle.getString(NotificationUtils.EXTRA_CALL_ID);
 
+            Log.i(TAG, "[cancelExistCall][sbNotification] callId: " + callId);
+
             if (TextUtils.isEmpty(callId) || !callId.equals(pushCallId)){
                 continue;
             }
@@ -795,6 +800,11 @@ public class NotificationManager {
             String callType = bundle.getString(NotificationUtils.EXTRA_CALL_TYPE);
             String name = bundle.getString(NotificationUtils.EXTRA_CALL_NAME);
             String groupName = bundle.getString(NotificationUtils.EXTRA_CALL_GROUP_NAME);
+
+            Log.i(TAG, "[cancelExistCall][sbNotification] callType: " + callType);
+            Log.i(TAG, "[cancelExistCall][sbNotification] name: " + name);
+            Log.i(TAG, "[cancelExistCall][sbNotification] groupName: " + groupName);
+            Log.i(TAG, "[cancelExistCall][sbNotification] callInitiator: " + callInitiator + ", pushCallInitiator: " + pushCallInitiator);
 
             if (pushCallInitiator.equals(callInitiator)){
                 int callNotificationId = NotificationUtils.generateCallNotificationId(pushCallId);
