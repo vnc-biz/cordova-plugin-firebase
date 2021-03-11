@@ -428,7 +428,7 @@ public class NotificationManager {
             return;
         }
 
-        if (cancelExistCall(appContext, callId, callInitiator, callEventType)) {
+        if (cancelExistCall(appContext, callId, callId + "_" + name, callEventType)) {
             Log.i(TAG, "Cancel EXIST call " + callId);
             LocalBroadcastManager.getInstance(activityOrServiceContext.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_DECLINE).putExtra("extra_call_id", callId));
@@ -485,7 +485,7 @@ public class NotificationManager {
         notification.flags = notification.flags | Notification.FLAG_INSISTENT; // repeat notification sound
         notification.extras.putString(NotificationUtils.EXTRA_CALL_ID, callId);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_TYPE, callType);
-        notification.extras.putString(NotificationUtils.EXTRA_CALL_INITIATOR, callInitiator);
+        notification.extras.putString(NotificationUtils.EXTRA_CALL_INITIATOR, callId + "_" + name);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_RECEIVER, callReceiver);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_NAME, name);
         notification.extras.putString(NotificationUtils.EXTRA_CALL_GROUP_NAME, groupName);
