@@ -12,6 +12,8 @@ import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -63,6 +65,21 @@ public class AcceptCallAction extends BaseActionTalk {
             Log.i(TAG, "Server response, statusCode: " + statusCode);
 
             if (statusCode != 200) {
+                Log.w(TAG, "Server response, message: " + urlConnection.getResponseMessage);
+                
+                StringBuilder sb = new StringBuilder();
+                InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
+                BufferedReader bufferedReader = new BufferedReader(in);
+                if (bufferedReader != null) {
+                    int cp;
+                    while ((cp = bufferedReader.read()) != -1) {
+                        sb.append((char) cp);
+                    }
+                    bufferedReader.close();
+                }
+                in.close();
+                Log.w(TAG, "Server response, Error: " + sb.toString());
+
                 saveAcceptCallOnError(context, callId);
             }
         } catch (Exception e) {
