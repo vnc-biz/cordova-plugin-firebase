@@ -65,7 +65,7 @@ public class AcceptCallAction extends BaseActionTalk {
             Log.i(TAG, "Server response, statusCode: " + statusCode);
 
             if (statusCode != 200) {
-                Log.w(TAG, "Server response, message: " + urlConnection.getResponseMessage);
+                Log.w(TAG, "Server response, message: " + urlConnection.getResponseMessage());
                 
                 StringBuilder sb = new StringBuilder();
                 InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
