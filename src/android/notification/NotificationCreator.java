@@ -746,13 +746,15 @@ public class NotificationCreator {
     }
 
     public static void addCallAcceptAction(Context activityOrServiceContext, Context appContext, NotificationCompat.Builder notificationBuilder,
-                                           String callId, String callType, String callInitiator, String jitsiRoom, String jitsiURL) {
+                                           String callId, String callType, String callInitiator, String callReceiver, boolean isGroupCall, String jitsiRoom, String jitsiURL) {
         String callAcceptActionName = TALK_CALL_ACCEPT
                 + "@@" + callId
                 + "@@" + callType
                 + "@@" + callInitiator
                 + "@@" + jitsiRoom
-                + "@@" + jitsiURL;
+                + "@@" + jitsiURL
+                + "@@" + callReceiver
+                + "@@" + String.valueOf(isGroupCall);
 
         PendingIntent acceptPendingIntent = PendingIntent.getBroadcast(
                 appContext,

@@ -250,7 +250,9 @@ public class IncomingCallActivity extends Activity {
                 + "@@" + callType
                 + "@@" + callInitiator
                 + "@@" + jitsiRoom
-                + "@@" + jitsiURL;
+                + "@@" + jitsiURL
+                + "@@" + callReceiver
+                + "@@" + isGroupCall;
 
         Intent startCallIntent = new Intent(this, NotificationReceiver.class);
         startCallIntent.setAction(callAcceptActionName);
