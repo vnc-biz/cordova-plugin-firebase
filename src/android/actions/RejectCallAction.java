@@ -64,7 +64,7 @@ public class RejectCallAction extends BaseActionTalk {
             JSONObject postData = new JSONObject();
             postData.put("messagetext", "REJECTED_CALL");
             postData.put("reject", callType);
-            postData.put("self", true);
+            postData.put("self", 1);
             postData.put("confid", prepareConfId(isGroupCall));
             postData.put("target", callId);
 

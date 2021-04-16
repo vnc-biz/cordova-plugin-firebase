@@ -47,7 +47,7 @@ public class AcceptCallAction extends BaseActionTalk {
             JSONObject postData = new JSONObject();
             postData.put("messagetext", "JOIN_CALL");
             postData.put("join", callType);
-            postData.put("self", true);
+            postData.put("self", 1);
             postData.put("confid", prepareConfId(isGroupCall));
             postData.put("target", callId);
 
