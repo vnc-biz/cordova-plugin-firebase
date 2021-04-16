@@ -47,11 +47,10 @@ public class AcceptCallAction extends BaseActionTalk {
             JSONObject postData = new JSONObject();
             postData.put("messagetext", "JOIN_CALL");
             postData.put("join", callType);
-            postData.put("self", 1);
             postData.put("confid", prepareConfId(isGroupCall));
             postData.put("target", callId);
 
-            Log.i(TAG, "postData : " + postData);
+            Log.i(TAG, "'join' postData : " + postData);
 
             HttpURLConnection urlConnection = createUrlConnection();
 
@@ -62,10 +61,10 @@ public class AcceptCallAction extends BaseActionTalk {
             }
 
             int statusCode = urlConnection.getResponseCode();
-            Log.i(TAG, "Server response, statusCode: " + statusCode);
+            Log.i(TAG, "Server response on 'join', statusCode: " + statusCode);
 
             if (statusCode != 200) {
-                Log.w(TAG, "Server response, message: " + urlConnection.getResponseMessage());
+                Log.w(TAG, "Server response  on 'join', message: " + urlConnection.getResponseMessage());
                 
                 StringBuilder sb = new StringBuilder();
                 InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
@@ -78,7 +77,52 @@ public class AcceptCallAction extends BaseActionTalk {
                     bufferedReader.close();
                 }
                 in.close();
-                Log.w(TAG, "Server response, Error: " + sb.toString());
+                Log.w(TAG, "Server response  on 'join', Error: " + sb.toString());
+
+                saveAcceptCallOnError(context, callId);
+            }
+        } catch (Exception e) {
+            Log.i(TAG, e.getLocalizedMessage());
+
+            saveAcceptCallOnError(context, callId);
+        }
+        
+        try {
+            JSONObject postData = new JSONObject();
+            postData.put("messagetext", "JOIN_CALL");
+            postData.put("join", callType);
+            postData.put("self", 1);
+            postData.put("confid", prepareConfId(isGroupCall));
+            postData.put("target", callReceiver);
+
+            Log.i(TAG, "'join-self' postData : " + postData);
+
+            HttpURLConnection urlConnection = createUrlConnection();
+
+            if (postData != null) {
+                OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+                writer.write(postData.toString());
+                writer.flush();
+            }
+
+            int statusCode = urlConnection.getResponseCode();
+            Log.i(TAG, "Server response on 'join-self', statusCode: " + statusCode);
+
+            if (statusCode != 200) {
+                Log.w(TAG, "Server response on 'join-self', message: " + urlConnection.getResponseMessage());
+                
+                StringBuilder sb = new StringBuilder();
+                InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
+                BufferedReader bufferedReader = new BufferedReader(in);
+                if (bufferedReader != null) {
+                    int cp;
+                    while ((cp = bufferedReader.read()) != -1) {
+                        sb.append((char) cp);
+                    }
+                    bufferedReader.close();
+                }
+                in.close();
+                Log.w(TAG, "Server response on 'join-self', Error: " + sb.toString());
 
                 saveAcceptCallOnError(context, callId);
             }

@@ -64,11 +64,10 @@ public class RejectCallAction extends BaseActionTalk {
             JSONObject postData = new JSONObject();
             postData.put("messagetext", "REJECTED_CALL");
             postData.put("reject", callType);
-            postData.put("self", 1);
             postData.put("confid", prepareConfId(isGroupCall));
             postData.put("target", callId);
 
-            Log.i(TAG, "postData : " + postData);
+            Log.i(TAG, "'reject' postData : " + postData);
 
             HttpURLConnection urlConnection = createUrlConnection();
 
@@ -79,10 +78,10 @@ public class RejectCallAction extends BaseActionTalk {
             }
 
             int statusCode = urlConnection.getResponseCode();
-            Log.i(TAG, "Server response, statusCode: " + statusCode);
+            Log.i(TAG, "Server response on 'reject', statusCode: " + statusCode);
 
             if (statusCode != 200) {
-                Log.w(TAG, "Server response, message: " + urlConnection.getResponseMessage());
+                Log.w(TAG, "Server response on 'reject', message: " + urlConnection.getResponseMessage());
                 
                 StringBuilder sb = new StringBuilder();
                 InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
@@ -95,7 +94,52 @@ public class RejectCallAction extends BaseActionTalk {
                     bufferedReader.close();
                 }
                 in.close();
-                Log.w(TAG, "Server response, Error: " + sb.toString());
+                Log.w(TAG, "Server response on 'reject', Error: " + sb.toString());
+
+                saveRejectCallOnError(context, callId);
+            }
+        } catch (Exception e) {
+            Log.i(TAG, e.getLocalizedMessage());
+
+            saveRejectCallOnError(context, callId);
+        }
+        
+        try {
+            JSONObject postData = new JSONObject();
+            postData.put("messagetext", "REJECTED_CALL");
+            postData.put("reject", callType);
+            postData.put("self", 1);
+            postData.put("confid", prepareConfId(isGroupCall));
+            postData.put("target", callReceiver);
+
+            Log.i(TAG, "'reject-self' postData : " + postData);
+
+            HttpURLConnection urlConnection = createUrlConnection();
+
+            if (postData != null) {
+                OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+                writer.write(postData.toString());
+                writer.flush();
+            }
+
+            int statusCode = urlConnection.getResponseCode();
+            Log.i(TAG, "Server response on 'reject-self', statusCode: " + statusCode);
+
+            if (statusCode != 200) {
+                Log.w(TAG, "Server response on 'reject-self', message: " + urlConnection.getResponseMessage());
+                
+                StringBuilder sb = new StringBuilder();
+                InputStreamReader in = new InputStreamReader(urlConnection.getErrorStream());
+                BufferedReader bufferedReader = new BufferedReader(in);
+                if (bufferedReader != null) {
+                    int cp;
+                    while ((cp = bufferedReader.read()) != -1) {
+                        sb.append((char) cp);
+                    }
+                    bufferedReader.close();
+                }
+                in.close();
+                Log.w(TAG, "Server response on 'reject-self', Error: " + sb.toString());
 
                 saveRejectCallOnError(context, callId);
             }
