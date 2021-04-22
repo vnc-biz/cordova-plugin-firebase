@@ -34,6 +34,32 @@
     [center setNotificationCategories:[NSSet setWithObjects:videoCallCategory, audioCallCategory, nil]];
 }
 
++ (void)registerTalkNotificationCategoriesAndActionsForChatMessage {
+    // https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW26
+    UNTextInputNotificationAction *replyAction = [UNTextInputNotificationAction
+          actionWithIdentifier:@"REPLY_MSG_ACTION"
+          title:@"Reply"
+          options:UNNotificationActionOptionAuthenticationRequired
+          textInputButtonTitle:@"Reply"
+          textInputPlaceholder:@"Type your message"];
+    
+    UNNotificationCategory *replyGroupChatCategory = [UNNotificationCategory
+         categoryWithIdentifier:@"GROUPCHAT"
+         actions:@[replyAction]
+         intentIdentifiers:@[]
+         options:UNNotificationCategoryOptionCustomDismissAction];
+    
+    UNNotificationCategory *replyChatCategory = [UNNotificationCategory
+         categoryWithIdentifier:@"CHAT"
+         actions:@[replyAction]
+         intentIdentifiers:@[]
+         options:UNNotificationCategoryOptionCustomDismissAction];
+
+    // Register the notification categories.
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    [center setNotificationCategories:[NSSet setWithObjects:replyGroupChatCategory, replyChatCategory, nil]];
+}
+
 + (BOOL)isVideoAudioCategory:(NSString *)categoryIdentifier {
     return [categoryIdentifier isEqualToString:@"VIDEO"] || [categoryIdentifier isEqualToString:@"AUDIO"];
 }
@@ -87,6 +113,18 @@
             [self rejectCall:callType confid:confid target:callId];
         }
     }
+}
+
+// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SchedulingandHandlingLocalNotifications.html#//apple_ref/doc/uid/TP40008194-CH5-SW2
+//
++ (void)handleChatReplyAction:(NSDictionary *)mutableUserInfo userText:(NSString *)userText {
+    NSString *target = mutableUserInfo[@"jid"];
+    
+    NSDictionary *params = @{
+        @"messagetext": userText,
+        @"target": target
+    };
+    [self postRequestWithSubUrl:@"xmpp-rest" params:params];
 }
 
 + (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {

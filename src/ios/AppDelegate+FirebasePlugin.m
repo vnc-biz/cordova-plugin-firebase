@@ -66,6 +66,7 @@
                                                  name:kFIRInstanceIDTokenRefreshNotification object:nil];
 
     [FirebaseActionsManager registerTalkNotificationCategoriesAndActionsForCallRequest];
+    [FirebaseActionsManager registerTalkNotificationCategoriesAndActionsForChatMessage];
 
     self.applicationInBackground = @(YES);
 
@@ -191,16 +192,27 @@
     NSDictionary *mutableUserInfo = [response.notification.request.content.userInfo mutableCopy];
 
     BOOL isCallRejectAction = NO;
+    BOOL isChatReplyAction = NO;
 
     NSString *categoryIdentifier = response.notification.request.content.categoryIdentifier;
+    NSString *actionIdentifier = response.actionIdentifier;
     if ([FirebaseActionsManager isVideoAudioCategory:categoryIdentifier]){
-        [FirebaseActionsManager handleCallRequestActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
+        [FirebaseActionsManager handleCallRequestActions:mutableUserInfo actionIdentifier:actionIdentifier];
 
-        isCallRejectAction = [FirebaseActionsManager isCallRejectActions:mutableUserInfo actionIdentifier:response.actionIdentifier];
+        isCallRejectAction = [FirebaseActionsManager isCallRejectActions:mutableUserInfo actionIdentifier:actionIdentifier];
+    } else if ([actionIdentifier isEqual:@"REPLY_MSG_ACTION"]){
+        UNTextInputNotificationResponse *inputResponce = (UNTextInputNotificationResponse *)response;
+        NSString *userText = inputResponce.userText;
+        
+        NSLog(@"[FirebasePlugin][userNotificationCenter][didReceiveNotificationResponse] userText: %@", userText);
+        
+        [FirebaseActionsManager handleChatReplyAction:mutableUserInfo userText:userText];
+        
+        isChatReplyAction = YES;
     }
 
     // if this is a reject action -> do not pass a 'onNotificationOpen' event to JS
-    if (!isCallRejectAction) {
+    if (!isCallRejectAction && !isChatReplyAction) {
         [mutableUserInfo setValue:@YES forKey:@"tap"];
         [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
     }
