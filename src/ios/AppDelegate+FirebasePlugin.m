@@ -192,7 +192,7 @@
     NSDictionary *mutableUserInfo = [response.notification.request.content.userInfo mutableCopy];
 
     BOOL isCallRejectAction = NO;
-    BOOL isChatReplyAction = NO;
+    BOOL isChatAction = NO;
 
     NSString *categoryIdentifier = response.notification.request.content.categoryIdentifier;
     NSString *actionIdentifier = response.actionIdentifier;
@@ -208,11 +208,15 @@
         
         [FirebaseActionsManager handleChatReplyAction:mutableUserInfo userText:userText];
         
-        isChatReplyAction = YES;
+        isChatAction = YES;
+    } else if ([actionIdentifier isEqual:@"MARK_AS_READ_ACTION"]){
+        [FirebaseActionsManager handleMarkMessageAsReadAction:mutableUserInfo];
+        
+        isChatAction = YES;
     }
 
     // if this is a reject action -> do not pass a 'onNotificationOpen' event to JS
-    if (!isCallRejectAction && !isChatReplyAction) {
+    if (!isCallRejectAction && !isChatAction) {
         [mutableUserInfo setValue:@YES forKey:@"tap"];
         [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
     }

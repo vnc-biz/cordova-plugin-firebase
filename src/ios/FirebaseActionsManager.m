@@ -43,15 +43,20 @@
           textInputButtonTitle:@"Reply"
           textInputPlaceholder:@"Type your message"];
     
+    UNNotificationAction *markAsReadAction = [UNNotificationAction
+          actionWithIdentifier:@"MARK_AS_READ_ACTION"
+          title:@"Mark as read"
+          options:UNNotificationActionOptionAuthenticationRequired];
+    
     UNNotificationCategory *replyGroupChatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"GROUPCHAT"
-         actions:@[replyAction]
+         actions:@[replyAction, markAsReadAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
     
     UNNotificationCategory *replyChatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"CHAT"
-         actions:@[replyAction]
+         actions:@[replyAction, markAsReadAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
 
@@ -115,8 +120,6 @@
     }
 }
 
-// https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SchedulingandHandlingLocalNotifications.html#//apple_ref/doc/uid/TP40008194-CH5-SW2
-//
 + (void)handleChatReplyAction:(NSDictionary *)mutableUserInfo userText:(NSString *)userText {
     NSString *target = mutableUserInfo[@"jid"];
     
@@ -125,6 +128,18 @@
         @"target": target
     };
     [self postRequestWithSubUrl:@"xmpp-rest" params:params];
+}
+
++ (void)handleMarkMessageAsReadAction:(NSDictionary *)mutableUserInfo {
+    NSString *target = mutableUserInfo[@"jid"];
+    
+    NSNumber *currentDate = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    
+    NSDictionary *params = @{
+        target: currentDate
+    };
+    
+    [self postRequestWithSubUrl:@"markConversationsRead" params:params];
 }
 
 + (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {
