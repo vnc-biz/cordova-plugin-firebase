@@ -371,7 +371,7 @@ public class NotificationManager {
             existMsgs.put(msgid, text);
         }
 
-        List<CharSequence> msgs = new new ArrayList<>(existMsgs.values());
+        List<CharSequence> msgs = new ArrayList(existMsgs.values());
 
         // fill messaging style object
         NotificationCompat.MessagingStyle messagingStyle = NotificationCreator.defineMessagingStyle(title, msgs);
