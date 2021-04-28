@@ -47,6 +47,7 @@ public class PayloadProcessor {
           for (int i = 0; i < data.length(); i++) {
               PayloadTalk notification = new Gson().fromJson(data.get(i).toString(), PayloadTalk.class);
               final String msgid = notification.msgid;
+              final String replaceId = notification.replaceid;
               final String target = notification.jid;
               final String initistor = notification.nfrom;
               final String receiver = notification.nto;
@@ -76,7 +77,7 @@ public class PayloadProcessor {
                                 eventType, target, username, groupName, message, nsound, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
-                                target, username, groupName, message, mention, eventType, nsound, "", "");
+                                target, username, groupName, message, mention, eventType, nsound, "", "", replaceId);
                         }
                     }
                 });

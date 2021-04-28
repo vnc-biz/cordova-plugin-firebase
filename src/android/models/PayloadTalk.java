@@ -6,6 +6,7 @@ import java.util.List;
 
 public class PayloadTalk {
     public String msgid;
+    public String replaceid;
     public String jid;
     public String nto;
     public String nfrom;
