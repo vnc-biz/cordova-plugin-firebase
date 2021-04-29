@@ -355,12 +355,14 @@ public class NotificationManager {
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
         LinkedHashMap<String, CharSequence> existMsgs = new LinkedHashMap<>();
-        Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, existMsgs);
+        ArrayList<String> msgsIds = new ArrayList<>();
+        Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, existMsgs, msgsIds);
         if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
             if ("CORRECTION".equals(eventType)) {
                 if ("  ".equals(message)) {
                     existMsgs.remove(replaceId);
+                    msgsIds.remove(replaceId);
                     if (existMsgs.isEmpty()) {
                         notificationManager.cancel(existingNotificationId);
                         return;
@@ -373,6 +375,7 @@ public class NotificationManager {
 
         if (!"CORRECTION".equals(eventType)) {
             existMsgs.put(msgid, text);
+            msgsIds.add(msgid);
         }
 
         List<CharSequence> msgs = new ArrayList(existMsgs.values());
@@ -402,6 +405,7 @@ public class NotificationManager {
 
         //saveDataInNotification
         notification.extras.putSerializable(NotificationCreator.PREVIOUS_MESSAGES, existMsgs);
+        notification.extras.putStringArrayList(NotificationCreator.PREVIOUS_MESSAGES_IDS, msgsIds);
         notification.extras.putInt(NotificationCreator.NOTIFY_ID_FOR_UPDATING, notificationId);
         notification.extras.putString(NotificationCreator.MESSAGE_TARGET, target);
 

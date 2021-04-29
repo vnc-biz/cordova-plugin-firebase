@@ -30,6 +30,7 @@ import org.apache.cordova.firebase.IncomingCallActivity;
 import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -49,6 +50,7 @@ public class NotificationCreator {
     private static final String VNC_MAIL_MSG_ID = "vncMailMsgId";
 
     public static final String PREVIOUS_MESSAGES = "previousMessages";
+    public static final String PREVIOUS_MESSAGES_IDS = "previousMessagesIds";
     public static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     public static final String MESSAGE_TARGET = "messageTarget";
     public static final String MISSED_CALL_ID = "messed_call_id";
@@ -185,7 +187,7 @@ public class NotificationCreator {
         return text;
     }
 
-    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, LinkedHashMap<String, CharSequence> msgs) {
+    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, LinkedHashMap<String, CharSequence> msgs, ArrayList<String> msgsIds) {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
@@ -196,10 +198,20 @@ public class NotificationCreator {
             }
 
             String currentTarget = bundle.getString(MESSAGE_TARGET);
-            LinkedHashMap<String, CharSequence> previousMessages = new LinkedHashMap<>((HashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES));
+            HashMap<String, CharSequence> previousMessages = (HashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES);
+            ArrayList<String> previousMessagesIds = sbn.getNotification().extras.getStringArrayList(PREVIOUS_MESSAGES_IDS);
 
             if (currentTarget != null && currentTarget.equals(target)) {
-                msgs.putAll(previousMessages);
+                LinkedHashMap<String, CharSequence> sortedMessages = new LinkedHashMap<>();
+
+                for (String msgId : previousMessagesIds) {
+                    if (previousMessages.containsKey(msgId)) {
+                        sortedMessages.put(msgId, previousMessages.get(msgId));
+                    }
+                }
+
+                msgs.putAll(sortedMessages);
+                msgsIds.addAll(previousMessagesIds);
                 notificationId = sbn.getNotification().extras.getInt(NOTIFY_ID_FOR_UPDATING);
                 break;
             }
