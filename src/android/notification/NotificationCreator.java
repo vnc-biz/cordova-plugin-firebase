@@ -31,6 +31,7 @@ import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
