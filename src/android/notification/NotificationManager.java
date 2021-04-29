@@ -366,7 +366,7 @@ public class NotificationManager {
                         return;
                     }
                 } else {
-                    existMsgs.put(replaceId, message);
+                    existMsgs.replace(replaceId, message);
                 }
             }
         }

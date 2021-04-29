@@ -195,7 +195,7 @@ public class NotificationCreator {
             }
 
             String currentTarget = bundle.getString(MESSAGE_TARGET);
-            LinkedHashMap<String, CharSequence> previousMessages = (LinkedHashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES);
+            LinkedHashMap<String, CharSequence> previousMessages = new LinkedHashMap<>((HashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES));
 
             if (currentTarget != null && currentTarget.equals(target)) {
                 msgs.putAll(previousMessages);
