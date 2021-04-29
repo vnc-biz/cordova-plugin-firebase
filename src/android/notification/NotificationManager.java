@@ -363,10 +363,6 @@ public class NotificationManager {
                 if ("  ".equals(message)) {
                     existMsgs.remove(replaceId);
                     msgsIds.remove(replaceId);
-                    if (existMsgs.isEmpty()) {
-                        notificationManager.cancel(existingNotificationId);
-                        return;
-                    }
                 } else {
                     existMsgs.replace(replaceId, message);
                 }
@@ -377,6 +373,11 @@ public class NotificationManager {
             existMsgs.put(msgid, text);
             msgsIds.add(msgid);
         }
+
+        if (existMsgs.isEmpty()) {
+            notificationManager.cancel(notificationId);
+            return;
+        };
 
         List<CharSequence> msgs = new ArrayList(existMsgs.values());
 
