@@ -31,7 +31,7 @@ import org.apache.cordova.firebase.utils.SharedPrefsUtils;
 import org.apache.cordova.firebase.utils.StringUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class NotificationCreator {
@@ -184,7 +184,7 @@ public class NotificationCreator {
         return text;
     }
 
-    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, HashMap<String, CharSequence> msgs) {
+    static Integer findNotificationIdForTargetAndUpdateContent(String target, StatusBarNotification[] activeToasts, LinkedHashMap<String, CharSequence> msgs) {
         Integer notificationId = -1;
         for (StatusBarNotification sbn : activeToasts) {
             Bundle bundle = sbn.getNotification().extras;
@@ -195,7 +195,7 @@ public class NotificationCreator {
             }
 
             String currentTarget = bundle.getString(MESSAGE_TARGET);
-            HashMap<String, CharSequence> previousMessages = (HashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES);
+            LinkedHashMap<String, CharSequence> previousMessages = (LinkedHashMap<String, CharSequence>) sbn.getNotification().extras.getSerializable(PREVIOUS_MESSAGES);
 
             if (currentTarget != null && currentTarget.equals(target)) {
                 msgs.putAll(previousMessages);

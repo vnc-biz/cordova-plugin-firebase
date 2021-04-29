@@ -20,9 +20,9 @@ import org.apache.cordova.firebase.utils.DateUtils;
 import org.apache.cordova.firebase.utils.NotificationUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -354,15 +354,19 @@ public class NotificationManager {
 
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
-        HashMap<String, CharSequence> existMsgs = new HashMap<>();
+        LinkedHashMap<String, CharSequence> existMsgs = new LinkedHashMap<>();
         Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, existMsgs);
         if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
             if ("CORRECTION".equals(eventType)) {
-                existMsgs.remove(replaceId);
-                if (existMsgs.isEmpty()) {
-                    notificationManager.cancel(existingNotificationId);
-                    return;
+                if ("  ".equals(message)) {
+                    existMsgs.remove(replaceId);
+                    if (existMsgs.isEmpty()) {
+                        notificationManager.cancel(existingNotificationId);
+                        return;
+                    }
+                } else {
+                    existMsgs.put(replaceId, message);
                 }
             }
         }
