@@ -22,6 +22,7 @@ import org.apache.cordova.firebase.utils.NotificationUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -307,7 +308,7 @@ public class NotificationManager {
     synchronized public static void displayTalkNotification(Context activityOrServiceContext, Context appContext,
                                                         String id, String msgid, String target, String name, String groupName,
                                                         String message, List<String> mention, String eventType, String nsound,
-                                                        String sound, String lights) {
+                                                        String sound, String lights, String replaceId) {
         Log.i(TAG, "displayNotification: msgid: " + msgid);
         Log.i(TAG, "displayNotification: Target: " + target);
         Log.i(TAG, "displayNotification: username: " + name);
@@ -318,6 +319,7 @@ public class NotificationManager {
         Log.i(TAG, "displayNotification: nsound: " + nsound);
         Log.i(TAG, "displayNotification: sound: " + sound);
         Log.i(TAG, "displayNotification: lights: " + lights);
+        Log.i(TAG, "displayNotification: replaceId: " + replaceId);
 
         if (checkIfNotificationExist(appContext, msgid)) {
             Log.i(TAG, "Notification EXIST = " + msgid);
@@ -348,16 +350,41 @@ public class NotificationManager {
             }
         }
 
+        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // find previous messages and update notification id (if necessary)
         StatusBarNotification[] statusBarNotifications = NotificationUtils.getStatusBarNotifications(appContext);
-        List<CharSequence> msgs = new ArrayList<CharSequence>();
-        Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, msgs);
+        LinkedHashMap<String, CharSequence> existMsgs = new LinkedHashMap<>();
+        ArrayList<String> msgsIds = new ArrayList<>();
+        Integer existingNotificationId = NotificationCreator.findNotificationIdForTargetAndUpdateContent(target, statusBarNotifications, existMsgs, msgsIds);
         if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
+            if ("CORRECTION".equals(eventType)) {
+                String previousTitle = NotificationCreator.getNotificationTitle(statusBarNotifications, notificationId);
+                if (!TextUtils.isEmpty(previousTitle)) {
+                    title = previousTitle;
+                }
+
+                if ("  ".equals(message)) {
+                    existMsgs.remove(replaceId);
+                    msgsIds.remove(replaceId);
+                } else {
+                    existMsgs.replace(replaceId, message);
+                }
+            }
         }
 
-        msgs.add(text);
+        if (!"CORRECTION".equals(eventType)) {
+            existMsgs.put(msgid, text);
+            msgsIds.add(msgid);
+        }
+
+        if (existMsgs.isEmpty()) {
+            notificationManager.cancel(notificationId);
+            return;
+        };
+
+        List<CharSequence> msgs = new ArrayList(existMsgs.values());
 
         // fill messaging style object
         NotificationCompat.MessagingStyle messagingStyle = NotificationCreator.defineMessagingStyle(title, msgs);
@@ -383,13 +410,14 @@ public class NotificationManager {
         Notification notification = notificationBuilder.build();
 
         //saveDataInNotification
-        notification.extras.putCharSequenceArrayList(NotificationCreator.PREVIOUS_MESSAGES, (ArrayList<CharSequence>) msgs);
+        notification.extras.putSerializable(NotificationCreator.PREVIOUS_MESSAGES, existMsgs);
+        notification.extras.putStringArrayList(NotificationCreator.PREVIOUS_MESSAGES_IDS, msgsIds);
+        notification.extras.putString(NotificationCreator.NOTIFICATION_TITLE, title);
         notification.extras.putInt(NotificationCreator.NOTIFY_ID_FOR_UPDATING, notificationId);
         notification.extras.putString(NotificationCreator.MESSAGE_TARGET, target);
 
         //
         NotificationCreator.setNotificationImageRes(activityOrServiceContext, notification);
-        android.app.NotificationManager notificationManager = (android.app.NotificationManager) activityOrServiceContext.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
         //

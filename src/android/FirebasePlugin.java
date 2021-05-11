@@ -1499,6 +1499,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     String nsound = params.getString("nsound");
                     String sound = params.getString("sound");
                     String lights = params.getString("lights");
+                    String replaceId = params.getString("replaceid");
 
                     String mentionString = null;
                     if (params.has("mention")) {
@@ -1511,7 +1512,7 @@ public class FirebasePlugin extends CordovaPlugin {
                         mention = new ArrayList<String>(Arrays.asList(mentionString.split(",")));
                     }
 
-                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, mention, eventType, nsound, sound, lights);
+                    NotificationManager.displayTalkNotification(activityContext, appContext, id, msgid, target, username, groupName, message, mention, eventType, nsound, sound, lights, replaceId);
 
                     callbackContext.success();
                 } catch (Exception e) {
