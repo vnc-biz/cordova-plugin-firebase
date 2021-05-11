@@ -147,8 +147,51 @@ public class NotificationCreator {
     }
 
     static String defineCallNotificationText(Context context, String callType) {
-        String incomingCallFormat = StringUtils.getStringResource(context, "incoming_call_format");
-        return String.format(incomingCallFormat, callType);
+        String callTypeStringId;
+
+        switch (callType) {
+            case "video":
+                callTypeStringId = "incoming_video_call";
+                break;
+
+            case "audio":
+                callTypeStringId = "incoming_audio_call";
+                break;
+
+            case "screen":
+                callTypeStringId = "incoming_screen_share";
+                break;
+
+            default:
+                callTypeStringId = "incoming_audio_call";
+                break;
+        }
+
+        return StringUtils.getStringResource(context, callTypeStringId);
+    }
+
+    static String defineMissedCallNotificationText(Context context, String callType) {
+        String callTypeStringId;
+
+        switch (callType) {
+            case "video":
+                callTypeStringId = "missed_video_call";
+                break;
+
+            case "audio":
+                callTypeStringId = "missed_audio_call";
+                break;
+
+            case "screen":
+                callTypeStringId = "missed_screen_share";
+                break;
+
+            default:
+                callTypeStringId = "missed_audio_call";
+                break;
+        }
+
+        return StringUtils.getStringResource(context, callTypeStringId);
     }
 
     static String defineNotificationTitle(String eventType, String target,
