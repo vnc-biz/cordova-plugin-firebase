@@ -51,6 +51,7 @@ public class NotificationCreator {
 
     public static final String PREVIOUS_MESSAGES = "previousMessages";
     public static final String PREVIOUS_MESSAGES_IDS = "previousMessagesIds";
+    public static final String NOTIFICATION_TITLE = "notificationTitle";
     public static final String NOTIFY_ID_FOR_UPDATING = "notifIdForUpdating";
     public static final String MESSAGE_TARGET = "messageTarget";
     public static final String MISSED_CALL_ID = "messed_call_id";
@@ -217,6 +218,21 @@ public class NotificationCreator {
             }
         }
         return notificationId;
+    }
+
+    static String getNotificationTitle(StatusBarNotification[] statusBarNotifications, int notificationId) {
+        String title = "";
+        for (StatusBarNotification statusBarNotification : statusBarNotifications) {
+            if (statusBarNotification.getId() == notificationId) {
+                Notification notification = statusBarNotification.getNotification();
+                title = notification.extras.getString(NOTIFICATION_TITLE);
+                if (!TextUtils.isEmpty(title)) {
+                    return title;
+                }
+            }
+        }
+
+        return title;
     }
 
     static Integer getExistingNotifIdByTarget(String target, StatusBarNotification[] statusBarNotifications) {

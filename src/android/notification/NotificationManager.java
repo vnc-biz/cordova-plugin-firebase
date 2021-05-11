@@ -360,6 +360,11 @@ public class NotificationManager {
         if (existingNotificationId != -1) {
             notificationId = existingNotificationId;
             if ("CORRECTION".equals(eventType)) {
+                String previousTitle = NotificationCreator.getNotificationTitle(statusBarNotifications, notificationId);
+                if (!TextUtils.isEmpty(previousTitle)) {
+                    title = previousTitle;
+                }
+
                 if ("  ".equals(message)) {
                     existMsgs.remove(replaceId);
                     msgsIds.remove(replaceId);
@@ -407,6 +412,7 @@ public class NotificationManager {
         //saveDataInNotification
         notification.extras.putSerializable(NotificationCreator.PREVIOUS_MESSAGES, existMsgs);
         notification.extras.putStringArrayList(NotificationCreator.PREVIOUS_MESSAGES_IDS, msgsIds);
+        notification.extras.putString(NotificationCreator.NOTIFICATION_TITLE, title);
         notification.extras.putInt(NotificationCreator.NOTIFY_ID_FOR_UPDATING, notificationId);
         notification.extras.putString(NotificationCreator.MESSAGE_TARGET, target);
 
