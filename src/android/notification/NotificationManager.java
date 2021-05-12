@@ -544,7 +544,7 @@ public class NotificationManager {
             callId,
             name == null || name.equals("null") ? null : name,
             groupName == null || groupName.equals("null") ? null : groupName);
-        String text = "Missed " + callType + " call";
+        String text = NotificationCreator.defineMissedCallNotificationText(context, callType);
 
         PendingIntent pendingIntent = NotificationCreator.createNotifPendingIntentTalk(context,
                 callId, notificationId, "vncEventType", "chat", null);
