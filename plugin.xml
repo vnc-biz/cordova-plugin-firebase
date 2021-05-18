@@ -109,6 +109,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/models/PayloadMail.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/MailInfoItem.java" target-dir="src/org/apache/cordova/firebase/models" />
 
+		<source-file src="src/android/actions/AcceptCallAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionMail.java" target-dir="src/org/apache/cordova/firebase/actions" />
 		<source-file src="src/android/actions/BaseActionTalk.java" target-dir="src/org/apache/cordova/firebase/actions" />

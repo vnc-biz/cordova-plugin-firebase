@@ -498,7 +498,7 @@ public class NotificationManager {
 
         // Add actions
         NotificationCreator.addCallDeclineAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callReceiver, isGroupCall);
-        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator, jitsiRoom, jitsiURL);
+        NotificationCreator.addCallAcceptAction(activityOrServiceContext, appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, isGroupCall, jitsiRoom, jitsiURL);
 
         // Add full screen intent (to show on lock screen)
         NotificationCreator.addCallFullScreenIntent(appContext, notificationBuilder, callId, callType, callInitiator, callReceiver, title, text, isGroupCall, jitsiRoom, jitsiURL);

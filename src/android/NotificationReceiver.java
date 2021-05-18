@@ -15,6 +15,7 @@ import java.util.Date;
 
 import org.apache.cordova.firebase.actions.InlineReplyAction;
 import org.apache.cordova.firebase.actions.MarkAsReadAction;
+import org.apache.cordova.firebase.actions.AcceptCallAction;
 import org.apache.cordova.firebase.actions.RejectCallAction;
 import org.apache.cordova.firebase.actions.SnoozeAction;
 import org.apache.cordova.firebase.actions.MailOptionsAction;
@@ -129,6 +130,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             String callInitiator = actionParts[3];
             String jitsiRoom = actionParts[4];
             String jitsiUrl = actionParts[5];
+            String callReceiver = actionParts[6];
+            boolean isGroupCall = Boolean.parseBoolean(actionParts[7]);
             int callNotificationId = NotificationUtils.generateCallNotificationId(callId);
 
             Log.i(TAG, "NotificationReceiver onReceive Call ACCEPT, callId: " + callId);
@@ -151,6 +154,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             NotificationUtils.getManager(context).cancel(callNotificationId);
             LocalBroadcastManager.getInstance(context.getApplicationContext())
                 .sendBroadcast(new Intent(NotificationCreator.TALK_CALL_ACCEPT).putExtra(NotificationUtils.EXTRA_CALL_ID, callId));
+            Thread thread = new Thread(new AcceptCallAction(context, callId, callType, callReceiver, isGroupCall));
+            thread.start();
         } else if (intent.getAction().contains(NotificationCreator.TALK_DELETE_CALL_NOTIFICATION)) {
             Log.i(TAG, "NotificationReceiver onReceive Delete Call Notification, intent.getAction() = " + intent.getAction());
             String[] actionParts = intent.getAction().split("@@");
