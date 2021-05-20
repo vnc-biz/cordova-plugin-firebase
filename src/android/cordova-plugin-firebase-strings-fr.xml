@@ -2,12 +2,12 @@
 <resources>
     <string name="default_notification_channel_name">Default</string>
     <string name="silent_notification_channel_name">DefaultMute</string>
-	<string name="incoming_video_call">Incoming video call</string>
-	<string name="incoming_audio_call">Incoming audio call</string>
-	<string name="incoming_screen_share">Incoming screen share</string>
-	<string name="call_action_decline">Decline</string>
-	<string name="call_action_accept">Accept</string>
-	<string name="missed_video_call">Missed video call</string>
-	<string name="missed_audio_call">Missed audio call</string>
-	<string name="missed_screen_share">Missed screen share</string>
+	<string name="incoming_video_call">Appel video entrant</string>
+	<string name="incoming_audio_call">Appel audio entrant</string>
+	<string name="incoming_screen_share">Partage d\'écran entrant</string>
+	<string name="call_action_decline">Refuser</string>
+	<string name="call_action_accept">Accepter</string>
+	<string name="missed_video_call">Appel video manqué</string>
+	<string name="missed_audio_call">Appel audio manqué</string>
+	<string name="missed_screen_share">Partage d\'écran manqué</string>
 </resources>
