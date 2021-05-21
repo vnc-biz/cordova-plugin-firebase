@@ -1,6 +1,7 @@
 package org.apache.cordova.firebase;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -79,6 +80,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             }
             payloadProcessor.processTaskPayload(payload);
         } else if (payload.get("appointmentId") != null) {
+            String mToken = SharedPrefsUtils.getString(getApplicationContext(), "auth-token");
+            if(TextUtils.isEmpty(mToken)) return;
+
             payloadProcessor.processCalendarPayload(payload);
         } else if (payload.containsKey("subject") && payload.containsKey("fromAddress")) {
             payloadProcessor.processMailPayload(payload);
