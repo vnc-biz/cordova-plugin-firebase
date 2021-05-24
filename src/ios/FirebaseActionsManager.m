@@ -48,13 +48,19 @@
           title:@"Mark as read"
           options:UNNotificationActionOptionAuthenticationRequired];
     
-    UNNotificationCategory *replyGroupChatCategory = [UNNotificationCategory
+    UNNotificationCategory *broadcasrCategory = [UNNotificationCategory
+         categoryWithIdentifier:@"BROADCAST"
+         actions:@[markAsReadAction]
+         intentIdentifiers:@[]
+         options:UNNotificationCategoryOptionCustomDismissAction];
+    
+    UNNotificationCategory *groupChatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"GROUPCHAT"
          actions:@[replyAction, markAsReadAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
     
-    UNNotificationCategory *replyChatCategory = [UNNotificationCategory
+    UNNotificationCategory *chatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"CHAT"
          actions:@[replyAction, markAsReadAction]
          intentIdentifiers:@[]
@@ -62,7 +68,7 @@
 
     // Register the notification categories.
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    [center setNotificationCategories:[NSSet setWithObjects:replyGroupChatCategory, replyChatCategory, nil]];
+    [center setNotificationCategories:[NSSet setWithObjects:groupChatCategory, chatCategory, broadcasrCategory, nil]];
 }
 
 + (BOOL)isVideoAudioCategory:(NSString *)categoryIdentifier {
