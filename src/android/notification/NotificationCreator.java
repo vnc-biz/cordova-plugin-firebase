@@ -607,7 +607,10 @@ public class NotificationCreator {
                 .build();
 
         if (target != null && target.trim().length() > 0 && target.indexOf("@") != -1) {
-            notificationBuilder.addAction(actionReply);
+            if (!target.startsWith("broadcast-")){
+                notificationBuilder.addAction(actionReply);
+            }
+            
             notificationBuilder.addAction(actionMarkAsRead);
         }
     }
