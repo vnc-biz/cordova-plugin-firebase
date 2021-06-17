@@ -28,6 +28,10 @@ exports.getToken = function (success, error) {
   exec(success, error, "FirebasePlugin", "getToken", []);
 };
 
+exports.onAPNSToken = function (success, error) {
+  exec(success, error, "FirebasePlugin", "onAPNSToken", []);
+};
+
 exports.onNotificationOpen = function (success, error) {
   exec(success, error, "FirebasePlugin", "onNotificationOpen", []);
 };

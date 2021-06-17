@@ -23,6 +23,7 @@
 
 @synthesize notificationCallbackId;
 @synthesize tokenRefreshCallbackId;
+@synthesize tokenAPNSCallbackId;
 @synthesize notificationStack;
 // @synthesize traces;
 
@@ -297,6 +298,16 @@ static FirebasePlugin *firebasePlugin;
     }
 }
 
+- (void)onAPNSToken:(CDVInvokedUrlCommand*)command {
+    self.tokenAPNSCallbackId = command.callbackId;
+
+    NSData *data = [FIRMessaging messaging].APNSToken;
+
+    if (data != nil) {
+        [self sendAPNSToken:data];
+    }
+}
+
 - (void)sendNotification:(NSDictionary *)userInfo {
     if (self.notificationCallbackId != nil) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];
@@ -321,6 +332,21 @@ static FirebasePlugin *firebasePlugin;
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:token];
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.tokenRefreshCallbackId];
+    }
+}
+
+- (void)sendAPNSToken:(NSData *)data {
+    if (self.tokenAPNSCallbackId != nil) {
+
+        NSMutableString *parsedDeviceToken = [NSMutableString new];
+        const char *byteArray = (char *)data.bytes;
+        for (int i = 0; i < data.length; i++) {
+            [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
+        }
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:parsedDeviceToken];
+        // [pluginResult setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.tokenAPNSCallbackId];
     }
 }
 
