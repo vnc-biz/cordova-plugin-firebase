@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 public class StoreFCMSharedPrefs {
   private static final String TAG = "Firebase.StoreFCMSharedPrefs";
 
-  public void store(Context context, FCMMessageEntity message) {
+  public static void store(Context context, FCMMessageEntity message) {
       Log.i(TAG, "StoreFCMSharedPrefs, store");
 
       Gson gson = new Gson();
