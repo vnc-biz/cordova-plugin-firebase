@@ -12,6 +12,7 @@ import org.apache.cordova.firebase.models.PayloadCalendar;
 import org.apache.cordova.firebase.models.FCMMessageEntity;
 import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.apache.cordova.firebase.utils.FcmLoggerUtils;
+import org.apache.cordova.firebase.utils.StoreFCMSharedPrefs;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.content.Context;

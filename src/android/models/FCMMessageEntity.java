@@ -25,7 +25,7 @@ public class FCMMessageEntity {
         this.msgid = msgid;
         this.target = target;
         this.name = name;
-        this.groupName = groupNames;
+        this.groupName = groupName;
         this.message = message;
         this.mention = mention;
         this.eventType = eventType;

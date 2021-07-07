@@ -9,8 +9,11 @@ import org.apache.cordova.firebase.models.FCMMessageEntity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 
 public class StoreFCMSharedPrefs {
+  private static final String TAG = "Firebase.StoreFCMSharedPrefs";
+
   private void store(Context context, FCMMessageEntity message) {
       Log.i(TAG, "StoreFCMSharedPrefs, store");
 
