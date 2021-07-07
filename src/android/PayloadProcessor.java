@@ -51,7 +51,7 @@ public class PayloadProcessor {
               final String msgid = notification.msgid;
               final String replaceId = notification.replaceid;
               final String target = notification.jid;
-              final String initistor = notification.nfrom;
+              final String initiatorJid = notification.nfrom;
               final String receiver = notification.nto;
               final String username = notification.name;
               final String groupName = notification.gt;
@@ -76,7 +76,7 @@ public class PayloadProcessor {
                     public void run() {
                         if (notification.isCallNotification()) {
                             NotificationManager.displayTalkCallNotification(activityOrServiceContext, appContext, msgid,
-                                eventType, target, username, groupName, message, nsound, initistor, receiver, timeStamp, jitsiRoom, jitsiUrl);
+                                eventType, target, username, groupName, message, nsound, initiatorJid, receiver, timeStamp, jitsiRoom, jitsiUrl);
                         } else {
                             NotificationManager.displayTalkNotification(activityOrServiceContext, appContext, "0", msgid,
                                 target, username, groupName, message, mention, eventType, nsound, "", "", replaceId);
@@ -86,7 +86,7 @@ public class PayloadProcessor {
 
                 // here -> store FCM in shared prefs for later move into IndexedDB
                 // ...
-                FCMMessageEntity fcmMsg = new FCMMessageEntity(msgid, target, username, groupName, message, mention, eventType, replaceId);
+                FCMMessageEntity fcmMsg = new FCMMessageEntity(msgid, target, initiatorJid, username, groupName, message, mention, eventType, replaceId, timeStamp);
                 StoreFCMSharedPrefs.store(appContext, fcmMsg);
               } else {
                   // pass a notification to JS app in foreground
@@ -97,7 +97,7 @@ public class PayloadProcessor {
                       Bundle dataBundle = new Bundle();
                       dataBundle.putString("msgid", msgid);
                       dataBundle.putString("target", target);
-                      dataBundle.putString("nfrom", initistor);
+                      dataBundle.putString("nfrom", initiatorJid);
                       dataBundle.putString("nto", receiver);
                       dataBundle.putString("username", username);
                       dataBundle.putString("groupName", groupName);
