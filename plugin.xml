@@ -98,12 +98,14 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/utils/WidgetNotifier.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/ImagesUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/FcmLoggerUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
+		<source-file src="src/android/utils/StoreFCMSharedPrefs.java" target-dir="src/org/apache/cordova/firebase/utils" />
 		<source-file src="src/android/utils/DateUtils.java" target-dir="src/org/apache/cordova/firebase/utils" />
 
 		<source-file src="src/android/notification/NotificationCreator.java" target-dir="src/org/apache/cordova/firebase/notification" />
 		<source-file src="src/android/notification/NotificationManager.java" target-dir="src/org/apache/cordova/firebase/notification" />
 
 		<source-file src="src/android/models/PayloadCalendar.java" target-dir="src/org/apache/cordova/firebase/models" />
+		<source-file src="src/android/models/FCMMessageEntity.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadTalk.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadTask.java" target-dir="src/org/apache/cordova/firebase/models" />
 		<source-file src="src/android/models/PayloadMail.java" target-dir="src/org/apache/cordova/firebase/models" />

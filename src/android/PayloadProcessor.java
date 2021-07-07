@@ -9,6 +9,7 @@ import org.apache.cordova.firebase.models.PayloadTalk;
 import org.apache.cordova.firebase.models.PayloadTask;
 import org.apache.cordova.firebase.models.PayloadMail;
 import org.apache.cordova.firebase.models.PayloadCalendar;
+import org.apache.cordova.firebase.models.FCMMessageEntity;
 import org.apache.cordova.firebase.utils.WidgetNotifier;
 import org.apache.cordova.firebase.utils.FcmLoggerUtils;
 import java.util.concurrent.ExecutorService;
@@ -62,7 +63,7 @@ public class PayloadProcessor {
               final String jitsiUrl = notification.jitsiURL;
               final List<String> mention = notification.mention;
 
-              FcmLoggerUtils.logFcmReceived(appContext, msgid);
+              // FcmLoggerUtils.logFcmReceived(appContext, msgid);
 
               if (TextUtils.isEmpty(target) || TextUtils.isEmpty(username)) {
                   Log.d(TAG, "returning due to empty 'target' or 'username' values");
@@ -84,6 +85,8 @@ public class PayloadProcessor {
 
                 // here -> store FCM in shared prefs for later move into IndexedDB
                 // ...
+                FCMMessageEntity fcmMsg = new FCMMessageEntity(msgid, target, username, groupName, message, mention, eventType, replaceId);
+                StoreFCMSharedPrefs.store(appContext, fcmMsg);
               } else {
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'

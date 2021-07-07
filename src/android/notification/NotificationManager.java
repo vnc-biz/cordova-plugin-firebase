@@ -189,7 +189,7 @@ public class NotificationManager {
         notification.extras.putString(APPOINTMENT_ID, appointmentId);
 
         NotificationCreator.setNotificationImageRes(context, notification);
-        
+
         NotificationCreator.createNotificationChannel(notificationManager, channelId, channelName, nsound);
 
         notificationManager.notify(CALENDAR_SUMMARY_NOTIFICATION_ID, summaryNotification.build());
