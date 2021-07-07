@@ -81,6 +81,9 @@ public class PayloadProcessor {
                         }
                     }
                 });
+
+                // here -> store FCM in shared prefs for later move into IndexedDB
+                // ...
               } else {
                   // pass a notification to JS app in foreground
                   // so then a JS app will decide what to do and call a 'scheduleLocalNotification'
@@ -239,7 +242,7 @@ public class PayloadProcessor {
 
     public void processCalendarPayload(Map<String, String> payload) {
         try {
-            JSONObject data = new JSONObject(payload);  
+            JSONObject data = new JSONObject(payload);
 
             if (data == null || data.length() == 0) {
                 Log.w(TAG, "received empty data?");
