@@ -12,7 +12,7 @@ public class FCMMessageEntity {
     List<String> mention;
     String eventType;
     String replaceId;
-    long timeStamp
+    long timeStamp;
 
     public FCMMessageEntity(
         String msgid,
