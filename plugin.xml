@@ -7,7 +7,9 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 	<license>MIT</license>
 
 	<engines>
-		<engine name="cordova" version=">=3.2.0" />
+		<engine name="cordova" version=">=9" />
+		<engine name="cordova-android" version=">=8" />
+		<engine name="cordova-ios" version=">=5" />
 	</engines>
 
 	<platform name="android">
@@ -125,15 +127,19 @@ xmlns:android="http://schemas.android.com/apk/res/android">
         <source-file src="src/android/actions/CalendarOptionsAction.java" target-dir="src/org/apache/cordova/firebase/actions" />
 
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
-		<framework src="com.google.android.gms:play-services-tagmanager:17.0.0" />
+		<!-- <framework src="com.google.android.gms:play-services-tagmanager:17.0.0" />
 		<framework src="com.google.firebase:firebase-core:17.5.0" />
 		<framework src="com.google.firebase:firebase-messaging:20.3.0" />
 		<framework src="com.google.firebase:firebase-config:19.2.0" />
-		<framework src="com.google.firebase:firebase-perf:19.0.9" />
+		<framework src="com.google.firebase:firebase-perf:19.0.9" /> -->
 
 	</platform>
 
 	<platform name="ios">
+		<hook type="before_plugin_install" src="scripts/ios/before_plugin_install.js" />
+		<hook type="after_plugin_install" src="scripts/ios/after_plugin_install.js" />
+		<hook type="before_plugin_uninstall" src="scripts/ios/before_plugin_uninstall.js" />
+
 		<js-module name="FirebasePlugin" src="www/firebase.js">
 			<clobbers target="FirebasePlugin" />
 		</js-module>
@@ -196,7 +202,5 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		</js-module>
 	</platform>
 
-	<hook src="scripts/after_prepare.js" type="after_prepare" />
-	<hook src="scripts/after_plugin_add.js" type="after_plugin_add" />
-	<hook src="scripts/before_plugin_rm.js" type="before_plugin_rm" />
+	<hook type="after_prepare" src="scripts/after_prepare.js" />
 </plugin>

@@ -8,137 +8,140 @@
  * Credits: https://github.com/arnesson.
  */
 var fs = require('fs');
-var path = require('path');
+var path = require("path");
+var utilities = require("./lib/utilities");
 
-fs.ensureDirSync = function (dir) {
-  if (!fs.existsSync(dir)) {
-    dir.split(path.sep).reduce(function (currentPath, folder) {
-      currentPath += folder + path.sep;
-      if (!fs.existsSync(currentPath)) {
-        fs.mkdirSync(currentPath);
-      }
-      return currentPath;
-    }, '');
-  }
-};
-
-var config = fs.readFileSync('config.xml').toString();
-var name = getValue(config, 'name');
+var appName;
+var pluginVariables = {};
 
 var IOS_DIR = 'platforms/ios';
 var ANDROID_DIR = 'platforms/android';
+var PLUGIN_ID;
 
-var PLATFORM = {
-  IOS: {
-    dest: [
-      IOS_DIR + '/' + name + '/Resources/GoogleService-Info.plist',
-      IOS_DIR + '/' + name + '/Resources/Resources/GoogleService-Info.plist'
-    ],
-    src: [
-      'GoogleService-Info.plist',
-      IOS_DIR + '/www/GoogleService-Info.plist',
-      'www/GoogleService-Info.plist'
-    ]
-  },
-  ANDROID: {
-    dest: [
-      ANDROID_DIR + '/google-services.json',
-      ANDROID_DIR + '/app/google-services.json'
-    ],
-    src: [
-      'google-services.json',
-      ANDROID_DIR + '/assets/www/google-services.json',
-      'www/google-services.json',
-      ANDROID_DIR + '/app/src/main/google-services.json'
-    ],
-    stringsXml: fileExists(ANDROID_DIR + '/app/src/main/res/values/strings.xml') ? ANDROID_DIR + '/app/src/main/res/values/strings.xml' : ANDROID_DIR + '/res/values/strings.xml'
-  }
-};
+var PLATFORM;
 
-function updateStringsXml(contents) {
-    var json = JSON.parse(contents);
-    var strings = fs.readFileSync(PLATFORM.ANDROID.stringsXml).toString();
-
-    // replace the value
-    strings = strings.replace(new RegExp('<string name="google_app_id">([^<]+?)</string>', 'i'), '<string name="google_app_id">' + json.client[0].client_info.mobilesdk_app_id + '</string>');
-
-    // replace the value
-    strings = strings.replace(new RegExp('<string name="google_api_key">([^<]+?)</string>', 'i'), '<string name="google_api_key">' + json.client[0].api_key[0].current_key + '</string>');
-	
-	// strip default value if still present
-    strings = strings.replace(new RegExp('<string name="google_app_id">\@([^<]+?)</string>', 'i'), '');
-
-    // strip default value if still present
-    strings = strings.replace(new RegExp('<string name="google_api_key">\@([^<]+?)</string>', 'i'), '');
-
-    // strip empty lines
-    strings = strings.replace(new RegExp('(\r\n|\n|\r)[ \t]*(\r\n|\n|\r)', 'gm'), '$1');
-
-    fs.writeFileSync(PLATFORM.ANDROID.stringsXml, strings);
+var setupEnv = function(){
+    appName = utilities.getAppName();
+    PLUGIN_ID = utilities.getPluginId();
+    PLATFORM = {
+        IOS: {
+            dest: IOS_DIR + '/' + appName + '/Resources/GoogleService-Info.plist',
+            src: [
+                'GoogleService-Info.plist',
+                IOS_DIR + '/www/GoogleService-Info.plist',
+                'www/GoogleService-Info.plist'
+            ],
+            appPlist: IOS_DIR + '/' + appName + '/' + appName + '-Info.plist',
+            entitlementsDebugPlist: IOS_DIR + '/' + appName + '/Entitlements-Debug.plist',
+            entitlementsReleasePlist: IOS_DIR + '/' + appName + '/Entitlements-Release.plist',
+        },
+        ANDROID: {
+            dest: ANDROID_DIR + '/app/google-services.json',
+            src: [
+                'google-services.json',
+                ANDROID_DIR + '/assets/www/google-services.json',
+                'www/google-services.json',
+                ANDROID_DIR + '/app/src/main/google-services.json'
+            ],
+            colorsXml: {
+                src: './plugins/' + utilities.getPluginId() + '/src/android/colors.xml',
+                target: ANDROID_DIR + '/app/src/main/res/values/colors.xml'
+            },
+            performanceGradlePlugin: {
+                classDef: 'com.google.firebase:perf-plugin',
+                pluginDef: 'com.google.firebase.firebase-perf'
+            }
+        }
+    };
 }
 
-function copyKey (platform, callback) {
-  for (var i = 0; i < platform.src.length; i++) {
-    var file = platform.src[i];
-    if (fileExists(file)) {
-      try {
-        var contents = fs.readFileSync(file).toString();
+module.exports = function(context){
+    //get platform from the context supplied by cordova
+    var platforms = context.opts.platforms;
+    utilities.setContext(context);
+    setupEnv();
 
-        try {
-          platform.dest.forEach(function (destinationPath) {
-            var folder = destinationPath.substring(0, destinationPath.lastIndexOf('/'));
-            fs.ensureDirSync(folder);
-            fs.writeFileSync(destinationPath, contents);
-          });
-        } catch (e) {
-          // skip
+    pluginVariables = utilities.parsePluginVariables();
+
+    // set platform key path from plugin variable
+    if(pluginVariables.ANDROID_FIREBASE_CONFIG_FILEPATH) PLATFORM.ANDROID.src = [pluginVariables.ANDROID_FIREBASE_CONFIG_FILEPATH];
+    if(pluginVariables.IOS_FIREBASE_CONFIG_FILEPATH) PLATFORM.IOS.src = [pluginVariables.IOS_FIREBASE_CONFIG_FILEPATH];
+
+
+    // Copy key files to their platform specific folders
+    if(platforms.indexOf('android') !== -1 && utilities.directoryExists(ANDROID_DIR)){
+        utilities.log('Preparing Firebase on Android');
+        utilities.copyKey(PLATFORM.ANDROID);
+
+        var androidHelper = require("./lib/android");
+
+        // Apply colours
+        if(!fs.existsSync(path.resolve(PLATFORM.ANDROID.colorsXml.target))){
+            // fs.copyFileSync(path.resolve(PLATFORM.ANDROID.colorsXml.src), path.resolve(PLATFORM.ANDROID.colorsXml.target));
         }
 
-        callback && callback(contents);
-      } catch (err) {
-        console.log(err);
-      }
+        const $colorsXml = utilities.parseXmlFileToJson(PLATFORM.ANDROID.colorsXml.target, {compact: true});
+        var accentColor = pluginVariables.ANDROID_ICON_ACCENT,
+            $resources = $colorsXml.resources,
+            existingAccent = false,
+            writeChanges = false;
 
-      break;
+        if($resources.color){
+            var $colors = $resources.color.length ? $resources.color : [$resources.color];
+            $colors.forEach(function($color){
+                if($color._attributes.name === 'accent'){
+                    existingAccent = true;
+                    if($color._text !== accentColor){
+                        $color._text = accentColor;
+                        writeChanges = true;
+                    }
+                }
+            });
+        }else{
+            $resources.color = {};
+        }
+
+        if(!existingAccent){
+            var $accentColor = {
+                _attributes: {
+                    name: 'accent'
+                },
+                _text: accentColor
+            };
+            if($resources.color && Object.keys($resources.color).length){
+                if(typeof $resources.color.length === 'undefined'){
+                    $resources.color = [$resources.color];
+                }
+                $resources.color.push($accentColor)
+            }else{
+                $resources.color = $accentColor;
+            }
+            writeChanges = true;
+        }
+
+        if(writeChanges){
+            utilities.writeJsonToXmlFile($colorsXml, PLATFORM.ANDROID.colorsXml.target);
+            utilities.log('Updated colors.xml with accent color');
+        }
+
+        if(pluginVariables['ANDROID_FIREBASE_PERFORMANCE_MONITORING'] && pluginVariables['ANDROID_FIREBASE_PERFORMANCE_MONITORING'] === 'true'){
+            // Add Performance Monitoring gradle plugin for Android network traffic
+            androidHelper.addDependencyToRootGradle(PLATFORM.ANDROID.performanceGradlePlugin.classDef+":"+pluginVariables["ANDROID_FIREBASE_PERF_GRADLE_PLUGIN_VERSION"]);
+            androidHelper.applyPluginToAppGradle(PLATFORM.ANDROID.performanceGradlePlugin.pluginDef);
+        }
     }
-  }
-}
 
-function getValue(config, name) {
-  var value = config.match(new RegExp('<' + name + '(.*?)>(.*?)</' + name + '>', 'i'));
-  if (value && value[2]) {
-    return value[2]
-  } else {
-    return null
-  }
-}
+    if(platforms.indexOf('ios') !== -1 && utilities.directoryExists(IOS_DIR)){
+        utilities.log('Preparing Firebase on iOS');
+        utilities.copyKey(PLATFORM.IOS);
 
-function fileExists (path) {
-  try {
-    return fs.statSync(path).isFile();
-  } catch (e) {
-    return false;
-  }
-}
+        var helper = require("./ios/helper");
+        var xcodeProjectPath = helper.getXcodeProjectPath();
+        helper.ensureRunpathSearchPath(context, xcodeProjectPath);
 
-function directoryExists (path) {
-  try {
-    return fs.statSync(path).isDirectory();
-  } catch (e) {
-    return false;
-  }
-}
-
-module.exports = function (context) {
-  //get platform from the context supplied by cordova
-  var platforms = context.opts.platforms;
-  // Copy key files to their platform specific folders
-  if (platforms.indexOf('ios') !== -1 && directoryExists(IOS_DIR)) {
-    console.log('Preparing Firebase on iOS');
-    copyKey(PLATFORM.IOS);
-  }
-  if (platforms.indexOf('android') !== -1 && directoryExists(ANDROID_DIR)) {
-    console.log('Preparing Firebase on Android');
-    copyKey(PLATFORM.ANDROID, updateStringsXml);
-  }
+        if(pluginVariables['IOS_STRIP_DEBUG'] && pluginVariables['IOS_STRIP_DEBUG'] === 'true'){
+            helper.stripDebugSymbols();
+        }
+        helper.applyPluginVarsToPlists(pluginVariables, PLATFORM.IOS);
+    }
 };
