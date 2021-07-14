@@ -48,21 +48,26 @@
           title:@"Mark as read"
           options:UNNotificationActionOptionAuthenticationRequired];
     
+    UNNotificationAction *muteChatAction = [UNNotificationAction
+          actionWithIdentifier:@"MUTE_CHAT_ACTION"
+          title:@"Mute chat"
+          options:UNNotificationActionOptionAuthenticationRequired];
+    
     UNNotificationCategory *broadcasrCategory = [UNNotificationCategory
          categoryWithIdentifier:@"BROADCAST"
-         actions:@[markAsReadAction]
+         actions:@[markAsReadAction, muteChatAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
     
     UNNotificationCategory *groupChatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"GROUPCHAT"
-         actions:@[replyAction, markAsReadAction]
+         actions:@[replyAction, markAsReadAction, muteChatAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
     
     UNNotificationCategory *chatCategory = [UNNotificationCategory
          categoryWithIdentifier:@"CHAT"
-         actions:@[replyAction, markAsReadAction]
+         actions:@[replyAction, markAsReadAction, muteChatAction]
          intentIdentifiers:@[]
          options:UNNotificationCategoryOptionCustomDismissAction];
 
@@ -148,6 +153,19 @@
     [self postRequestWithSubUrl:@"markConversationsRead" params:params];
 }
 
++ (void)handleMuteChatAction:(NSDictionary *)mutableUserInfo {
+    NSString *target = mutableUserInfo[@"jid"];
+    
+    NSString *subUrl = [NSString stringWithFormat:@"notify/%@/2", target];
+    
+    NSDictionary *params = @{
+        @"type": @2,
+        @"target": target
+    };
+    
+    [self putRequestWithSubUrl:subUrl params:params];
+}
+
 + (BOOL)isCallRejectActions:(NSDictionary *)mutableUserInfo actionIdentifier:(NSString *)actionIdentifier {
     NSString *eType = mutableUserInfo[@"eType"];
     return [eType isEqualToString:@"invite"] && [actionIdentifier isEqualToString:@"REJECT_CALL_ACTION"];
@@ -182,9 +200,19 @@
 }
 
 + (void)postRequestWithSubUrl:(NSString *)suburl params:(NSDictionary *)params {
+    NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] suburl: %@, params: %@", suburl, params);
+    [self requestWithSubUrl:@"POST" suburl:suburl params:params];
+}
+
++ (void)putRequestWithSubUrl:(NSString *)suburl params:(NSDictionary *)params {
+    NSLog(@"[FirebaseActionsManager][putRequestWithSubUrl] suburl: %@, params: %@", suburl, params);
+    [self requestWithSubUrl:@"PUT" suburl:suburl params:params];
+}
+
++ (void)requestWithSubUrl:(NSString *)httpMethod  suburl:(NSString *)suburl params:(NSDictionary *)params {
     UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
     bgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] beginBackgroundTaskWithExpirationHandler expired");
+        NSLog(@"[FirebaseActionsManager][requestWithSubUrl] beginBackgroundTaskWithExpirationHandler expired");
         [[UIApplication sharedApplication] endBackgroundTask:bgTask];
     }];
 
@@ -192,7 +220,7 @@
     NSString *baseUrl = [[NSUserDefaults standardUserDefaults] stringForKey:@"apiUrl"];
     NSString *token = [[NSUserDefaults standardUserDefaults] stringForKey:@"auth-token"];
 
-    NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] baseUrl: %@, token: %@, params: %@", baseUrl, token, params);
+    NSLog(@"[FirebaseActionsManager][requestWithSubUrl] httpMethod: %@, baseUrl: %@, token: %@, params: %@", httpMethod, baseUrl, token, params);
 
     NSString *targetUrl = [NSString stringWithFormat:@"%@/%@", baseUrl, suburl];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -201,7 +229,7 @@
     NSData *postData = [NSJSONSerialization dataWithJSONObject:params options:0 error:&error];
 
     [request setHTTPBody:postData];
-    [request setHTTPMethod:@"POST"];
+    [request setHTTPMethod:httpMethod];
     [request setURL:[NSURL URLWithString:targetUrl]];
 
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -215,7 +243,7 @@
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
 
             NSString *responseStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSLog(@"[FirebaseActionsManager][postRequestWithSubUrl] response: %@, error %@, status code %ld", responseStr, error, (long)[httpResponse statusCode]);
+            NSLog(@"[FirebaseActionsManager][requestWithSubUrl] response: %@, error %@, status code %ld", responseStr, error, (long)[httpResponse statusCode]);
 
             // AFTER ALL THE UPDATES, close the task
             if (bgTask != UIBackgroundTaskInvalid) {
